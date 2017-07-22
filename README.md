@@ -5,7 +5,7 @@ Parses GTFS feeds into memory. Extensive validation is applied. Currently used b
 ## Usage
 
 ```
-#include "cppgtfs/Parser.h"
+#include "ad/cppgtfs/Parser.h"
 
 [...]
 
