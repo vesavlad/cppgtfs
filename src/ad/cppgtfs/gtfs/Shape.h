@@ -42,7 +42,7 @@ class Shape {
 
   const ShapePoints& getPoints() const { return _shapePoints; }
 
-  bool addPoint(ShapePoint p) { return _shapePoints.insert(p).second; }
+  bool addPoint(const ShapePoint& p) { return _shapePoints.insert(p).second; }
 
  private:
   string _id;

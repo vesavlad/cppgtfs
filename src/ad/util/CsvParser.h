@@ -101,9 +101,17 @@ class CsvParser {
 
   // checks whether the field is empty in the current line
   bool fieldIsEmpty(const std::string& fieldName) const;
+  bool fieldIsEmpty(size_t field) const;
 
   // Get the number of columns. Will be zero before openFile has been called.
   size_t getNumColumns() const;
+
+  // returns the index number of a field name
+  size_t getFieldIndex(const string& fieldName) const;
+
+  size_t getOptFieldIndex(const string& fieldName) const;
+
+  const string getFieldName(size_t i) const;
 
  private:
   int32_t _curLine;
@@ -116,9 +124,6 @@ class CsvParser {
 
   // Parses the header row and fills the header map.
   void parseHeader();
-
-  // returns the index number of a field name
-  size_t getFieldIndex(const string& fieldName) const;
 
   // returns a trimmed version of a const char*
   //
@@ -136,8 +141,6 @@ class CsvParser {
 
   // modified, quote-escaped strings
   std::vector<std::string> _currentModItems;
-
-  const string getFieldName(size_t i) const;
 
   bool lineIsEmpty(string* line) const;
   bool lineIsEmpty(const char* line) const;

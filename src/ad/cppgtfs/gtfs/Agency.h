@@ -18,8 +18,8 @@ class Agency {
  public:
   Agency() {}
 
-  Agency(string id, string name, string url, string timezone, string lang,
-         string phone, string fare_url, string agency_email)
+  Agency(const std::string& id, const std::string& name, const std::string& url, const std::string& timezone, const std::string& lang,
+         const std::string& phone, const std::string& fare_url, const std::string& agency_email)
       : _id(id),
         _name(name),
         _url(url),

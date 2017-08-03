@@ -167,6 +167,11 @@ bool CsvParser::fieldIsEmpty(const string& fieldName) const {
 }
 
 // _____________________________________________________________________________
+bool CsvParser::fieldIsEmpty(size_t field) const {
+  return strlen(getTString(field)) == 0;
+}
+
+// _____________________________________________________________________________
 const char* CsvParser::getTString(const std::string& fieldName) const {
   return getTString(getFieldIndex(fieldName));
 }
@@ -189,6 +194,13 @@ size_t CsvParser::getFieldIndex(const string& fieldName) const {
   if (_headerMap.find(fieldName) == _headerMap.end())
     throw CsvParserException("field " + fieldName + " does not exist.", -1,
                              fieldName, _curLine);
+  return _headerMap.find(fieldName)->second;
+}
+
+// _____________________________________________________________________________
+size_t CsvParser::getOptFieldIndex(const string& fieldName) const {
+  if (_headerMap.find(fieldName) == _headerMap.end())
+    return std::numeric_limits<std::size_t>::max();
   return _headerMap.find(fieldName)->second;
 }
 

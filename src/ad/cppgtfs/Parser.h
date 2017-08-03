@@ -83,28 +83,26 @@ class Parser {
   void parseTransfers(gtfs::Feed* targetFeed, std::istream*) const;
   void parseFeedInfo(gtfs::Feed* targetFeed, std::istream*) const;
 
-  std::string getString(const CsvParser& csv, const std::string& field) const;
-  std::string getString(const CsvParser& csv, const std::string& fld,
+  std::string getString(const CsvParser& csv, size_t field) const;
+  std::string getString(const CsvParser& csv, size_t field,
                         const std::string& def) const;
 
-  double getDouble(const CsvParser& csv, const std::string& field) const;
-  double getDouble(const CsvParser& csv, const std::string& fld,
-                   double def) const;
+  double getDouble(const CsvParser& csv, size_t field) const;
+  double getDouble(const CsvParser& csv, size_t fld, double def) const;
 
-  int64_t getRangeInteger(const CsvParser& csv, const std::string& field,
-                          int64_t minv, int64_t maxv) const;
-  int64_t getRangeInteger(const CsvParser& csv, const std::string& field,
-                          int64_t minv, int64_t maxv, int64_t def) const;
+  int64_t getRangeInteger(const CsvParser& csv, size_t field, int64_t minv,
+                          int64_t maxv) const;
+  int64_t getRangeInteger(const CsvParser& csv, size_t field, int64_t minv,
+                          int64_t maxv, int64_t def) const;
 
-  uint32_t getColorFromHexString(const CsvParser& csv, const std::string& field,
+  uint32_t getColorFromHexString(const CsvParser& csv, size_t field,
                                  const std::string& def) const;
 
-  gtfs::ServiceDate getServiceDate(const CsvParser& csv,
-                                   const std::string& field) const;
+  gtfs::ServiceDate getServiceDate(const CsvParser& csv, size_t field) const;
 
-  gtfs::Time getTime(const CsvParser& csv, const std::string& field) const;
+  gtfs::Time getTime(const CsvParser& csv, size_t field) const;
 
-  gtfs::Route::TYPE getRouteType(const CsvParser& csv, const std::string& field,
+  gtfs::Route::TYPE getRouteType(const CsvParser& csv, size_t field,
                                  int64_t t) const;
   void fileNotFound(boost::filesystem::path file) const;
 };
