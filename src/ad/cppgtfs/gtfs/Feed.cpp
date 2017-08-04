@@ -50,3 +50,23 @@ const Services& Feed::getServices() const { return _services; }
 
 // ____________________________________________________________________________
 Services& Feed::getServices() { return _services; }
+
+// ____________________________________________________________________________
+void Feed::updateBox(double lat, double lon) {
+  if (lat > _maxLat) _maxLat = lat;
+  if (lon > _maxLon) _maxLon = lon;
+  if (lat < _minLat) _minLat = lat;
+  if (lon < _minLon) _minLon = lon;
+}
+
+// ____________________________________________________________________________
+double Feed::getMinLat() const { return _minLat; }
+
+// ____________________________________________________________________________
+double Feed::getMinLon() const { return _minLon; }
+
+// ____________________________________________________________________________
+double Feed::getMaxLat() const { return _maxLat; }
+
+// ____________________________________________________________________________
+double Feed::getMaxLon() const { return _maxLon; }

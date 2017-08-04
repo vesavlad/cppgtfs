@@ -158,11 +158,14 @@ void Parser::parseStops(gtfs::Feed* targetFeed, std::istream* s) const {
     Stop::LOCATION_TYPE locType = static_cast<Stop::LOCATION_TYPE>(
         getRangeInteger(csvp, locationTypeFld, 0, 2, 0));
 
+    double lat = getDouble(csvp, stopLatFld);
+    double lon = getDouble(csvp, stopLonFld);
+    targetFeed->updateBox(lat, lon);
+
     Stop* s = new Stop(
         getString(csvp, stopIdFld), getString(csvp, stopCodeFld, ""),
-        getString(csvp, stopNameFld), getString(csvp, stopDescFld, ""),
-        getDouble(csvp, stopLatFld), getDouble(csvp, stopLonFld),
-        getString(csvp, zoneIdFld, ""), getString(csvp, stopUrlFld, ""),
+        getString(csvp, stopNameFld), getString(csvp, stopDescFld, ""), lat,
+        lon, getString(csvp, zoneIdFld, ""), getString(csvp, stopUrlFld, ""),
         locType, 0, getString(csvp, stopTimezoneFld, ""),
         static_cast<Stop::WHEELCHAIR_BOARDING>(
             getRangeInteger(csvp, wheelchairBoardingFld, 0, 2, 0)));
@@ -396,6 +399,11 @@ void Parser::parseShapes(gtfs::Feed* targetFeed, std::istream* s) const {
   while (csvp.readNextLine()) {
     const std::string& shapeId = getString(csvp, shapeIdFld);
     Shape* s = targetFeed->getShapes().get(shapeId);
+
+    double lat = getDouble(csvp, shapePtLatFld);
+    double lon = getDouble(csvp, shapePtLonFld);
+    targetFeed->updateBox(lat, lon);
+
     if (!s) {
       targetFeed->getShapes().add(new Shape(shapeId));
       s = targetFeed->getShapes().get(shapeId);
@@ -417,8 +425,8 @@ void Parser::parseShapes(gtfs::Feed* targetFeed, std::istream* s) const {
     }
 
     if (!s->addPoint(ShapePoint(
-            getDouble(csvp, shapePtLatFld), getDouble(csvp, shapePtLonFld),
-            dist, getRangeInteger(csvp, shapePtSequenceFld, 0, UINT32_MAX)))) {
+            lat, lon, dist,
+            getRangeInteger(csvp, shapePtSequenceFld, 0, UINT32_MAX)))) {
       throw ParserException(
           "shape_pt_sequence collision,"
           "shape_pt_sequence has "

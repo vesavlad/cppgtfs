@@ -6,6 +6,7 @@
 #define AD_CPPGTFS_GTFS_FEED_H_
 
 #include <iterator>
+#include <limits>
 #include <string>
 #include <unordered_map>
 #include "Agency.h"
@@ -29,7 +30,11 @@ typedef Container<Service> Services;
 
 class Feed {
  public:
-  Feed() {}
+  Feed()
+      : _maxLat(std::numeric_limits<double>::min()),
+        _maxLon(std::numeric_limits<double>::min()),
+        _minLat(std::numeric_limits<double>::max()),
+        _minLon(std::numeric_limits<double>::max()) {}
 
   const Agencies& getAgencies() const;
   Agencies& getAgencies();
@@ -49,6 +54,12 @@ class Feed {
   const Services& getServices() const;
   Services& getServices();
 
+  void updateBox(double lat, double lon);
+  double getMinLat() const;
+  double getMinLon() const;
+  double getMaxLat() const;
+  double getMaxLon() const;
+
  private:
   Agencies _agencies;
   Stops _stops;
@@ -56,6 +67,8 @@ class Feed {
   Trips _trips;
   Shapes _shapes;
   Services _services;
+
+  double _maxLat, _maxLon, _minLat, _minLon;
 };
 }  // namespace gtfs
 }  // namespace cppgtfs
