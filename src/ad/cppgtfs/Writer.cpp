@@ -41,6 +41,21 @@ bool Writer::write(gtfs::Feed* sourceFeed, std::string path) const {
   writeTrips(sourceFeed, &fs);
   fs.close();
 
+  curFile = gtfsPath / "agencies.txt";
+  fs.open(curFile.c_str());
+  writeAgencies(sourceFeed, &fs);
+  fs.close();
+
+  curFile = gtfsPath / "stops.txt";
+  fs.open(curFile.c_str());
+  writeStops(sourceFeed, &fs);
+  fs.close();
+
+  curFile = gtfsPath / "stop_times.txt";
+  fs.open(curFile.c_str());
+  writeStopTimes(sourceFeed, &fs);
+  fs.close();
+
   return true;
 }
 
@@ -82,7 +97,8 @@ bool Writer::writeStops(gtfs::Feed* sourceFeed, std::ostream* s) const {
     csvw.writeString(t.second->getZoneId());
     csvw.writeString(t.second->getStopUrl());
     csvw.writeInt(t.second->getLocationType());
-    csvw.writeString(t.second->getParentStation()->getId());
+    if (t.second->getParentStation()) csvw.writeString(t.second->getParentStation()->getId());
+    else csvw.skip();
     csvw.writeString(t.second->getStopTimezone());
     csvw.writeInt(t.second->getWheelchairBoarding());
     csvw.flushLine();
@@ -115,6 +131,32 @@ bool Writer::writeTrips(gtfs::Feed* sourceFeed, std::ostream* s) const {
 }
 
 // ____________________________________________________________________________
+bool Writer::writeStopTimes(gtfs::Feed* sourceFeed, std::ostream* s) const {
+  CsvWriter csvw(s, {"trip_id", "arrival_time", "departure_time",
+                     "stop_id", "stop_sequence", "stop_headsign",
+                     "pickup_type", "drop_off_type", "shape_dist_traveled", "timepoint"});
+
+  for (const auto& t : sourceFeed->getTrips()) {
+    for (const auto& p : t.second->getStopTimes()) {
+      csvw.writeString(t.second->getId());
+      csvw.writeString(p.getArrivalTime().toString());
+      csvw.writeString(p.getDepartureTime().toString());
+      csvw.writeString(p.getStop()->getId());
+      csvw.writeInt(p.getSeq());
+      csvw.writeString(p.getHeadsign());
+      csvw.writeInt(p.getPickupType());
+      csvw.writeInt(p.getDropOffType());
+      if (p.getShapeDistanceTravelled() > -.5) csvw.writeInt(p.getDropOffType());
+      else csvw.skip();
+      csvw.writeInt(p.isTimepoint());
+      csvw.flushLine();
+    }
+  }
+
+  return true;
+}
+
+// ____________________________________________________________________________
 bool Writer::writeShapes(gtfs::Feed* sourceFeed, std::ostream* s) const {
   CsvWriter csvw(s, {"shape_id", "shape_pt_lat", "shape_pt_lon",
                      "shape_pt_sequence", "shape_dist_traveled"});
@@ -125,7 +167,8 @@ bool Writer::writeShapes(gtfs::Feed* sourceFeed, std::ostream* s) const {
       csvw.writeDouble(p.lat);
       csvw.writeDouble(p.lng);
       csvw.writeInt(p.seq);
-      csvw.writeDouble(p.travelDist);
+      if (p.travelDist > -0.5) csvw.writeDouble(p.travelDist);
+      else csvw.skip();
       csvw.flushLine();
     }
   }

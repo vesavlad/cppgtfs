@@ -70,6 +70,11 @@ Shape* Trip::getShape() { return _shape; }
 const Shape* Trip::getShape() const { return _shape; }
 
 // _____________________________________________________________________________
+void Trip::setShape(Shape* shp) {
+  _shape = shp;
+}
+
+// _____________________________________________________________________________
 Trip::WC_BIKE_ACCESSIBLE Trip::getWheelchairAccessibility() const {
   return _wc;
 }

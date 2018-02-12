@@ -49,6 +49,7 @@ class Trip {
   const std::string& getBlockId() const;
   const Shape* getShape() const;
   Shape* getShape();
+  void setShape(Shape* shp);
   WC_BIKE_ACCESSIBLE getWheelchairAccessibility() const;
   WC_BIKE_ACCESSIBLE getBikesAllowed() const;
   const StopTimes& getStopTimes() const;

@@ -3,6 +3,7 @@
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
 #include <algorithm>
+#include <iomanip>
 #include <cstring>
 #include <functional>
 #include <iostream>
@@ -20,7 +21,7 @@ CsvWriter::CsvWriter(std::ostream* str, const HeaderList& headers) : _stream(str
 // _____________________________________________________________________________
 bool CsvWriter::writeDouble(double d) {
   std::ostringstream str;
-  str << d;
+  str << std::setprecision(9) << d;
   writeRawString(str.str());
 
   return true;

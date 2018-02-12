@@ -84,6 +84,7 @@ class StopTime {
   PU_DO_TYPE getPickupType() const { return _pickupType; }
   PU_DO_TYPE getDropOffType() const { return _dropOffType; }
   float getShapeDistanceTravelled() const { return _shapeDistTravelled; }
+  void setShapeDistanceTravelled(double d) { _shapeDistTravelled = d; }
   bool isTimepoint() const { return _isTimepoint; }
   uint16_t getSeq() const { return _sequence; }
 

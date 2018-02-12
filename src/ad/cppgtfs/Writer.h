@@ -38,6 +38,7 @@ class Writer {
   bool writeStops(gtfs::Feed* f, std::ostream* os) const;
   bool writeShapes(gtfs::Feed* f, std::ostream* os) const;
   bool writeTrips(gtfs::Feed* f, std::ostream* os) const;
+  bool writeStopTimes(gtfs::Feed* f, std::ostream* os) const;
 };
 }  // namespace cppgtfs
 }  // namespace ad
