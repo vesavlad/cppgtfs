@@ -21,7 +21,7 @@ CsvWriter::CsvWriter(std::ostream* str, const HeaderList& headers) : _stream(str
 // _____________________________________________________________________________
 bool CsvWriter::writeDouble(double d) {
   std::ostringstream str;
-  str << std::setprecision(9) << d;
+  str << std::setprecision(11) << d;
   writeRawString(str.str());
 
   return true;

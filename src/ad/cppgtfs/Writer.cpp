@@ -119,7 +119,8 @@ bool Writer::writeTrips(gtfs::Feed* sourceFeed, std::ostream* s) const {
     csvw.writeString(t.second->getId());
     csvw.writeString(t.second->getHeadsign());
     csvw.writeString(t.second->getShortname());
-    csvw.writeInt(t.second->getDirection());
+    if (t.second->getDirection() < 2) csvw.writeInt(t.second->getDirection());
+    else csvw.skip();
     csvw.writeString(t.second->getBlockId());
     csvw.writeString(t.second->getShape()->getId());
     csvw.writeInt(t.second->getWheelchairAccessibility());
