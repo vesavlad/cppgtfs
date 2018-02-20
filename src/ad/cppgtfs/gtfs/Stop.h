@@ -32,7 +32,7 @@ class Stop {
        const string& desc, double lat, double lng, string zone_id,
        const string& stop_url, Stop::LOCATION_TYPE location_type,
        Stop* parent_station, const string& stop_timezone,
-       Stop::WHEELCHAIR_BOARDING wheelchair_boarding)
+       Stop::WHEELCHAIR_BOARDING wheelchair_boarding, const std::string& platform_code)
       : _id(id),
         _code(code),
         _name(name),
@@ -40,6 +40,7 @@ class Stop {
         _zone_id(zone_id),
         _stop_url(stop_url),
         _stop_timezone(stop_timezone),
+        _platform_code(platform_code),
         _parent_station(parent_station),
         _lat(lat),
         _lng(lng),
@@ -51,6 +52,8 @@ class Stop {
   const std::string& getCode() const { return _code; }
 
   const std::string& getName() const { return _name; }
+
+  const std::string& getPlatformCode() const { return _platform_code; }
 
   const std::string& getDesc() const { return _desc; }
 
@@ -79,7 +82,8 @@ class Stop {
   // TODO(patrick): implement setters
 
  private:
-  string _id, _code, _name, _desc, _zone_id, _stop_url, _stop_timezone;
+  string _id, _code, _name, _desc, _zone_id, _stop_url, _stop_timezone,
+      _platform_code;
   Stop* _parent_station;
   double _lat, _lng;
   Stop::WHEELCHAIR_BOARDING _wheelchair_boarding;

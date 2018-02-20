@@ -153,6 +153,7 @@ void Parser::parseStops(gtfs::Feed* targetFeed, std::istream* s) const {
   size_t stopTimezoneFld = csvp.getOptFieldIndex("stop_timezone");
   size_t wheelchairBoardingFld = csvp.getOptFieldIndex("wheelchair_boarding");
   size_t locationTypeFld = csvp.getOptFieldIndex("location_type");
+  size_t platformCodeFld = csvp.getOptFieldIndex("platform_code");
 
   while (csvp.readNextLine()) {
     Stop::LOCATION_TYPE locType = static_cast<Stop::LOCATION_TYPE>(
@@ -168,7 +169,8 @@ void Parser::parseStops(gtfs::Feed* targetFeed, std::istream* s) const {
         lon, getString(csvp, zoneIdFld, ""), getString(csvp, stopUrlFld, ""),
         locType, 0, getString(csvp, stopTimezoneFld, ""),
         static_cast<Stop::WHEELCHAIR_BOARDING>(
-            getRangeInteger(csvp, wheelchairBoardingFld, 0, 2, 0)));
+            getRangeInteger(csvp, wheelchairBoardingFld, 0, 2, 0)),
+                getString(csvp, platformCodeFld, ""));
 
     const std::string& parentStatId = getString(csvp, parentStationFld, "");
     if (!parentStatId.empty()) {
