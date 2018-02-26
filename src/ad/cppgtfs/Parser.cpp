@@ -601,7 +601,7 @@ uint32_t Parser::getColorFromHexString(const CsvParser& csv, size_t field,
     color_string = csv.getTString(field);
   }
 
-  if (color_string.empty()) color_string = def;
+  if (color_string.empty() || color_string == "0") color_string = def;
 
   size_t chars_processed = 0;
   uint32_t ret = 0;
