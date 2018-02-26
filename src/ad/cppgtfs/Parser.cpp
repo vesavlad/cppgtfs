@@ -170,7 +170,7 @@ void Parser::parseStops(gtfs::Feed* targetFeed, std::istream* s) const {
         locType, 0, getString(csvp, stopTimezoneFld, ""),
         static_cast<Stop::WHEELCHAIR_BOARDING>(
             getRangeInteger(csvp, wheelchairBoardingFld, 0, 2, 0)),
-                getString(csvp, platformCodeFld, ""));
+        getString(csvp, platformCodeFld, ""));
 
     const std::string& parentStatId = getString(csvp, parentStationFld, "");
     if (!parentStatId.empty()) {
@@ -580,10 +580,13 @@ int64_t Parser::getRangeInteger(const CsvParser& csv, size_t field,
     ret = csv.getLong(field);
 
     if (ret < minv || ret > maxv) {
-      std::stringstream msg;
-      msg << "expected integer in range [" << minv << "," << maxv << "]";
-      throw ParserException(msg.str(), csv.getFieldName(field),
-                            csv.getCurLine());
+      if (_strict) {
+        std::stringstream msg;
+        msg << "expected integer in range [" << minv << "," << maxv << "]";
+        throw ParserException(msg.str(), csv.getFieldName(field),
+                              csv.getCurLine());
+      } else
+        return def;
     }
 
     return ret;
@@ -601,7 +604,7 @@ uint32_t Parser::getColorFromHexString(const CsvParser& csv, size_t field,
     color_string = csv.getTString(field);
   }
 
-  if (color_string.empty() || color_string == "0") color_string = def;
+  if (color_string.empty()) color_string = def;
 
   size_t chars_processed = 0;
   uint32_t ret = 0;
@@ -609,18 +612,27 @@ uint32_t Parser::getColorFromHexString(const CsvParser& csv, size_t field,
   try {
     ret = std::stoul("0x" + color_string, &chars_processed, 16);
   } catch (std::exception e) {
-    std::stringstream msg;
-    msg << "expected a 6-character hexadecimal color string, found '"
-        << color_string << "' instead. (Error while parsing was: " << e.what()
-        << ")";
-    throw ParserException(msg.str(), csv.getFieldName(field), csv.getCurLine());
+    if (_strict) {
+      std::stringstream msg;
+      msg << "expected a 6-character hexadecimal color string, found '"
+          << color_string << "' instead. (Error while parsing was: " << e.what()
+          << ")";
+      throw ParserException(msg.str(), csv.getFieldName(field),
+                            csv.getCurLine());
+    } else {
+      return std::stoul("0x" + def, &chars_processed, 16);
+    }
   }
 
   if (color_string.size() != 6 || chars_processed != 8) {
+    if (_strict) {
     std::stringstream msg;
     msg << "expected a 6-character hexadecimal color string, found '"
         << color_string << "' instead.";
     throw ParserException(msg.str(), csv.getFieldName(field), csv.getCurLine());
+    } else {
+return std::stoul("0x" + def, &chars_processed, 16);
+    }
   }
 
   return ret;
@@ -672,8 +684,11 @@ Time Parser::getTime(const CsvParser& csv, size_t field) const {
     val += p + 1;
 
     uint64_t m = std::stoul(val, &p, 10);
-    if (p == 1)
-      throw std::invalid_argument("one-digit minute values are not allowed.");
+    if (p == 1) {
+      if (_strict) {
+        throw std::invalid_argument("one-digit minute values are not allowed.");
+      }
+    }
     // allow values of 60, although standard forbids it
     if (m > 60)
       throw std::out_of_range(
@@ -684,8 +699,11 @@ Time Parser::getTime(const CsvParser& csv, size_t field) const {
 
     uint64_t s = std::stoul(val, &p, 10);
     if (p == 0) s = 0;  // support HH:MM format (although standard forbids it)
-    if (p == 1)
-      throw std::invalid_argument("one-digit second values are not allowed.");
+    if (p == 1) {
+      if (_strict) {
+        throw std::invalid_argument("one-digit second values are not allowed.");
+      }
+    }
     // allow values of 60, although standard forbids it
     if (s > 60)
       throw std::out_of_range(
