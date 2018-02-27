@@ -85,7 +85,7 @@ bool Writer::writeStops(gtfs::Feed* sourceFeed, std::ostream* s) const {
   CsvWriter csvw(
       s, {"stop_id", "stop_code", "stop_name", "stop_desc", "stop_lat",
           "stop_lon", "zone_id", "stop_url", "location_type", "parent_station",
-          "stop_timezone", "wheelchair_boarding"});
+          "stop_timezone", "wheelchair_boarding", "platform_code"});
 
   for (const auto& t : sourceFeed->getStops()) {
     csvw.writeString(t.second->getId());
@@ -101,6 +101,7 @@ bool Writer::writeStops(gtfs::Feed* sourceFeed, std::ostream* s) const {
     else csvw.skip();
     csvw.writeString(t.second->getStopTimezone());
     csvw.writeInt(t.second->getWheelchairBoarding());
+    csvw.writeString(t.second->getPlatformCode());
     csvw.flushLine();
   }
 
