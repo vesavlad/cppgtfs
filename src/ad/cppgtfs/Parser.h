@@ -63,12 +63,14 @@ class ParserException : public std::exception {
 class Parser {
  public:
   // Default initialization.
-  Parser() {}
+  Parser() : _strict(false)  {}
+  Parser(bool strict) : _strict(strict) {}
 
   // parse a zip/folder into a GtfsFeed
   bool parse(gtfs::Feed* targetFeed, std::string path) const;
 
  private:
+  bool _strict;
   void parseAgency(gtfs::Feed* targetFeed, std::istream*) const;
   void parseStops(gtfs::Feed* targetFeed, std::istream*) const;
   void parseRoutes(gtfs::Feed* targetFeed, std::istream*) const;
