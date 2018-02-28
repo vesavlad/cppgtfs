@@ -6,7 +6,9 @@
 #define AD_CPPGTFS_GTFS_ROUTE_H_
 
 #include <stdint.h>
+#include <algorithm>
 #include <iomanip>
+#include <set>
 #include <sstream>
 #include <string>
 #include "Agency.h"
@@ -70,6 +72,80 @@ class Route {
 
   std::string getTextColorString() const {
     return getHexColorString(_text_color);
+  }
+
+  static std::string getTypeString(Route::TYPE t) {
+    std::string names[8] = {"tram",  "subway",   "rail",    "bus",
+                            "ferry", "cablecar", "gondola", "funicular"};
+    return names[t];
+  }
+
+  static std::set<Route::TYPE> getTypesFromString(std::string name) {
+    std::set<Route::TYPE> ret;
+
+    char* rem;
+    uint64_t num = strtol(name.c_str(), &rem, 10);
+    if (!*rem && num <= 7) {
+      ret.insert((Route::TYPE)num);
+      return ret;
+    }
+
+    std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+    if (name == "all") {
+      ret.insert(Route::TYPE::TRAM);
+      ret.insert(Route::TYPE::SUBWAY);
+      ret.insert(Route::TYPE::RAIL);
+      ret.insert(Route::TYPE::BUS);
+      ret.insert(Route::TYPE::FERRY);
+      ret.insert(Route::TYPE::CABLE_CAR);
+      ret.insert(Route::TYPE::GONDOLA);
+      ret.insert(Route::TYPE::FUNICULAR);
+      return ret;
+    }
+
+    if (name == "bus") {
+      ret.insert(Route::TYPE::BUS);
+      return ret;
+    }
+
+    if (name == "tram" || name == "streetcar" || name == "light_rail" ||
+        name == "lightrail" || name == "light-rail") {
+      ret.insert(Route::TYPE::TRAM);
+      return ret;
+    }
+
+    if (name == "train" || name == "rail") {
+      ret.insert(Route::TYPE::RAIL);
+      return ret;
+    }
+
+    if (name == "ferry" || name == "boat" || name == "ship") {
+      ret.insert(Route::TYPE::FERRY);
+      return ret;
+    }
+
+    if (name == "subway" || name == "metro") {
+      ret.insert(Route::TYPE::SUBWAY);
+      return ret;
+    }
+
+    if (name == "cablecar" || name == "cable_car" || name == "cable-car") {
+      ret.insert(Route::TYPE::CABLE_CAR);
+      return ret;
+    }
+
+    if (name == "gondola") {
+      ret.insert(Route::TYPE::GONDOLA);
+      return ret;
+    }
+
+    if (name == "funicular") {
+      ret.insert(Route::TYPE::FUNICULAR);
+      return ret;
+    }
+
+    return ret;
   }
 
   // TODO(patrick): implement setters
