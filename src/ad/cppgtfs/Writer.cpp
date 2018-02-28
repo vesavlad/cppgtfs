@@ -149,7 +149,7 @@ bool Writer::writeStopTimes(gtfs::Feed* sourceFeed, std::ostream* s) const {
       csvw.writeString(p.getHeadsign());
       csvw.writeInt(p.getPickupType());
       csvw.writeInt(p.getDropOffType());
-      if (p.getShapeDistanceTravelled() > -.5) csvw.writeInt(p.getDropOffType());
+      if (p.getShapeDistanceTravelled() > -.5) csvw.writeDouble(p.getShapeDistanceTravelled());
       else csvw.skip();
       csvw.writeInt(p.isTimepoint());
       csvw.flushLine();
