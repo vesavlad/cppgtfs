@@ -102,14 +102,18 @@ class Service {
   bool isActiveOn(const ServiceDate& d) const;
 
   static SERVICE_DAY getServiceDay(const ServiceDate& d);
+  uint8_t getServiceDates() const;
 
   EXCEPTION_TYPE getExceptionOn(const ServiceDate& d) const;
+
+  const ServiceDate& getBeginDate() const;
+  const ServiceDate& getEndDate() const;
 
  private:
   string _id;
   uint8_t _serviceDays;
   std::map<ServiceDate, Service::EXCEPTION_TYPE> _exceptions;
-  ServiceDate _exceptionsBegin, _exceptionsEnd;
+  ServiceDate _begin, _end;
 };
 
 }  // namespace gtfs

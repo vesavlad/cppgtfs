@@ -39,6 +39,12 @@ class Writer {
   bool writeShapes(gtfs::Feed* f, std::ostream* os) const;
   bool writeTrips(gtfs::Feed* f, std::ostream* os) const;
   bool writeStopTimes(gtfs::Feed* f, std::ostream* os) const;
+  bool writeRoutes(gtfs::Feed* f, std::ostream* os) const;
+  bool writeFeedInfo(gtfs::Feed* f, std::ostream* os) const;
+  bool writeTransfers(gtfs::Feed* f, std::ostream* os) const;
+  bool writeCalendar(gtfs::Feed* f, std::ostream* os) const;
+  bool writeCalendarDates(gtfs::Feed* f, std::ostream* os) const;
+  bool writeFrequencies(gtfs::Feed* f, std::ostream* os) const;
 };
 }  // namespace cppgtfs
 }  // namespace ad

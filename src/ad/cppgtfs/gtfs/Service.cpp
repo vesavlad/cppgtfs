@@ -14,16 +14,16 @@ using ad::cppgtfs::gtfs::ServiceDate;
 Service::Service(const std::string& id)
     : _id(id),
       _serviceDays(Service::SERVICE_DAY::NEVER),
-      _exceptionsBegin(0),
-      _exceptionsEnd(0) {}
+      _begin(0),
+      _end(0) {}
 
 // _____________________________________________________________________________
 Service::Service(const std::string& id, uint8_t serviceDays, ServiceDate start,
                  ServiceDate end)
     : _id(id),
       _serviceDays(serviceDays),
-      _exceptionsBegin(start),
-      _exceptionsEnd(end) {}
+      _begin(start),
+      _end(end) {}
 
 // _____________________________________________________________________________
 const std::string& Service::getId() const { return _id; }
@@ -41,10 +41,25 @@ void Service::addException(const ServiceDate& d, Service::EXCEPTION_TYPE t) {
 
 // _____________________________________________________________________________
 bool Service::isActiveOn(const ServiceDate& d) const {
-  return ((d >= _exceptionsBegin && d <= _exceptionsEnd) &&
+  return ((d >= _begin && d <= _end) &&
           (_serviceDays & getServiceDay(d)) &&
           getExceptionOn(d) != EXCEPTION_TYPE::SERVICE_REMOVED) ||
          getExceptionOn(d) == EXCEPTION_TYPE::SERVICE_ADDED;
+}
+
+// _____________________________________________________________________________
+const ServiceDate& Service::getBeginDate() const {
+  return _begin;
+}
+
+// _____________________________________________________________________________
+const ServiceDate& Service::getEndDate() const {
+  return _end;
+}
+
+// _____________________________________________________________________________
+uint8_t Service::getServiceDates() const {
+  return _serviceDays;
 }
 
 // _____________________________________________________________________________

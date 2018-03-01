@@ -56,6 +56,36 @@ bool Writer::write(gtfs::Feed* sourceFeed, std::string path) const {
   writeStopTimes(sourceFeed, &fs);
   fs.close();
 
+  curFile = gtfsPath / "routes.txt";
+  fs.open(curFile.c_str());
+  writeRoutes(sourceFeed, &fs);
+  fs.close();
+
+  curFile = gtfsPath / "feed_info.txt";
+  fs.open(curFile.c_str());
+  writeFeedInfo(sourceFeed, &fs);
+  fs.close();
+
+  curFile = gtfsPath / "transfers.txt";
+  fs.open(curFile.c_str());
+  writeTransfers(sourceFeed, &fs);
+  fs.close();
+
+  curFile = gtfsPath / "calendar.txt";
+  fs.open(curFile.c_str());
+  writeCalendar(sourceFeed, &fs);
+  fs.close();
+
+  curFile = gtfsPath / "calendar_dates.txt";
+  fs.open(curFile.c_str());
+  writeCalendarDates(sourceFeed, &fs);
+  fs.close();
+
+  curFile = gtfsPath / "frequencies.txt";
+  fs.open(curFile.c_str());
+  writeFrequencies(sourceFeed, &fs);
+  fs.close();
+
   return true;
 }
 
@@ -97,8 +127,10 @@ bool Writer::writeStops(gtfs::Feed* sourceFeed, std::ostream* s) const {
     csvw.writeString(t.second->getZoneId());
     csvw.writeString(t.second->getStopUrl());
     csvw.writeInt(t.second->getLocationType());
-    if (t.second->getParentStation()) csvw.writeString(t.second->getParentStation()->getId());
-    else csvw.skip();
+    if (t.second->getParentStation())
+      csvw.writeString(t.second->getParentStation()->getId());
+    else
+      csvw.skip();
     csvw.writeString(t.second->getStopTimezone());
     csvw.writeInt(t.second->getWheelchairBoarding());
     csvw.writeString(t.second->getPlatformCode());
@@ -120,11 +152,15 @@ bool Writer::writeTrips(gtfs::Feed* sourceFeed, std::ostream* s) const {
     csvw.writeString(t.second->getId());
     csvw.writeString(t.second->getHeadsign());
     csvw.writeString(t.second->getShortname());
-    if (t.second->getDirection() < 2) csvw.writeInt(t.second->getDirection());
-    else csvw.skip();
+    if (t.second->getDirection() < 2)
+      csvw.writeInt(t.second->getDirection());
+    else
+      csvw.skip();
     csvw.writeString(t.second->getBlockId());
-    if (t.second->getShape()) csvw.writeString(t.second->getShape()->getId());
-    else csvw.skip();
+    if (t.second->getShape())
+      csvw.writeString(t.second->getShape()->getId());
+    else
+      csvw.skip();
     csvw.writeInt(t.second->getWheelchairAccessibility());
     csvw.writeInt(t.second->getBikesAllowed());
     csvw.flushLine();
@@ -135,9 +171,9 @@ bool Writer::writeTrips(gtfs::Feed* sourceFeed, std::ostream* s) const {
 
 // ____________________________________________________________________________
 bool Writer::writeStopTimes(gtfs::Feed* sourceFeed, std::ostream* s) const {
-  CsvWriter csvw(s, {"trip_id", "arrival_time", "departure_time",
-                     "stop_id", "stop_sequence", "stop_headsign",
-                     "pickup_type", "drop_off_type", "shape_dist_traveled", "timepoint"});
+  CsvWriter csvw(s, {"trip_id", "arrival_time", "departure_time", "stop_id",
+                     "stop_sequence", "stop_headsign", "pickup_type",
+                     "drop_off_type", "shape_dist_traveled", "timepoint"});
 
   for (const auto& t : sourceFeed->getTrips()) {
     for (const auto& p : t.second->getStopTimes()) {
@@ -149,8 +185,10 @@ bool Writer::writeStopTimes(gtfs::Feed* sourceFeed, std::ostream* s) const {
       csvw.writeString(p.getHeadsign());
       csvw.writeInt(p.getPickupType());
       csvw.writeInt(p.getDropOffType());
-      if (p.getShapeDistanceTravelled() > -.5) csvw.writeDouble(p.getShapeDistanceTravelled());
-      else csvw.skip();
+      if (p.getShapeDistanceTravelled() > -.5)
+        csvw.writeDouble(p.getShapeDistanceTravelled());
+      else
+        csvw.skip();
       csvw.writeInt(p.isTimepoint());
       csvw.flushLine();
     }
@@ -170,11 +208,102 @@ bool Writer::writeShapes(gtfs::Feed* sourceFeed, std::ostream* s) const {
       csvw.writeDouble(p.lat);
       csvw.writeDouble(p.lng);
       csvw.writeInt(p.seq);
-      if (p.travelDist > -0.5) csvw.writeDouble(p.travelDist);
-      else csvw.skip();
+      if (p.travelDist > -0.5)
+        csvw.writeDouble(p.travelDist);
+      else
+        csvw.skip();
       csvw.flushLine();
     }
   }
+
+  return true;
+}
+
+// ____________________________________________________________________________
+bool Writer::writeRoutes(gtfs::Feed* sourceFeed, std::ostream* s) const {
+  CsvWriter csvw(s, {"route_id", "agency_id", "route_short_name",
+      "route_long_name", "route_desc", "route_type", "route_url",
+      "route_color", "route_text_color"});
+
+  for (const auto& r : sourceFeed->getRoutes()) {
+    csvw.writeString(r.second->getId());
+    csvw.writeString(r.second->getAgency()->getId());
+    csvw.writeString(r.second->getShortName());
+    csvw.writeString(r.second->getLongName());
+    csvw.writeString(r.second->getDesc());
+    csvw.writeInt(r.second->getType());
+    csvw.writeString(r.second->getUrl());
+    csvw.writeString(r.second->getColorString());
+    csvw.writeString(r.second->getTextColorString());
+  }
+
+  return true;
+}
+
+// ____________________________________________________________________________
+bool Writer::writeFeedInfo(gtfs::Feed* f, std::ostream* os) const {
+  CsvWriter csvw(os, {"feed_publisher_name", "feed_publisher_url", "feed_lang",
+      "feed_start_date", "feed_end_date", "feed_version"});
+
+  // TODO!!
+  csvw.writeString("");
+  csvw.writeString("");
+  csvw.writeString("");
+  csvw.writeString("");
+  csvw.writeString("");
+  csvw.writeString("");
+
+  return true;
+}
+
+// ____________________________________________________________________________
+bool Writer::writeTransfers(gtfs::Feed* f, std::ostream* os) const {
+  // TODO
+
+  return true;
+}
+
+// ____________________________________________________________________________
+bool Writer::writeCalendar(gtfs::Feed* f, std::ostream* os) const {
+  CsvWriter csvw(os, {"service_id", "monday", "tuesday", "wednesday",
+      "thursday", "friday", "saturday", "sunday", "start_date", "end_date"});
+
+  for (const auto& r : f->getServices()) {
+    csvw.writeString(r.second->getId());
+    csvw.writeInt(r.second->getServiceDates() & gtfs::Service::MONDAYS);
+    csvw.writeInt(r.second->getServiceDates() & gtfs::Service::TUESDAYS);
+    csvw.writeInt(r.second->getServiceDates() & gtfs::Service::WEDNESDAYS);
+    csvw.writeInt(r.second->getServiceDates() & gtfs::Service::THURSDAYS);
+    csvw.writeInt(r.second->getServiceDates() & gtfs::Service::FRIDAYS);
+    csvw.writeInt(r.second->getServiceDates() & gtfs::Service::SATURDAYS);
+    csvw.writeInt(r.second->getServiceDates() & gtfs::Service::SUNDAYS);
+    csvw.writeInt(r.second->getBeginDate().getYYYYMMDD());
+    csvw.writeInt(r.second->getEndDate().getYYYYMMDD());
+  }
+
+  return true;
+}
+
+// ____________________________________________________________________________
+bool Writer::writeCalendarDates(gtfs::Feed* f, std::ostream* os) const {
+  CsvWriter csvw(os, {"service_id", "date", "exception_type"});
+
+  for (const auto& r : f->getServices()) {
+    for (const auto& e : r.second->getExceptions()) {
+      csvw.writeString(r.second->getId());
+      csvw.writeInt(e.first.getYYYYMMDD());
+      csvw.writeInt(e.second);
+    }
+  }
+
+  return true;
+}
+
+// ____________________________________________________________________________
+bool Writer::writeFrequencies(gtfs::Feed* f, std::ostream* os) const {
+  CsvWriter csvw(os, {"trip_id", "start_time", "end_time", "headway_secs"});
+
+  // TODO
 
   return true;
 }
