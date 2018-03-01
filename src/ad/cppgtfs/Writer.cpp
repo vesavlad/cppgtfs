@@ -56,35 +56,35 @@ bool Writer::write(gtfs::Feed* sourceFeed, std::string path) const {
   writeStopTimes(sourceFeed, &fs);
   fs.close();
 
-  curFile = gtfsPath / "routes.txt";
-  fs.open(curFile.c_str());
-  writeRoutes(sourceFeed, &fs);
-  fs.close();
+  // curFile = gtfsPath / "routes.txt";
+  // fs.open(curFile.c_str());
+  // writeRoutes(sourceFeed, &fs);
+  // fs.close();
 
-  curFile = gtfsPath / "feed_info.txt";
-  fs.open(curFile.c_str());
-  writeFeedInfo(sourceFeed, &fs);
-  fs.close();
+  // curFile = gtfsPath / "feed_info.txt";
+  // fs.open(curFile.c_str());
+  // writeFeedInfo(sourceFeed, &fs);
+  // fs.close();
 
-  curFile = gtfsPath / "transfers.txt";
-  fs.open(curFile.c_str());
-  writeTransfers(sourceFeed, &fs);
-  fs.close();
+  // curFile = gtfsPath / "transfers.txt";
+  // fs.open(curFile.c_str());
+  // writeTransfers(sourceFeed, &fs);
+  // fs.close();
 
-  curFile = gtfsPath / "calendar.txt";
-  fs.open(curFile.c_str());
-  writeCalendar(sourceFeed, &fs);
-  fs.close();
+  // curFile = gtfsPath / "calendar.txt";
+  // fs.open(curFile.c_str());
+  // writeCalendar(sourceFeed, &fs);
+  // fs.close();
 
-  curFile = gtfsPath / "calendar_dates.txt";
-  fs.open(curFile.c_str());
-  writeCalendarDates(sourceFeed, &fs);
-  fs.close();
+  // curFile = gtfsPath / "calendar_dates.txt";
+  // fs.open(curFile.c_str());
+  // writeCalendarDates(sourceFeed, &fs);
+  // fs.close();
 
-  curFile = gtfsPath / "frequencies.txt";
-  fs.open(curFile.c_str());
-  writeFrequencies(sourceFeed, &fs);
-  fs.close();
+  // curFile = gtfsPath / "frequencies.txt";
+  // fs.open(curFile.c_str());
+  // writeFrequencies(sourceFeed, &fs);
+  // fs.close();
 
   return true;
 }
