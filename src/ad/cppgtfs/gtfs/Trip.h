@@ -35,8 +35,8 @@ class Trip {
 
   Trip() {}
   Trip(const std::string& id, Route* r, Service* s, const std::string& hs,
-           const std::string& short_name, DIRECTION dir, const std::string& blockid,
-           Shape* shp, WC_BIKE_ACCESSIBLE wc, WC_BIKE_ACCESSIBLE ba);
+       const std::string& short_name, DIRECTION dir, const std::string& blockid,
+       Shape* shp, WC_BIKE_ACCESSIBLE wc, WC_BIKE_ACCESSIBLE ba);
 
   const std::string& getId() const;
   const Route* getRoute() const;

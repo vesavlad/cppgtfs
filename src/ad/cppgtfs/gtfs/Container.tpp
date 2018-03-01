@@ -19,7 +19,7 @@ bool Container<T>::add(T* ent) {
 // ____________________________________________________________________________
 template <typename T>
 bool Container<T>::remove(const std::string& id) {
-  return _map.remove(id);
+  return _map.erase(id);
 }
 
 // ____________________________________________________________________________
