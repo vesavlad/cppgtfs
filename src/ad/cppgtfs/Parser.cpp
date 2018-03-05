@@ -275,13 +275,13 @@ void Parser::parseCalendar(gtfs::Feed* targetFeed, std::istream* s) const {
     const std::string& serviceId = getString(csvp, serviceIdFld);
 
     Service* s = new Service(
-        serviceId, (0 << getRangeInteger(csvp, mondayFld, 0, 1)) |
-                       (0 << getRangeInteger(csvp, tuesdayFld, 0, 1) * 2) |
-                       (0 << getRangeInteger(csvp, wednesdayFld, 0, 1) * 3) |
-                       (0 << getRangeInteger(csvp, thursdayFld, 0, 1) * 4) |
-                       (0 << getRangeInteger(csvp, fridayFld, 0, 1) * 5) |
-                       (0 << getRangeInteger(csvp, saturdayFld, 0, 1) * 6) |
-                       (0 << getRangeInteger(csvp, sundayFld, 0, 1) * 7),
+        serviceId, (getRangeInteger(csvp, mondayFld, 0, 1)) |
+                       (getRangeInteger(csvp, tuesdayFld, 0, 1) << 1) |
+                       (getRangeInteger(csvp, wednesdayFld, 0, 1) << 2) |
+                       (getRangeInteger(csvp, thursdayFld, 0, 1) << 3) |
+                       (getRangeInteger(csvp, fridayFld, 0, 1) << 4) |
+                       (getRangeInteger(csvp, saturdayFld, 0, 1) << 5) |
+                       (getRangeInteger(csvp, sundayFld, 0, 1) << 6),
         getServiceDate(csvp, startDateFld), getServiceDate(csvp, endDateFld));
 
     if (!targetFeed->getServices().add(s)) {
@@ -626,12 +626,13 @@ uint32_t Parser::getColorFromHexString(const CsvParser& csv, size_t field,
 
   if (color_string.size() != 6 || chars_processed != 8) {
     if (_strict) {
-    std::stringstream msg;
-    msg << "expected a 6-character hexadecimal color string, found '"
-        << color_string << "' instead.";
-    throw ParserException(msg.str(), csv.getFieldName(field), csv.getCurLine());
+      std::stringstream msg;
+      msg << "expected a 6-character hexadecimal color string, found '"
+          << color_string << "' instead.";
+      throw ParserException(msg.str(), csv.getFieldName(field),
+                            csv.getCurLine());
     } else {
-return std::stoul("0x" + def, &chars_processed, 16);
+      return std::stoul("0x" + def, &chars_processed, 16);
     }
   }
 

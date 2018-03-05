@@ -83,6 +83,8 @@ class Route {
   static std::set<Route::TYPE> getTypesFromString(std::string name) {
     std::set<Route::TYPE> ret;
 
+    if (name.empty()) return ret;
+
     char* rem;
     uint64_t num = strtol(name.c_str(), &rem, 10);
     if (!*rem && num <= 7) {

@@ -41,7 +41,7 @@ bool Writer::write(gtfs::Feed* sourceFeed, std::string path) const {
   writeTrips(sourceFeed, &fs);
   fs.close();
 
-  curFile = gtfsPath / "agencies.txt";
+  curFile = gtfsPath / "agency.txt";
   fs.open(curFile.c_str());
   writeAgencies(sourceFeed, &fs);
   fs.close();
@@ -56,10 +56,10 @@ bool Writer::write(gtfs::Feed* sourceFeed, std::string path) const {
   writeStopTimes(sourceFeed, &fs);
   fs.close();
 
-  // curFile = gtfsPath / "routes.txt";
-  // fs.open(curFile.c_str());
-  // writeRoutes(sourceFeed, &fs);
-  // fs.close();
+  curFile = gtfsPath / "routes.txt";
+  fs.open(curFile.c_str());
+  writeRoutes(sourceFeed, &fs);
+  fs.close();
 
   // curFile = gtfsPath / "feed_info.txt";
   // fs.open(curFile.c_str());
@@ -71,15 +71,15 @@ bool Writer::write(gtfs::Feed* sourceFeed, std::string path) const {
   // writeTransfers(sourceFeed, &fs);
   // fs.close();
 
-  // curFile = gtfsPath / "calendar.txt";
-  // fs.open(curFile.c_str());
-  // writeCalendar(sourceFeed, &fs);
-  // fs.close();
+  curFile = gtfsPath / "calendar.txt";
+  fs.open(curFile.c_str());
+  writeCalendar(sourceFeed, &fs);
+  fs.close();
 
-  // curFile = gtfsPath / "calendar_dates.txt";
-  // fs.open(curFile.c_str());
-  // writeCalendarDates(sourceFeed, &fs);
-  // fs.close();
+  curFile = gtfsPath / "calendar_dates.txt";
+  fs.open(curFile.c_str());
+  writeCalendarDates(sourceFeed, &fs);
+  fs.close();
 
   // curFile = gtfsPath / "frequencies.txt";
   // fs.open(curFile.c_str());
@@ -222,12 +222,15 @@ bool Writer::writeShapes(gtfs::Feed* sourceFeed, std::ostream* s) const {
 // ____________________________________________________________________________
 bool Writer::writeRoutes(gtfs::Feed* sourceFeed, std::ostream* s) const {
   CsvWriter csvw(s, {"route_id", "agency_id", "route_short_name",
-      "route_long_name", "route_desc", "route_type", "route_url",
-      "route_color", "route_text_color"});
+                     "route_long_name", "route_desc", "route_type", "route_url",
+                     "route_color", "route_text_color"});
 
   for (const auto& r : sourceFeed->getRoutes()) {
     csvw.writeString(r.second->getId());
-    csvw.writeString(r.second->getAgency()->getId());
+    if (r.second->getAgency())
+      csvw.writeString(r.second->getAgency()->getId());
+    else
+      csvw.skip();
     csvw.writeString(r.second->getShortName());
     csvw.writeString(r.second->getLongName());
     csvw.writeString(r.second->getDesc());
@@ -235,6 +238,7 @@ bool Writer::writeRoutes(gtfs::Feed* sourceFeed, std::ostream* s) const {
     csvw.writeString(r.second->getUrl());
     csvw.writeString(r.second->getColorString());
     csvw.writeString(r.second->getTextColorString());
+    csvw.flushLine();
   }
 
   return true;
@@ -243,7 +247,7 @@ bool Writer::writeRoutes(gtfs::Feed* sourceFeed, std::ostream* s) const {
 // ____________________________________________________________________________
 bool Writer::writeFeedInfo(gtfs::Feed* f, std::ostream* os) const {
   CsvWriter csvw(os, {"feed_publisher_name", "feed_publisher_url", "feed_lang",
-      "feed_start_date", "feed_end_date", "feed_version"});
+                      "feed_start_date", "feed_end_date", "feed_version"});
 
   // TODO!!
   csvw.writeString("");
@@ -265,20 +269,26 @@ bool Writer::writeTransfers(gtfs::Feed* f, std::ostream* os) const {
 
 // ____________________________________________________________________________
 bool Writer::writeCalendar(gtfs::Feed* f, std::ostream* os) const {
-  CsvWriter csvw(os, {"service_id", "monday", "tuesday", "wednesday",
-      "thursday", "friday", "saturday", "sunday", "start_date", "end_date"});
+  CsvWriter csvw(
+      os, {"service_id", "monday", "tuesday", "wednesday", "thursday", "friday",
+           "saturday", "sunday", "start_date", "end_date"});
 
   for (const auto& r : f->getServices()) {
     csvw.writeString(r.second->getId());
-    csvw.writeInt(r.second->getServiceDates() & gtfs::Service::MONDAYS);
-    csvw.writeInt(r.second->getServiceDates() & gtfs::Service::TUESDAYS);
-    csvw.writeInt(r.second->getServiceDates() & gtfs::Service::WEDNESDAYS);
-    csvw.writeInt(r.second->getServiceDates() & gtfs::Service::THURSDAYS);
-    csvw.writeInt(r.second->getServiceDates() & gtfs::Service::FRIDAYS);
-    csvw.writeInt(r.second->getServiceDates() & gtfs::Service::SATURDAYS);
-    csvw.writeInt(r.second->getServiceDates() & gtfs::Service::SUNDAYS);
+    csvw.writeInt((bool)(r.second->getServiceDates() & gtfs::Service::MONDAYS));
+    csvw.writeInt(
+        (bool)(r.second->getServiceDates() & gtfs::Service::TUESDAYS));
+    csvw.writeInt(
+        (bool)(r.second->getServiceDates() & gtfs::Service::WEDNESDAYS));
+    csvw.writeInt(
+        (bool)(r.second->getServiceDates() & gtfs::Service::THURSDAYS));
+    csvw.writeInt((bool)(r.second->getServiceDates() & gtfs::Service::FRIDAYS));
+    csvw.writeInt(
+        (bool)(r.second->getServiceDates() & gtfs::Service::SATURDAYS));
+    csvw.writeInt((bool)(r.second->getServiceDates() & gtfs::Service::SUNDAYS));
     csvw.writeInt(r.second->getBeginDate().getYYYYMMDD());
     csvw.writeInt(r.second->getEndDate().getYYYYMMDD());
+    csvw.flushLine();
   }
 
   return true;
@@ -293,6 +303,7 @@ bool Writer::writeCalendarDates(gtfs::Feed* f, std::ostream* os) const {
       csvw.writeString(r.second->getId());
       csvw.writeInt(e.first.getYYYYMMDD());
       csvw.writeInt(e.second);
+      csvw.flushLine();
     }
   }
 
