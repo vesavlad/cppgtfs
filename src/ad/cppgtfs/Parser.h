@@ -71,7 +71,7 @@ class Parser {
 
  private:
   bool _strict;
-  void parseAgency(gtfs::Feed* targetFeed, std::istream*) const;
+  void parseAgencies(gtfs::Feed* targetFeed, std::istream*) const;
   void parseStops(gtfs::Feed* targetFeed, std::istream*) const;
   void parseRoutes(gtfs::Feed* targetFeed, std::istream*) const;
   void parseTrips(gtfs::Feed* targetFeed, std::istream*) const;

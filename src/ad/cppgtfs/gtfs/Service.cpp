@@ -1,5 +1,4 @@
 // Copyright 2016, University of Freiburg,
-// Chair of Algorithms and Data Structures.
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
 #include <iostream>
@@ -14,8 +13,8 @@ using ad::cppgtfs::gtfs::ServiceDate;
 Service::Service(const std::string& id)
     : _id(id),
       _serviceDays(Service::SERVICE_DAY::NEVER),
-      _begin(0),
-      _end(0) {}
+      _begin(),
+      _end() {}
 
 // _____________________________________________________________________________
 Service::Service(const std::string& id, uint8_t serviceDays, ServiceDate start,
@@ -140,4 +139,9 @@ ServiceDate ad::cppgtfs::gtfs::operator++(ServiceDate& lh) {
   lh.setMonth(ret.getMonth());
   lh.setYear(ret.getYear());
   return ret;
+}
+
+// _____________________________________________________________________________
+bool Service::hasServiceDays() const {
+  return !_begin.empty() && !_end.empty();
 }

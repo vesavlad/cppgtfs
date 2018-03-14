@@ -9,6 +9,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <iostream>
 
 using std::exception;
 using std::string;
@@ -20,16 +21,22 @@ namespace gtfs {
 class ServiceDate {
  public:
   ServiceDate(uint8_t day, uint8_t month, uint16_t year)
-      : _yyyymmdd(year * 10000 + month * 100 + day) {}
+      : _yyyymmdd((year * 10000 + month * 100 + day) - (1900 * 10000)) {}
 
-  explicit ServiceDate(uint32_t yyyymmdd) : _yyyymmdd(yyyymmdd) {}
+  explicit ServiceDate(uint32_t yyyymmdd)
+      : _yyyymmdd(yyyymmdd - (1900 * 10000)) {}
 
-  uint32_t getYYYYMMDD() const { return _yyyymmdd; }
+  ServiceDate()
+      : _yyyymmdd(0) {}
 
-  uint16_t getYear() const { return _yyyymmdd / 10000; }
-  uint8_t getMonth() const { return (_yyyymmdd - (getYear() * 10000)) / 100; }
+  uint32_t getYYYYMMDD() const { return _yyyymmdd + (1900 * 10000); }
+
+  uint16_t getYear() const { return (_yyyymmdd / 10000) + 1900; }
+  uint8_t getMonth() const {
+    return (_yyyymmdd - ((getYear() - 1900) * 10000)) / 100;
+  }
   uint8_t getDay() const {
-    return _yyyymmdd - (getYear() * 10000) - (getMonth() * 100);
+    return _yyyymmdd - ((getYear() - 1900) * 10000) - (getMonth() * 100);
   }
 
   void setDay(uint8_t day) { _yyyymmdd = _yyyymmdd - getDay() + day; }
@@ -39,7 +46,11 @@ class ServiceDate {
   }
 
   void setYear(uint16_t year) {
-    _yyyymmdd = _yyyymmdd - getYear() * 10000 + year * 10000;
+    _yyyymmdd = _yyyymmdd - (getYear() - 1900) * 10000 + (year - 1900) * 10000;
+  }
+
+  bool empty() const {
+    return _yyyymmdd == 0;
   }
 
   // returns a time struct of this date at 12:00
@@ -54,7 +65,7 @@ class ServiceDate {
   }
 
  private:
-  uint32_t _yyyymmdd;
+  uint32_t _yyyymmdd : 24;
 };
 
 bool operator>(const ServiceDate& lh, const ServiceDate& rh);
@@ -108,6 +119,8 @@ class Service {
 
   const ServiceDate& getBeginDate() const;
   const ServiceDate& getEndDate() const;
+
+  bool hasServiceDays() const;
 
  private:
   string _id;

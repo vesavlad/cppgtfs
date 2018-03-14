@@ -37,7 +37,7 @@ bool Parser::parse(gtfs::Feed* targetFeed, std::string path) const {
     curFile = gtfsPath / "agency.txt";
     fs.open(curFile.c_str());
     if (!fs.good()) fileNotFound(curFile);
-    parseAgency(targetFeed, &fs);
+    parseAgencies(targetFeed, &fs);
     fs.close();
 
     curFile = gtfsPath / "stops.txt";
@@ -98,7 +98,7 @@ bool Parser::parse(gtfs::Feed* targetFeed, std::string path) const {
 }
 
 // ____________________________________________________________________________
-void Parser::parseAgency(gtfs::Feed* targetFeed, std::istream* s) const {
+void Parser::parseAgencies(gtfs::Feed* targetFeed, std::istream* s) const {
   CsvParser csvp(s);
   Agency* a = 0;
 

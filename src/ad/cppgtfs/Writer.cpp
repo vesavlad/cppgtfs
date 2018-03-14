@@ -274,6 +274,7 @@ bool Writer::writeCalendar(gtfs::Feed* f, std::ostream* os) const {
            "saturday", "sunday", "start_date", "end_date"});
 
   for (const auto& r : f->getServices()) {
+    if (!r.second->hasServiceDays()) continue;
     csvw.writeString(r.second->getId());
     csvw.writeInt((bool)(r.second->getServiceDates() & gtfs::Service::MONDAYS));
     csvw.writeInt(

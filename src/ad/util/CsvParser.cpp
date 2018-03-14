@@ -41,80 +41,76 @@ bool CsvParser::readNextLine() {
   _currentItems.clear();
   _currentModItems.clear();
 
-  if (!_stream->eof() || !_currentLine.empty()) {
-    if (static_cast<int>(_currentLine[0]) == -17 &&
-        static_cast<int>(_currentLine[1]) == -69 &&
-        static_cast<int>(_currentLine[2]) == -65) {
-      pos = 3;
+  if (static_cast<int>(_currentLine[0]) == -17 &&
+      static_cast<int>(_currentLine[1]) == -69 &&
+      static_cast<int>(_currentLine[2]) == -65) {
+    pos = 3;
+    lastPos = pos;
+  }
+  while (pos < _currentLine.size()) {
+    if (!firstChar && std::isspace(_currentLine[pos])) {
+      pos++;
       lastPos = pos;
+      continue;
     }
-    while (pos < _currentLine.size()) {
-      if (!firstChar && std::isspace(_currentLine[pos])) {
+
+    firstChar = true;
+
+    if (_currentLine[pos] == '"') {
+      if (!esc) {
+        esc = true;
         pos++;
         lastPos = pos;
         continue;
-      }
-
-      firstChar = true;
-
-      if (_currentLine[pos] == '"') {
-        if (!esc) {
-          esc = true;
-          pos++;
-          lastPos = pos;
-          continue;
-        } else {
-          if (pos < _currentLine.size() - 1 && _currentLine[pos + 1] == '"') {
-            pos++;
-            esc_quotes_found++;
-          } else {
-            // we end this field here, because of the closing quotes
-            // see CSV spec at http://tools.ietf.org/html/rfc4180#page-2
-            _currentLine[pos] = 0;
-            esc = false;
-          }
-        }
-      }
-
-      if ((esc || _currentLine[pos] != ',') && pos < _currentLine.size() - 1) {
-        pos++;
-        continue;
-      }
-
-      if (_currentLine[pos] == ',') {
-        _currentLine[pos] = 0;
-        firstChar = false;
-      }
-
-      if (!esc_quotes_found) {
-        _currentItems.push_back(
-            inlineRightTrim(_currentLine.c_str() + lastPos));
       } else {
-        size_t p = -1;
+        if (pos < _currentLine.size() - 1 && _currentLine[pos + 1] == '"') {
+          pos++;
+          esc_quotes_found++;
+        } else {
+          // we end this field here, because of the closing quotes
+          // see CSV spec at http://tools.ietf.org/html/rfc4180#page-2
+          _currentLine[pos] = 0;
+          esc = false;
+        }
+      }
+    }
 
-        // we have to modify to string (that is, we have to replace
-        // characters. create a copy of this item
-        // on the line-wise modified vector
-        _currentModItems.push_back(_currentLine.c_str() + lastPos);
+    if ((esc || _currentLine[pos] != ',') && pos < _currentLine.size() - 1) {
+      pos++;
+      continue;
+    }
 
-        while (esc_quotes_found) {
-          p = _currentModItems.back().find("\"\"", p + 1);
-          if (p != string::npos) {
-            _currentModItems.back().replace(p, 2, "\"");
-          }
+    if (_currentLine[pos] == ',') {
+      _currentLine[pos] = 0;
+      firstChar = false;
+    }
 
-          esc_quotes_found--;
+    if (!esc_quotes_found) {
+      _currentItems.push_back(inlineRightTrim(_currentLine.c_str() + lastPos));
+    } else {
+      size_t p = -1;
+
+      // we have to modify to string (that is, we have to remove
+      // characters. create a copy of this item
+      // on the line-wise modified vector
+      _currentModItems.push_back(_currentLine.c_str() + lastPos);
+
+      while (esc_quotes_found) {
+        p = _currentModItems.back().find("\"\"", p + 1);
+        if (p != string::npos) {
+          _currentModItems.back().replace(p, 2, "\"");
         }
 
-        // pointers will point to strings on the modified string vector
-        _currentItems.push_back(_currentModItems.back().c_str());
+        esc_quotes_found--;
       }
 
-      lastPos = ++pos;
+      // pointers will point to strings on the modified string vector
+      _currentItems.push_back(_currentModItems.back().c_str());
     }
-    return true;
+
+    lastPos = ++pos;
   }
-  return false;
+  return true;
 }
 
 // _____________________________________________________________________________
