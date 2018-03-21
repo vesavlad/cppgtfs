@@ -72,8 +72,8 @@ class StopTime {
         _headsign(hs),
         _pickupType(put),
         _dropOffType(dot),
-        _shapeDistTravelled(distTrav),
-        _isTimepoint(isTp) {}
+        _isTimepoint(isTp),
+        _shapeDistTravelled(distTrav) {}
 
   const Time& getArrivalTime() const { return _at; }
   const Time& getDepartureTime() const { return _dt; }
@@ -95,10 +95,10 @@ class StopTime {
   Stop* _s;
   uint32_t _sequence;
   std::string _headsign;
-  PU_DO_TYPE _pickupType;
-  PU_DO_TYPE _dropOffType;
+  PU_DO_TYPE _pickupType : 2;
+  PU_DO_TYPE _dropOffType : 2;
+  bool _isTimepoint : 1;
   float _shapeDistTravelled;
-  bool _isTimepoint;
 };
 
 struct StopTimeCompare {

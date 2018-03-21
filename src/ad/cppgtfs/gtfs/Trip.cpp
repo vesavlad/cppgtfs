@@ -23,8 +23,9 @@ using ad::cppgtfs::gtfs::StopTimes;
 
 // _____________________________________________________________________________
 Trip::Trip(const std::string& id, Route* r, Service* s, const std::string& hs,
-           const std::string& short_name, DIRECTION dir, const std::string& blockid,
-           Shape* shp, WC_BIKE_ACCESSIBLE wc, WC_BIKE_ACCESSIBLE ba)
+           const std::string& short_name, DIRECTION dir,
+           const std::string& blockid, Shape* shp, WC_BIKE_ACCESSIBLE wc,
+           WC_BIKE_ACCESSIBLE ba)
     : _id(id),
       _route(r),
       _service(s),
@@ -70,9 +71,7 @@ Shape* Trip::getShape() { return _shape; }
 const Shape* Trip::getShape() const { return _shape; }
 
 // _____________________________________________________________________________
-void Trip::setShape(Shape* shp) {
-  _shape = shp;
-}
+void Trip::setShape(Shape* shp) { _shape = shp; }
 
 // _____________________________________________________________________________
 Trip::WC_BIKE_ACCESSIBLE Trip::getWheelchairAccessibility() const {
