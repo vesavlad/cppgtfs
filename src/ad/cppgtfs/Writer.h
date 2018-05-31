@@ -25,6 +25,28 @@ using ad::util::CsvWriter;
 namespace ad {
 namespace cppgtfs {
 
+class WriterException : public std::exception {
+ public:
+  WriterException(std::string msg, std::string file_name)
+      : _msg(msg), _file_name(file_name) {}
+  WriterException(std::string msg)
+      : _msg(msg), _file_name("?") {}
+  ~WriterException() throw() {}
+
+  virtual const char* what() const throw() {
+    std::stringstream ss;
+    ss << _file_name << ":";
+    ss << " " << _msg;
+    _what_msg = ss.str();
+    return _what_msg.c_str();
+  }
+
+ private:
+  mutable std::string _what_msg;
+  std::string _msg;
+  std::string _file_name;
+};
+
 class Writer {
  public:
   // Default initialization.
@@ -45,6 +67,7 @@ class Writer {
   bool writeCalendar(gtfs::Feed* f, std::ostream* os) const;
   bool writeCalendarDates(gtfs::Feed* f, std::ostream* os) const;
   bool writeFrequencies(gtfs::Feed* f, std::ostream* os) const;
+  void cannotWrite(boost::filesystem::path file) const;
 };
 }  // namespace cppgtfs
 }  // namespace ad
