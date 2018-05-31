@@ -17,10 +17,10 @@ namespace cppgtfs {
 namespace gtfs {
 
 struct ShapePoint {
-  ShapePoint(double lat, double ln, float dist, uint32_t seq)
+  ShapePoint(float lat, float ln, float dist, uint32_t seq)
       : lat(lat), lng(ln), travelDist(dist), seq(seq) {}
   ShapePoint() : lat(0), lng(0), travelDist(-1), seq(0) {}
-  double lat, lng;
+  float lat, lng;
   float travelDist;
   uint32_t seq;
 };

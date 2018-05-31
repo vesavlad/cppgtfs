@@ -29,7 +29,7 @@ class Stop {
   Stop() {}
 
   Stop(const string& id, const string& code, const string& name,
-       const string& desc, double lat, double lng, string zone_id,
+       const string& desc, float lat, float lng, string zone_id,
        const string& stop_url, Stop::LOCATION_TYPE location_type,
        Stop* parent_station, const string& stop_timezone,
        Stop::WHEELCHAIR_BOARDING wheelchair_boarding, const std::string& platform_code)
@@ -57,9 +57,9 @@ class Stop {
 
   const std::string& getDesc() const { return _desc; }
 
-  double getLat() const { return _lat; }
+  float getLat() const { return _lat; }
 
-  double getLng() const { return _lng; }
+  float getLng() const { return _lng; }
 
   const std::string& getZoneId() const { return _zone_id; }
 
@@ -85,7 +85,7 @@ class Stop {
   string _id, _code, _name, _desc, _zone_id, _stop_url, _stop_timezone,
       _platform_code;
   Stop* _parent_station;
-  double _lat, _lng;
+  float _lat, _lng;
   Stop::WHEELCHAIR_BOARDING _wheelchair_boarding;
   Stop::LOCATION_TYPE _location_type;
 };
