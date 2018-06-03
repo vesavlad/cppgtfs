@@ -54,11 +54,27 @@ class Feed {
   const Services& getServices() const;
   Services& getServices();
 
+  const std::string& getPublisherName() const;
+  const std::string& getPublisherUrl() const;
+  const std::string& getLang() const;
+  const std::string& getVersion() const;
+  const ServiceDate& getStartDate() const;
+  const ServiceDate& getEndDate() const;
+
+  void setPublisherName(const std::string& name);
+  void setPublisherUrl(const std::string& url);
+  void setLang(const std::string& lang);
+  void setVersion(const std::string& version);
+  void setStartDate(const ServiceDate& start);
+  void setEndDate(const ServiceDate& end);
+
   void updateBox(double lat, double lon);
   double getMinLat() const;
   double getMinLon() const;
   double getMaxLat() const;
   double getMaxLon() const;
+
+
 
  private:
   Agencies _agencies;
@@ -69,6 +85,9 @@ class Feed {
   Services _services;
 
   double _maxLat, _maxLon, _minLat, _minLon;
+
+  std::string _publisherName, _publisherUrl, _lang, _version;
+  ServiceDate _startDate, _endDate;
 };
 }  // namespace gtfs
 }  // namespace cppgtfs

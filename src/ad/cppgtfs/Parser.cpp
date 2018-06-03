@@ -34,6 +34,13 @@ bool Parser::parse(gtfs::Feed* targetFeed, std::string path) const {
   boost::filesystem::path curFile;
 
   try {
+    curFile = gtfsPath / "feed_info.txt";
+    fs.open(curFile.c_str());
+    if (fs.good()) {
+      parseFeedInfo(targetFeed, &fs);
+      fs.close();
+    }
+
     curFile = gtfsPath / "agency.txt";
     fs.open(curFile.c_str());
     if (!fs.good()) fileNotFound(curFile);
@@ -95,6 +102,27 @@ bool Parser::parse(gtfs::Feed* targetFeed, std::string path) const {
   }
 
   return true;
+}
+
+// ____________________________________________________________________________
+void Parser::parseFeedInfo(gtfs::Feed* targetFeed, std::istream* s) const {
+  CsvParser csvp(s);
+
+  size_t feedPublisherNameFld = csvp.getFieldIndex("feed_publisher_name");
+  size_t feedPublisherUrlFld = csvp.getFieldIndex("feed_publisher_url");
+  size_t feedLangFld = csvp.getOptFieldIndex("feed_lang");
+  size_t feedStartDateFld = csvp.getOptFieldIndex("feed_start_date");
+  size_t feedEndDateFld = csvp.getOptFieldIndex("feed_end_date");
+  size_t feedVersionFld = csvp.getOptFieldIndex("feed_version");
+
+  while (csvp.readNextLine()) {
+    targetFeed->setPublisherName(getString(csvp, feedPublisherNameFld));
+    targetFeed->setPublisherUrl(getString(csvp, feedPublisherUrlFld));
+    targetFeed->setLang(getString(csvp, feedLangFld, ""));
+    targetFeed->setVersion(getString(csvp, feedVersionFld, ""));
+    targetFeed->setStartDate(getServiceDate(csvp, feedStartDateFld, false));
+    targetFeed->setEndDate(getServiceDate(csvp, feedEndDateFld, false));
+  }
 }
 
 // ____________________________________________________________________________
@@ -282,7 +310,8 @@ void Parser::parseCalendar(gtfs::Feed* targetFeed, std::istream* s) const {
                        (getRangeInteger(csvp, fridayFld, 0, 1) << 4) |
                        (getRangeInteger(csvp, saturdayFld, 0, 1) << 5) |
                        (getRangeInteger(csvp, sundayFld, 0, 1) << 6),
-        getServiceDate(csvp, startDateFld), getServiceDate(csvp, endDateFld));
+        getServiceDate(csvp, startDateFld, true),
+        getServiceDate(csvp, endDateFld, true));
 
     if (!targetFeed->getServices().add(s)) {
       std::stringstream msg;
@@ -303,7 +332,7 @@ void Parser::parseCalendarDates(gtfs::Feed* targetFeed, std::istream* s) const {
 
   while (csvp.readNextLine()) {
     const std::string& serviceId = getString(csvp, serviceIdFld);
-    const ServiceDate& d = getServiceDate(csvp, dateFld);
+    const ServiceDate& d = getServiceDate(csvp, dateFld, true);
     Service::EXCEPTION_TYPE t = static_cast<Service::EXCEPTION_TYPE>(
         getRangeInteger(csvp, exceptionTypeFld, 1, 2));
 
@@ -641,8 +670,15 @@ uint32_t Parser::getColorFromHexString(const CsvParser& csv, size_t field,
 
 // ____________________________________________________________________________
 ServiceDate Parser::getServiceDate(const CsvParser& csv, size_t field) const {
+  return getServiceDate(csv, field, false);
+}
+
+// ____________________________________________________________________________
+ServiceDate Parser::getServiceDate(const CsvParser& csv, size_t field,
+                                   bool req) const {
   size_t p;
   const char* val = csv.getTString(field);
+  if (strlen(val) == 0 && !req) return ServiceDate();
 
   try {
     int32_t yyyymmdd = std::stoul(val, &p, 10);

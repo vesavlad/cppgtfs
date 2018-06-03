@@ -101,6 +101,7 @@ class Parser {
                                  const std::string& def) const;
 
   gtfs::ServiceDate getServiceDate(const CsvParser& csv, size_t field) const;
+  gtfs::ServiceDate getServiceDate(const CsvParser& csv, size_t field, bool req) const;
 
   gtfs::Time getTime(const CsvParser& csv, size_t field) const;
 

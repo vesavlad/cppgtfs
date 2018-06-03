@@ -95,8 +95,11 @@ class StopTime {
   Stop* _s;
   uint32_t _sequence;
   std::string _headsign;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wall"
   PU_DO_TYPE _pickupType : 2;
   PU_DO_TYPE _dropOffType : 2;
+#pragma GCC diagnostic pop
   bool _isTimepoint : 1;
   float _shapeDistTravelled;
 };
