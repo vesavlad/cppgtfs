@@ -20,6 +20,7 @@ using ad::cppgtfs::gtfs::Service;
 using ad::cppgtfs::gtfs::Shape;
 using ad::cppgtfs::gtfs::StopTime;
 using ad::cppgtfs::gtfs::StopTimes;
+using ad::cppgtfs::gtfs::Frequencies;
 
 // _____________________________________________________________________________
 Trip::Trip(const std::string& id, Route* r, Service* s, const std::string& hs,
@@ -88,6 +89,17 @@ const StopTimes& Trip::getStopTimes() const { return _stoptimes; }
 StopTimes& Trip::getStopTimes() { return _stoptimes; }
 
 // _____________________________________________________________________________
+const Frequencies& Trip::getFrequencies() const { return _frequencies; }
+
+// _____________________________________________________________________________
+Frequencies& Trip::getFrequencies() { return _frequencies; }
+
+// _____________________________________________________________________________
 bool Trip::addStopTime(const StopTime& t) {
   return _stoptimes.insert(t).second;
+}
+
+// _____________________________________________________________________________
+void Trip::addFrequency(const Frequency& t) {
+  _frequencies.push_back(t);
 }

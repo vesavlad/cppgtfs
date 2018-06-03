@@ -76,11 +76,11 @@ bool Writer::write(gtfs::Feed* sourceFeed, std::string path) const {
     fs.close();
   }
 
-  // curFile = gtfsPath / "transfers.txt";
-  // fs.open(curFile.c_str());
-  // if (!fs.good()) cannotWrite(curFile);
-  // writeTransfers(sourceFeed, &fs);
-  // fs.close();
+  curFile = gtfsPath / "transfers.txt";
+  fs.open(curFile.c_str());
+  if (!fs.good()) cannotWrite(curFile);
+  writeTransfers(sourceFeed, &fs);
+  fs.close();
 
   curFile = gtfsPath / "calendar.txt";
   fs.open(curFile.c_str());
@@ -94,11 +94,11 @@ bool Writer::write(gtfs::Feed* sourceFeed, std::string path) const {
   writeCalendarDates(sourceFeed, &fs);
   fs.close();
 
-  // curFile = gtfsPath / "frequencies.txt";
-  // fs.open(curFile.c_str());
-  // if (!fs.good()) cannotWrite(curFile);
-  // writeFrequencies(sourceFeed, &fs);
-  // fs.close();
+  curFile = gtfsPath / "frequencies.txt";
+  fs.open(curFile.c_str());
+  if (!fs.good()) cannotWrite(curFile);
+  writeFrequencies(sourceFeed, &fs);
+  fs.close();
 
   return true;
 }
@@ -266,10 +266,14 @@ bool Writer::writeFeedInfo(gtfs::Feed* f, std::ostream* os) const {
   csvw.writeString(f->getPublisherName());
   csvw.writeString(f->getPublisherUrl());
   csvw.writeString(f->getLang());
-  if (!f->getStartDate().empty()) csvw.writeInt(f->getStartDate().getYYYYMMDD());
-  else csvw.skip();
-  if (!f->getEndDate().empty()) csvw.writeInt(f->getEndDate().getYYYYMMDD());
-  else csvw.skip();
+  if (!f->getStartDate().empty())
+    csvw.writeInt(f->getStartDate().getYYYYMMDD());
+  else
+    csvw.skip();
+  if (!f->getEndDate().empty())
+    csvw.writeInt(f->getEndDate().getYYYYMMDD());
+  else
+    csvw.skip();
   csvw.writeString(f->getVersion());
   csvw.flushLine();
 
@@ -329,11 +333,19 @@ bool Writer::writeCalendarDates(gtfs::Feed* f, std::ostream* os) const {
 
 // ____________________________________________________________________________
 bool Writer::writeFrequencies(gtfs::Feed* f, std::ostream* os) const {
-  CsvWriter csvw(os, {"trip_id", "start_time", "end_time", "headway_secs"});
+  CsvWriter csvw(
+      os, {"trip_id", "start_time", "end_time", "headway_secs", "exact_times"});
 
-  // TODO
-
-  return true;
+  for (const auto& t : f->getTrips()) {
+    for (const auto& f : t.second->getFrequencies()) {
+      csvw.writeString(t.second->getId());
+      csvw.writeString(f.getStartTime().toString());
+      csvw.writeString(f.getEndTime().toString());
+      csvw.writeInt(f.getHeadwaySecs());
+      csvw.writeInt(f.hasExactTimes());
+      csvw.flushLine();
+    }
+  }
 }
 
 // ___________________________________________________________________________

@@ -12,6 +12,7 @@
 #include "gtfs/Agency.h"
 #include "gtfs/Route.h"
 #include "gtfs/Stop.h"
+#include "gtfs/Frequency.h"
 
 using ad::util::CsvParser;
 using ad::util::CsvParserException;
@@ -26,6 +27,7 @@ using ad::cppgtfs::gtfs::StopTime;
 using ad::cppgtfs::gtfs::Shape;
 using ad::cppgtfs::gtfs::ShapePoint;
 using ad::cppgtfs::gtfs::Time;
+using ad::cppgtfs::gtfs::Frequency;
 
 // ____________________________________________________________________________
 bool Parser::parse(gtfs::Feed* targetFeed, std::string path) const {
@@ -91,6 +93,13 @@ bool Parser::parse(gtfs::Feed* targetFeed, std::string path) const {
     if (!fs.good()) fileNotFound(curFile);
     parseStopTimes(targetFeed, &fs);
     fs.close();
+
+    curFile = gtfsPath / "frequencies.txt";
+    fs.open(curFile.c_str());
+    if (fs.good())  {
+      parseFrequencies(targetFeed, &fs);
+      fs.close();
+    }
   } catch (const CsvParserException& e) {
     throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
                           curFile.c_str());
@@ -102,6 +111,51 @@ bool Parser::parse(gtfs::Feed* targetFeed, std::string path) const {
   }
 
   return true;
+}
+
+// ____________________________________________________________________________
+void Parser::parseTransfers(gtfs::Feed* targetFeed, std::istream*) const {
+  // TODO
+}
+
+// ____________________________________________________________________________
+void Parser::parseFrequencies(gtfs::Feed* targetFeed, std::istream* s) const {
+  CsvParser csvp(s);
+
+  size_t tripIdFld = csvp.getFieldIndex("trip_id");
+  size_t startTimeFld = csvp.getFieldIndex("start_time");
+  size_t endTimeFld = csvp.getFieldIndex("end_time");
+  size_t headwaySecsFld = csvp.getFieldIndex("headway_secs");
+  size_t exactTimesFld = csvp.getOptFieldIndex("exact_times");
+
+  while (csvp.readNextLine()) {
+    std::string tid = getString(csvp, tripIdFld);
+    gtfs::Frequency f(
+        getTime(csvp, startTimeFld),
+        getTime(csvp, endTimeFld),
+        getRangeInteger(csvp, headwaySecsFld, 0, UINT16_MAX),
+        getRangeInteger(csvp, exactTimesFld, 0, 1, 0)
+        );
+
+    gtfs::Trip* trip = targetFeed->getTrips().get(tid);
+    if (!trip) {
+      std::stringstream msg;
+      msg << "trip '" << tid << "' not found.";
+      throw ParserException(msg.str(), "trip_id", csvp.getCurLine());
+    }
+
+    trip->addFrequency(f);
+  }
+}
+
+// ____________________________________________________________________________
+void Parser::parseFareAttributes(gtfs::Feed* targetFeed, std::istream*) const {
+  // TODO
+}
+
+// ____________________________________________________________________________
+void Parser::parseFareRules(gtfs::Feed* targetFeed, std::istream*) const {
+  // TODO
 }
 
 // ____________________________________________________________________________

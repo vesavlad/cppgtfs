@@ -13,6 +13,7 @@
 #include "Shape.h"
 #include "Stop.h"
 #include "StopTime.h"
+#include "Frequency.h"
 
 using std::exception;
 using std::string;
@@ -22,6 +23,7 @@ namespace cppgtfs {
 namespace gtfs {
 
 typedef std::set<StopTime, StopTimeCompare> StopTimes;
+typedef std::vector<Frequency> Frequencies;
 
 class Trip {
  public:
@@ -54,7 +56,10 @@ class Trip {
   WC_BIKE_ACCESSIBLE getBikesAllowed() const;
   const StopTimes& getStopTimes() const;
   StopTimes& getStopTimes();
+  Frequencies& getFrequencies();
+  const Frequencies& getFrequencies() const;
   bool addStopTime(const StopTime& t);
+  void addFrequency(const Frequency& t);
 
  private:
   std::string _id;
@@ -69,6 +74,7 @@ class Trip {
   WC_BIKE_ACCESSIBLE _ba;
 
   StopTimes _stoptimes;
+  Frequencies _frequencies;
 };
 
 }  // namespace gtfs
