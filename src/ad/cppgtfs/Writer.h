@@ -67,6 +67,8 @@ class Writer {
   bool writeCalendar(gtfs::Feed* f, std::ostream* os) const;
   bool writeCalendarDates(gtfs::Feed* f, std::ostream* os) const;
   bool writeFrequencies(gtfs::Feed* f, std::ostream* os) const;
+  bool writeFares(gtfs::Feed* f, std::ostream* os) const;
+  bool writeFareRules(gtfs::Feed* f, std::ostream* os) const;
   void cannotWrite(boost::filesystem::path file) const;
 };
 }  // namespace cppgtfs

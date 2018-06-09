@@ -21,6 +21,7 @@ class Container {
   bool remove(const std::string& id);
   const T* get(const std::string& id) const;
   T* get(const std::string& id);
+  size_t size() const;
 
   typename std::unordered_map<std::string, T*>::const_iterator begin() const;
   typename std::unordered_map<std::string, T*>::iterator begin();

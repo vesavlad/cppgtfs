@@ -42,6 +42,12 @@ const T* Container<T>::get(const std::string& id) const {
 
 // ____________________________________________________________________________
 template <typename T>
+size_t Container<T>::size() const {
+  return _map.size();
+}
+
+// ____________________________________________________________________________
+template <typename T>
 typename std::unordered_map<std::string, T*>::const_iterator
 Container<T>::begin() const {
   return _map.begin();

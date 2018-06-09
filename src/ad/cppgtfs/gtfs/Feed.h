@@ -9,6 +9,7 @@
 #include <limits>
 #include <string>
 #include <unordered_map>
+#include <vector>
 #include "Agency.h"
 #include "Container.h"
 #include "Route.h"
@@ -16,6 +17,8 @@
 #include "Shape.h"
 #include "Stop.h"
 #include "Trip.h"
+#include "Transfer.h"
+#include "Fare.h"
 
 namespace ad {
 namespace cppgtfs {
@@ -27,6 +30,9 @@ typedef Container<Route> Routes;
 typedef Container<Trip> Trips;
 typedef Container<Shape> Shapes;
 typedef Container<Service> Services;
+typedef Container<Fare> Fares;
+typedef std::vector<Transfer> Transfers;
+typedef std::set<std::string> Zones;
 
 class Feed {
  public:
@@ -50,9 +56,17 @@ class Feed {
 
   const Shapes& getShapes() const;
   Shapes& getShapes();
-
   const Services& getServices() const;
   Services& getServices();
+
+  const Transfers& getTransfers() const;
+  Transfers& getTransfers();
+
+  const Zones& getZones() const;
+  Zones& getZones();
+
+  const Fares& getFares() const;
+  Fares& getFares();
 
   const std::string& getPublisherName() const;
   const std::string& getPublisherUrl() const;
@@ -74,8 +88,6 @@ class Feed {
   double getMaxLat() const;
   double getMaxLon() const;
 
-
-
  private:
   Agencies _agencies;
   Stops _stops;
@@ -83,6 +95,9 @@ class Feed {
   Trips _trips;
   Shapes _shapes;
   Services _services;
+  Transfers _transfers;
+  Zones _zones;
+  Fares _fares;
 
   double _maxLat, _maxLon, _minLat, _minLon;
 

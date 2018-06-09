@@ -1,4 +1,3 @@
-
 // Copyright 2016, University of Freiburg,
 // Chair of Algorithms and Data Structures.
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
@@ -81,8 +80,15 @@ class StopTime {
   const Stop* getStop() const { return _s; }
   Stop* getStop() { return _s; }
   const std::string& getHeadsign() const { return _headsign; }
-  PU_DO_TYPE getPickupType() const { return _pickupType; }
-  PU_DO_TYPE getDropOffType() const { return _dropOffType; }
+
+  PU_DO_TYPE getPickupType() const {
+    return static_cast<PU_DO_TYPE>(_pickupType);
+  }
+
+  PU_DO_TYPE getDropOffType() const {
+    return static_cast<PU_DO_TYPE>(_dropOffType);
+  }
+
   float getShapeDistanceTravelled() const { return _shapeDistTravelled; }
   void setShapeDistanceTravelled(double d) { _shapeDistTravelled = d; }
   bool isTimepoint() const { return _isTimepoint; }
@@ -95,11 +101,8 @@ class StopTime {
   Stop* _s;
   uint32_t _sequence;
   std::string _headsign;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wall"
-  PU_DO_TYPE _pickupType : 2;
-  PU_DO_TYPE _dropOffType : 2;
-#pragma GCC diagnostic pop
+  uint8_t _pickupType : 2;
+  uint8_t _dropOffType : 2;
   bool _isTimepoint : 1;
   float _shapeDistTravelled;
 };

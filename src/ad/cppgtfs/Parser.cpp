@@ -10,6 +10,7 @@
 #include "Parser.h"
 #include "ad/util/CsvParser.h"
 #include "gtfs/Agency.h"
+#include "gtfs/Fare.h"
 #include "gtfs/Frequency.h"
 #include "gtfs/Route.h"
 #include "gtfs/Stop.h"
@@ -28,6 +29,9 @@ using ad::cppgtfs::gtfs::Shape;
 using ad::cppgtfs::gtfs::ShapePoint;
 using ad::cppgtfs::gtfs::Time;
 using ad::cppgtfs::gtfs::Frequency;
+using ad::cppgtfs::gtfs::Transfer;
+using ad::cppgtfs::gtfs::Fare;
+using ad::cppgtfs::gtfs::FareRule;
 
 // ____________________________________________________________________________
 bool Parser::parse(gtfs::Feed* targetFeed, std::string path) const {
@@ -111,14 +115,14 @@ bool Parser::parse(gtfs::Feed* targetFeed, std::string path) const {
     curFile = gtfsPath / "fare_attributes.txt";
     fs.open(curFile.c_str());
     if (fs.good()) {
-      parseTransfers(targetFeed, &fs);
+      parseFareAttributes(targetFeed, &fs);
       fs.close();
     }
 
     curFile = gtfsPath / "fare_rules.txt";
     fs.open(curFile.c_str());
     if (fs.good()) {
-      parseTransfers(targetFeed, &fs);
+      parseFareRules(targetFeed, &fs);
       fs.close();
     }
   } catch (const CsvParserException& e) {
@@ -142,6 +146,34 @@ void Parser::parseTransfers(gtfs::Feed* targetFeed, std::istream* s) const {
   size_t toStopIdFld = csvp.getFieldIndex("to_stop_id");
   size_t transferTypeFld = csvp.getFieldIndex("transfer_type");
   size_t minTransferTimeFld = csvp.getOptFieldIndex("min_transfer_time");
+
+  while (csvp.readNextLine()) {
+    const std::string& fromStopId = getString(csvp, fromStopIdFld);
+    const std::string& toStopId = getString(csvp, toStopIdFld);
+
+    gtfs::Stop* fromStop = targetFeed->getStops().get(fromStopId);
+    gtfs::Stop* toStop = targetFeed->getStops().get(toStopId);
+
+    if (!fromStop) {
+      std::stringstream msg;
+      msg << "no stop with id '" << fromStopId
+          << "' defined in stops.txt, cannot "
+          << "reference here.";
+      throw ParserException(msg.str(), "from_stop_id", csvp.getCurLine());
+    }
+
+    if (!toStop) {
+      std::stringstream msg;
+      msg << "no stop with id '" << toStopId
+          << "' defined in stops.txt, cannot "
+          << "reference here.";
+      throw ParserException(msg.str(), "to_stop_id", csvp.getCurLine());
+    }
+    Transfer t(fromStop, toStop, static_cast<Transfer::TYPE>(getRangeInteger(
+                                     csvp, transferTypeFld, 0, 3, 0)),
+               getRangeInteger(csvp, minTransferTimeFld, 0, UINT32_MAX, -1));
+    targetFeed->getTransfers().push_back(t);
+  }
 }
 
 // ____________________________________________________________________________
@@ -177,10 +209,39 @@ void Parser::parseFareAttributes(gtfs::Feed* targetFeed,
   CsvParser csvp(s);
 
   size_t fareIdFld = csvp.getFieldIndex("fare_id");
-  size_t routeIdFld = csvp.getOptFieldIndex("route_id");
-  size_t originIdFld = csvp.getOptFieldIndex("origin_id");
-  size_t destinationIdFld = csvp.getOptFieldIndex("destination_id");
-  size_t containsIdFld = csvp.getOptFieldIndex("contains_id");
+  size_t priceFld = csvp.getFieldIndex("price");
+  size_t currencyTypeFld = csvp.getFieldIndex("currency_type");
+  size_t paymentMethodFld = csvp.getFieldIndex("payment_method");
+  size_t transfersFld = csvp.getFieldIndex("transfers");
+  size_t agencyFld = csvp.getOptFieldIndex("agency");
+  size_t transferDurationFld = csvp.getOptFieldIndex("transfer_duration");
+
+  while (csvp.readNextLine()) {
+    std::string id = getString(csvp, fareIdFld);
+    std::string agencyId = getString(csvp, agencyFld, "");
+    gtfs::Agency* agency = 0;
+
+    if (!agencyId.empty()) {
+      agency = targetFeed->getAgencies().get(agencyId);
+      if (!agency) {
+        std::stringstream msg;
+        msg << "no agency with id '" << agencyId << "' defined, cannot "
+            << "reference here.";
+        throw ParserException(msg.str(), "agency_id", csvp.getCurLine());
+      }
+    }
+
+    gtfs::Fare* t = new gtfs::Fare(
+        id, getDouble(csvp, priceFld),
+        getString(csvp, currencyTypeFld),
+        static_cast<Fare::PAYMENT_METHOD>(
+            getRangeInteger(csvp, paymentMethodFld, 0, 1)),
+        static_cast<Fare::NUM_TRANSFERS>(
+            getRangeInteger(csvp, transfersFld, 0, 3, 3)),
+        agency, getRangeInteger(csvp, transferDurationFld, 0, INT64_MAX, -1));
+
+    targetFeed->getFares().add(t);
+  }
 }
 
 // ____________________________________________________________________________
@@ -188,6 +249,62 @@ void Parser::parseFareRules(gtfs::Feed* targetFeed, std::istream* s) const {
   CsvParser csvp(s);
 
   size_t fareIdFld = csvp.getFieldIndex("fare_id");
+  size_t routeIdFld = csvp.getOptFieldIndex("route_id");
+  size_t originIdFld = csvp.getOptFieldIndex("origin_id");
+  size_t destinationIdFld = csvp.getOptFieldIndex("destination_id");
+  size_t containsIdFld = csvp.getOptFieldIndex("contains_id");
+
+  while (csvp.readNextLine()) {
+    std::string fareId = getString(csvp, fareIdFld);
+    std::string routeId = getString(csvp, routeIdFld, "");
+    std::string originZone = getString(csvp, originIdFld, "");
+    std::string destZone = getString(csvp, destinationIdFld, "");
+    std::string containsZone = getString(csvp, containsIdFld, "");
+
+    Fare* fare = targetFeed->getFares().get(fareId);
+    Route* route = targetFeed->getRoutes().get(routeId);
+
+    if (!fare) {
+      std::stringstream msg;
+      msg << "no fare with id '" << fareId << "' defined, cannot "
+          << "reference here.";
+      throw ParserException(msg.str(), "fare_id", csvp.getCurLine());
+    }
+
+    if (!routeId.empty() && !route) {
+      std::stringstream msg;
+      msg << "no route with id '" << routeId << "' defined, cannot "
+          << "reference here.";
+      throw ParserException(msg.str(), "route_id", csvp.getCurLine());
+    }
+
+    if (!originZone.empty() && !targetFeed->getZones().count(originZone)) {
+      std::stringstream msg;
+      msg << "no zone with id '" << originZone
+          << "' defined in stops.txt, cannot "
+          << "reference here.";
+      throw ParserException(msg.str(), "origin_id", csvp.getCurLine());
+    }
+
+    if (!destZone.empty() && !targetFeed->getZones().count(destZone)) {
+      std::stringstream msg;
+      msg << "no zone with id '" << destZone
+          << "' defined in stops.txt, cannot "
+          << "reference here.";
+      throw ParserException(msg.str(), "destination_id", csvp.getCurLine());
+    }
+
+    if (!containsZone.empty() && !targetFeed->getZones().count(containsZone)) {
+      std::stringstream msg;
+      msg << "no zone with id '" << containsZone
+          << "' defined in stops.txt, cannot "
+          << "reference here.";
+      throw ParserException(msg.str(), "contains_id", csvp.getCurLine());
+    }
+
+    FareRule r(route, originZone, destZone, containsZone);
+    fare->addFareRule(r);
+  }
 }
 
 // ____________________________________________________________________________
@@ -273,18 +390,19 @@ void Parser::parseStops(gtfs::Feed* targetFeed, std::istream* s) const {
     Stop::LOCATION_TYPE locType = static_cast<Stop::LOCATION_TYPE>(
         getRangeInteger(csvp, locationTypeFld, 0, 2, 0));
 
+    std::string zoneId = getString(csvp, zoneIdFld, "");
     double lat = getDouble(csvp, stopLatFld);
     double lon = getDouble(csvp, stopLonFld);
     targetFeed->updateBox(lat, lon);
 
-    Stop* s = new Stop(
-        getString(csvp, stopIdFld), getString(csvp, stopCodeFld, ""),
-        getString(csvp, stopNameFld), getString(csvp, stopDescFld, ""), lat,
-        lon, getString(csvp, zoneIdFld, ""), getString(csvp, stopUrlFld, ""),
-        locType, 0, getString(csvp, stopTimezoneFld, ""),
-        static_cast<Stop::WHEELCHAIR_BOARDING>(
-            getRangeInteger(csvp, wheelchairBoardingFld, 0, 2, 0)),
-        getString(csvp, platformCodeFld, ""));
+    Stop* s =
+        new Stop(getString(csvp, stopIdFld), getString(csvp, stopCodeFld, ""),
+                 getString(csvp, stopNameFld), getString(csvp, stopDescFld, ""),
+                 lat, lon, zoneId, getString(csvp, stopUrlFld, ""), locType, 0,
+                 getString(csvp, stopTimezoneFld, ""),
+                 static_cast<Stop::WHEELCHAIR_BOARDING>(
+                     getRangeInteger(csvp, wheelchairBoardingFld, 0, 2, 0)),
+                 getString(csvp, platformCodeFld, ""));
 
     const std::string& parentStatId = getString(csvp, parentStationFld, "");
     if (!parentStatId.empty()) {
@@ -298,6 +416,8 @@ void Parser::parseStops(gtfs::Feed* targetFeed, std::istream* s) const {
       parentStations[s] =
           std::pair<size_t, std::string>(csvp.getCurLine(), parentStatId);
     }
+
+    targetFeed->getZones().insert(zoneId);
 
     if (!targetFeed->getStops().add(s)) {
       std::stringstream msg;

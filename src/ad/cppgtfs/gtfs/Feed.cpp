@@ -15,6 +15,9 @@ using ad::cppgtfs::gtfs::Routes;
 using ad::cppgtfs::gtfs::Shapes;
 using ad::cppgtfs::gtfs::Services;
 using ad::cppgtfs::gtfs::ServiceDate;
+using ad::cppgtfs::gtfs::Transfers;
+using ad::cppgtfs::gtfs::Zones;
+using ad::cppgtfs::gtfs::Fares;
 
 // ____________________________________________________________________________
 const Agencies& Feed::getAgencies() const { return _agencies; }
@@ -51,6 +54,24 @@ const Services& Feed::getServices() const { return _services; }
 
 // ____________________________________________________________________________
 Services& Feed::getServices() { return _services; }
+
+// ____________________________________________________________________________
+const Transfers& Feed::getTransfers() const { return _transfers; }
+
+// ____________________________________________________________________________
+Transfers& Feed::getTransfers() { return _transfers; }
+
+// ____________________________________________________________________________
+const Zones& Feed::getZones() const { return _zones; }
+
+// ____________________________________________________________________________
+Zones& Feed::getZones() { return _zones; }
+
+// ____________________________________________________________________________
+const Fares& Feed::getFares() const { return _fares; }
+
+// ____________________________________________________________________________
+Fares& Feed::getFares() { return _fares; }
 
 // ____________________________________________________________________________
 const std::string& Feed::getPublisherName() const { return _publisherName; }

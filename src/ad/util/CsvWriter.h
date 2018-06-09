@@ -49,7 +49,6 @@ class CsvWriter {
   void writeStrArr(const std::vector<std::string>& arr);
 
   std::string escStr(const std::string& str) const;
-
 };
 }  // namespace util
 }  // namespace ad
