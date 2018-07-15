@@ -6,7 +6,6 @@
 #define AD_CPPGTFS_PARSER_H_
 
 #include <stdint.h>
-#include <boost/filesystem.hpp>
 #include <exception>
 #include <iostream>
 #include <istream>
@@ -67,7 +66,7 @@ class Parser {
   Parser(bool strict) : _strict(strict) {}
 
   // parse a zip/folder into a GtfsFeed
-  bool parse(gtfs::Feed* targetFeed, std::string path) const;
+  bool parse(gtfs::Feed* targetFeed, const std::string& path) const;
 
  private:
   bool _strict;
@@ -107,7 +106,7 @@ class Parser {
 
   gtfs::Route::TYPE getRouteType(const CsvParser& csv, size_t field,
                                  int64_t t) const;
-  void fileNotFound(boost::filesystem::path file) const;
+  void fileNotFound(const std::string& file) const;
 };
 }  // namespace cppgtfs
 }  // namespace ad

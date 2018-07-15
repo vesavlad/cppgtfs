@@ -6,7 +6,6 @@
 #define AD_CPPGTFS_WRITER_H_
 
 #include <stdint.h>
-#include <boost/filesystem.hpp>
 #include <exception>
 #include <iostream>
 #include <istream>
@@ -53,7 +52,7 @@ class Writer {
   Writer() {}
 
   // write a GtfsFeed to a zip/folder
-  bool write(gtfs::Feed* sourceFeed, std::string path) const;
+  bool write(gtfs::Feed* sourceFeed, const std::string& path) const;
 
  private:
   bool writeAgencies(gtfs::Feed* f, std::ostream* os) const;
@@ -69,7 +68,7 @@ class Writer {
   bool writeFrequencies(gtfs::Feed* f, std::ostream* os) const;
   bool writeFares(gtfs::Feed* f, std::ostream* os) const;
   bool writeFareRules(gtfs::Feed* f, std::ostream* os) const;
-  void cannotWrite(boost::filesystem::path file) const;
+  void cannotWrite(const std::string& file) const;
 };
 }  // namespace cppgtfs
 }  // namespace ad

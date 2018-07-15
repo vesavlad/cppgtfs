@@ -2,7 +2,6 @@
 // Chair of Algorithms and Data Structures.
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
-#include <boost/filesystem.hpp>
 #include <fstream>
 #include <map>
 #include <string>
@@ -26,42 +25,42 @@ using ad::cppgtfs::gtfs::ShapePoint;
 using ad::cppgtfs::gtfs::Time;
 
 // ____________________________________________________________________________
-bool Writer::write(gtfs::Feed* sourceFeed, std::string path) const {
+bool Writer::write(gtfs::Feed* sourceFeed, const std::string& path) const {
   std::ofstream fs;
-  boost::filesystem::path gtfsPath(path);
-  boost::filesystem::path curFile;
+  std::string gtfsPath(path);
+  std::string curFile;
 
-  curFile = gtfsPath / "shapes.txt";
+  curFile = gtfsPath + "/shapes.txt";
   fs.open(curFile.c_str());
   if (!fs.good()) cannotWrite(curFile);
   writeShapes(sourceFeed, &fs);
   fs.close();
 
-  curFile = gtfsPath / "trips.txt";
+  curFile = gtfsPath + "/trips.txt";
   fs.open(curFile.c_str());
   if (!fs.good()) cannotWrite(curFile);
   bool hasFreqs = writeTrips(sourceFeed, &fs);
   fs.close();
 
-  curFile = gtfsPath / "agency.txt";
+  curFile = gtfsPath + "/agency.txt";
   fs.open(curFile.c_str());
   if (!fs.good()) cannotWrite(curFile);
   writeAgencies(sourceFeed, &fs);
   fs.close();
 
-  curFile = gtfsPath / "stops.txt";
+  curFile = gtfsPath + "/stops.txt";
   fs.open(curFile.c_str());
   if (!fs.good()) cannotWrite(curFile);
   writeStops(sourceFeed, &fs);
   fs.close();
 
-  curFile = gtfsPath / "stop_times.txt";
+  curFile = gtfsPath + "/stop_times.txt";
   fs.open(curFile.c_str());
   if (!fs.good()) cannotWrite(curFile);
   writeStopTimes(sourceFeed, &fs);
   fs.close();
 
-  curFile = gtfsPath / "routes.txt";
+  curFile = gtfsPath + "/routes.txt";
   fs.open(curFile.c_str());
   if (!fs.good()) cannotWrite(curFile);
   writeRoutes(sourceFeed, &fs);
@@ -69,27 +68,27 @@ bool Writer::write(gtfs::Feed* sourceFeed, std::string path) const {
 
   if (!sourceFeed->getPublisherUrl().empty() &&
       !sourceFeed->getPublisherName().empty()) {
-    curFile = gtfsPath / "feed_info.txt";
+    curFile = gtfsPath + "/feed_info.txt";
     fs.open(curFile.c_str());
     if (!fs.good()) cannotWrite(curFile);
     writeFeedInfo(sourceFeed, &fs);
     fs.close();
   }
 
-  curFile = gtfsPath / "calendar.txt";
+  curFile = gtfsPath + "/calendar.txt";
   fs.open(curFile.c_str());
   if (!fs.good()) cannotWrite(curFile);
   writeCalendar(sourceFeed, &fs);
   fs.close();
 
-  curFile = gtfsPath / "calendar_dates.txt";
+  curFile = gtfsPath + "/calendar_dates.txt";
   fs.open(curFile.c_str());
   if (!fs.good()) cannotWrite(curFile);
   writeCalendarDates(sourceFeed, &fs);
   fs.close();
 
   if (hasFreqs) {
-    curFile = gtfsPath / "frequencies.txt";
+    curFile = gtfsPath + "/frequencies.txt";
     fs.open(curFile.c_str());
     if (!fs.good()) cannotWrite(curFile);
     writeFrequencies(sourceFeed, &fs);
@@ -97,7 +96,7 @@ bool Writer::write(gtfs::Feed* sourceFeed, std::string path) const {
   }
 
   if (sourceFeed->getTransfers().size()) {
-    curFile = gtfsPath / "transfers.txt";
+    curFile = gtfsPath + "/transfers.txt";
     fs.open(curFile.c_str());
     if (!fs.good()) cannotWrite(curFile);
     writeTransfers(sourceFeed, &fs);
@@ -105,13 +104,13 @@ bool Writer::write(gtfs::Feed* sourceFeed, std::string path) const {
   }
 
   if (sourceFeed->getFares().size()) {
-    curFile = gtfsPath / "fare_attributes.txt";
+    curFile = gtfsPath + "/fare_attributes.txt";
     fs.open(curFile.c_str());
     if (!fs.good()) cannotWrite(curFile);
     writeFares(sourceFeed, &fs);
     fs.close();
 
-    curFile = gtfsPath / "fare_rules.txt";
+    curFile = gtfsPath + "/fare_rules.txt";
     fs.open(curFile.c_str());
     if (!fs.good()) cannotWrite(curFile);
     writeFareRules(sourceFeed, &fs);
@@ -438,6 +437,6 @@ bool Writer::writeFrequencies(gtfs::Feed* f, std::ostream* os) const {
 }
 
 // ___________________________________________________________________________
-void Writer::cannotWrite(boost::filesystem::path file) const {
-  throw WriterException("Could not write to file.", std::string(file.c_str()));
+void Writer::cannotWrite(const std::string& file) const {
+  throw WriterException("Could not write to file.", file);
 }

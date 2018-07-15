@@ -2,7 +2,7 @@
 // Chair of Algorithms and Data Structures.
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
-#include <boost/filesystem.hpp>
+#include <cstring>
 #include <fstream>
 #include <map>
 #include <string>
@@ -34,92 +34,92 @@ using ad::cppgtfs::gtfs::Fare;
 using ad::cppgtfs::gtfs::FareRule;
 
 // ____________________________________________________________________________
-bool Parser::parse(gtfs::Feed* targetFeed, std::string path) const {
+bool Parser::parse(gtfs::Feed* targetFeed, const std::string& path) const {
   std::ifstream fs;
-  boost::filesystem::path gtfsPath(path);
-  boost::filesystem::path curFile;
+  std::string gtfsPath(path);
+  std::string curFile;
 
   try {
-    curFile = gtfsPath / "feed_info.txt";
+    curFile = gtfsPath + "/feed_info.txt";
     fs.open(curFile.c_str());
     if (fs.good()) {
       parseFeedInfo(targetFeed, &fs);
       fs.close();
     }
 
-    curFile = gtfsPath / "agency.txt";
+    curFile = gtfsPath + "/agency.txt";
     fs.open(curFile.c_str());
     if (!fs.good()) fileNotFound(curFile);
     parseAgencies(targetFeed, &fs);
     fs.close();
 
-    curFile = gtfsPath / "stops.txt";
+    curFile = gtfsPath + "/stops.txt";
     fs.open(curFile.c_str());
     if (!fs.good()) fileNotFound(curFile);
     parseStops(targetFeed, &fs);
     fs.close();
 
-    curFile = gtfsPath / "routes.txt";
+    curFile = gtfsPath + "/routes.txt";
     fs.open(curFile.c_str());
     if (!fs.good()) fileNotFound(curFile);
     parseRoutes(targetFeed, &fs);
     fs.close();
 
-    curFile = gtfsPath / "calendar.txt";
+    curFile = gtfsPath + "/calendar.txt";
     fs.open(curFile.c_str());
     if (fs.good()) {
       parseCalendar(targetFeed, &fs);
       fs.close();
     }
 
-    curFile = gtfsPath / "calendar_dates.txt";
+    curFile = gtfsPath + "/calendar_dates.txt";
     fs.open(curFile.c_str());
     if (fs.good()) {
       parseCalendarDates(targetFeed, &fs);
       fs.close();
     }
 
-    curFile = gtfsPath / "shapes.txt";
+    curFile = gtfsPath + "/shapes.txt";
     fs.open(curFile.c_str());
     if (fs.good()) {
       parseShapes(targetFeed, &fs);
       fs.close();
     }
 
-    curFile = gtfsPath / "trips.txt";
+    curFile = gtfsPath + "/trips.txt";
     fs.open(curFile.c_str());
     if (!fs.good()) fileNotFound(curFile);
     parseTrips(targetFeed, &fs);
     fs.close();
 
-    curFile = gtfsPath / "stop_times.txt";
+    curFile = gtfsPath + "/stop_times.txt";
     fs.open(curFile.c_str());
     if (!fs.good()) fileNotFound(curFile);
     parseStopTimes(targetFeed, &fs);
     fs.close();
 
-    curFile = gtfsPath / "frequencies.txt";
+    curFile = gtfsPath + "/frequencies.txt";
     fs.open(curFile.c_str());
     if (fs.good()) {
       parseFrequencies(targetFeed, &fs);
       fs.close();
     }
 
-    curFile = gtfsPath / "transfers.txt";
+    curFile = gtfsPath + "/transfers.txt";
     fs.open(curFile.c_str());
     if (fs.good()) {
       parseTransfers(targetFeed, &fs);
       fs.close();
     }
 
-    curFile = gtfsPath / "fare_attributes.txt";
+    curFile = gtfsPath + "/fare_attributes.txt";
     fs.open(curFile.c_str());
     if (fs.good()) {
       parseFareAttributes(targetFeed, &fs);
       fs.close();
     }
 
-    curFile = gtfsPath / "fare_rules.txt";
+    curFile = gtfsPath + "/fare_rules.txt";
     fs.open(curFile.c_str());
     if (fs.good()) {
       parseFareRules(targetFeed, &fs);
@@ -232,8 +232,7 @@ void Parser::parseFareAttributes(gtfs::Feed* targetFeed,
     }
 
     gtfs::Fare* t = new gtfs::Fare(
-        id, getDouble(csvp, priceFld),
-        getString(csvp, currencyTypeFld),
+        id, getDouble(csvp, priceFld), getString(csvp, currencyTypeFld),
         static_cast<Fare::PAYMENT_METHOD>(
             getRangeInteger(csvp, paymentMethodFld, 0, 1)),
         static_cast<Fare::NUM_TRANSFERS>(
@@ -754,7 +753,7 @@ void Parser::parseStopTimes(gtfs::Feed* targetFeed, std::istream* s) const {
 }
 
 // ___________________________________________________________________________
-void Parser::fileNotFound(boost::filesystem::path file) const {
+void Parser::fileNotFound(const std::string& file) const {
   throw ParserException("File not found", "", -1, std::string(file.c_str()));
 }
 
