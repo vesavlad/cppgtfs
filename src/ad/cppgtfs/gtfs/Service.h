@@ -55,7 +55,7 @@ class ServiceDate {
 
   // returns a time struct of this date at 12:00
   tm getTimeStrc() const {
-    tm ret = {};
+    tm ret;
     ret.tm_year = getYear() - 1900;
     ret.tm_mon = getMonth() - 1;
     ret.tm_mday = getDay();

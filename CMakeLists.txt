@@ -1,4 +1,3 @@
-cmake_minimum_required (VERSION 2.8.11)
 project (cppgtfs)
 
 set(CMAKE_C_STANDARD 11)
