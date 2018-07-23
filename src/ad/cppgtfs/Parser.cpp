@@ -845,7 +845,7 @@ uint32_t Parser::getColorFromHexString(const CsvParser& csv, size_t field,
 
   try {
     ret = std::stoul("0x" + color_string, &chars_processed, 16);
-  } catch (std::exception e) {
+  } catch (const std::exception& e) {
     if (_strict) {
       std::stringstream msg;
       msg << "expected a 6-character hexadecimal color string, found '"

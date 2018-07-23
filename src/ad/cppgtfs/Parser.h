@@ -53,7 +53,6 @@ class ParserException : public std::exception {
  private:
   mutable std::string _what_msg;
   std::string _msg;
-  uint16_t _column;
   std::string _field_name;
   int64_t _line;
   std::string _file_name;
