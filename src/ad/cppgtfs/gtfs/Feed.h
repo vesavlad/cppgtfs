@@ -37,8 +37,8 @@ typedef std::set<std::string> Zones;
 class Feed {
  public:
   Feed()
-      : _maxLat(std::numeric_limits<double>::min()),
-        _maxLon(std::numeric_limits<double>::min()),
+      : _maxLat(std::numeric_limits<double>::lowest()),
+        _maxLon(std::numeric_limits<double>::lowest()),
         _minLat(std::numeric_limits<double>::max()),
         _minLon(std::numeric_limits<double>::max()) {}
 
