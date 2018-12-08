@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <cassert>
 #include <string>
+#include "flat/Stop.h"
 
 using std::exception;
 using std::string;
@@ -18,21 +19,19 @@ namespace gtfs {
 
 class Stop {
  public:
-  enum LOCATION_TYPE : uint8_t { STOP = 0, STATION = 1, STATION_ENTRANCE = 2 };
-
-  enum WHEELCHAIR_BOARDING : uint8_t {
-    NO_INFORMATION = 0,
-    BOARDING_POSSIBLE = 1,
-    BOARDING_NOT_POSSIBLE = 2
-  };
+  typedef Stop* Ref;
+  static std::string getId(Ref r) { return r->getId(); }
+  typedef flat::Stop::LOCATION_TYPE LOCATION_TYPE;
+  typedef flat::Stop::WHEELCHAIR_BOARDING WHEELCHAIR_BOARDING;
 
   Stop() {}
 
   Stop(const string& id, const string& code, const string& name,
        const string& desc, float lat, float lng, string zone_id,
-       const string& stop_url, Stop::LOCATION_TYPE location_type,
+       const string& stop_url, flat::Stop::LOCATION_TYPE location_type,
        Stop* parent_station, const string& stop_timezone,
-       Stop::WHEELCHAIR_BOARDING wheelchair_boarding, const std::string& platform_code)
+       flat::Stop::WHEELCHAIR_BOARDING wheelchair_boarding,
+       const std::string& platform_code)
       : _id(id),
         _code(code),
         _name(name),
@@ -65,7 +64,7 @@ class Stop {
 
   const std::string& getStopUrl() const { return _stop_url; }
 
-  Stop::LOCATION_TYPE getLocationType() const { return _location_type; }
+  flat::Stop::LOCATION_TYPE getLocationType() const { return _location_type; }
 
   const Stop* getParentStation() const { return _parent_station; }
 
@@ -75,8 +74,26 @@ class Stop {
 
   const std::string& getStopTimezone() const { return _stop_timezone; }
 
-  Stop::WHEELCHAIR_BOARDING getWheelchairBoarding() const {
+  flat::Stop::WHEELCHAIR_BOARDING getWheelchairBoarding() const {
     return _wheelchair_boarding;
+  }
+
+  flat::Stop getFlat() const {
+    flat::Stop r;
+    r.id = _id;
+    r.code = _code;
+    r.name = _name;
+    r.desc =  _desc;
+    r.zone_id = _zone_id;
+    r.stop_url = _stop_url;
+    r.stop_timezone = _stop_timezone;
+    r.platform_code = _platform_code;
+    r.parent_station = (_parent_station ? _parent_station->getId() : "");
+    r.lat = _lat;
+    r.lng = _lng;
+    r.wheelchair_boarding = _wheelchair_boarding;
+    r.location_type = _location_type;
+    return r;
   }
 
   // TODO(patrick): implement setters
@@ -86,8 +103,8 @@ class Stop {
       _platform_code;
   Stop* _parent_station;
   float _lat, _lng;
-  Stop::WHEELCHAIR_BOARDING _wheelchair_boarding;
-  Stop::LOCATION_TYPE _location_type;
+  flat::Stop::WHEELCHAIR_BOARDING _wheelchair_boarding;
+  flat::Stop::LOCATION_TYPE _location_type;
 };
 
 }  // namespace gtfs

@@ -96,6 +96,9 @@ class CsvParser {
   // returns the line number the parser is currently at
   int32_t getCurLine() const;
 
+  // returns the position of the current line in the file
+  size_t getCurOffset() const;
+
   // checks whether a column with a specific name exists in this file
   bool hasItem(const std::string& fieldName) const;
 
@@ -115,6 +118,7 @@ class CsvParser {
 
  private:
   int32_t _curLine;
+  size_t _offset, _nextOffset;
 
   // The handle to the file.
   std::istream* _stream;

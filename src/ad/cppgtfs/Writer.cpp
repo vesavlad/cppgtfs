@@ -10,6 +10,7 @@
 #include "ad/util/CsvWriter.h"
 #include "gtfs/Shape.h"
 #include "gtfs/Trip.h"
+#include "gtfs/flat/Agency.h"
 
 using ad::util::CsvWriter;
 using ad::cppgtfs::Writer;
@@ -78,7 +79,7 @@ bool Writer::write(gtfs::Feed* sourceFeed, const std::string& path) const {
   curFile = gtfsPath + "/calendar.txt";
   fs.open(curFile.c_str());
   if (!fs.good()) cannotWrite(curFile);
-  writeCalendar(sourceFeed, &fs);
+  writeCalendars(sourceFeed, &fs);
   fs.close();
 
   curFile = gtfsPath + "/calendar_dates.txt";
@@ -121,130 +122,195 @@ bool Writer::write(gtfs::Feed* sourceFeed, const std::string& path) const {
 }
 
 // ____________________________________________________________________________
-bool Writer::writeAgencies(gtfs::Feed* sourceFeed, std::ostream* s) const {
-  CsvWriter csvw(
-      s, {"agency_id", "agency_name", "agency_url", "agency_timezone",
-          "agency_lang", "agency_phone", "agency_fare_url", "agency_email"});
+CsvWriter Writer::getAgencyCsvw(std::ostream* os) {
+  return CsvWriter(
+      os, {"agency_id", "agency_name", "agency_url", "agency_timezone",
+           "agency_lang", "agency_phone", "agency_fare_url", "agency_email"});
+}
 
-  for (const auto& t : sourceFeed->getAgencies()) {
-    csvw.writeString(t.second->getId());
-    csvw.writeString(t.second->getName());
-    csvw.writeString(t.second->getUrl());
-    csvw.writeString(t.second->getTimezone());
-    csvw.writeString(t.second->getLang());
-    csvw.writeString(t.second->getPhone());
-    csvw.writeString(t.second->getFareUrl());
-    csvw.writeString(t.second->getAgencyEmail());
-    csvw.flushLine();
+// ____________________________________________________________________________
+bool Writer::writeAgency(const gtfs::flat::Agency& ag, CsvWriter* csvw) const {
+  csvw->writeString(ag.id);
+  csvw->writeString(ag.name);
+  csvw->writeString(ag.url);
+  csvw->writeString(ag.timezone);
+  csvw->writeString(ag.lang);
+  csvw->writeString(ag.phone);
+  csvw->writeString(ag.fare_url);
+  csvw->writeString(ag.agency_email);
+  csvw->flushLine();
+
+  return true;
+}
+
+// ____________________________________________________________________________
+bool Writer::writeAgencies(gtfs::Feed* sourceFeed, std::ostream* s) const {
+  CsvWriter csvw = getAgencyCsvw(s);
+  for (const auto& a : sourceFeed->getAgencies()) {
+    writeAgency(a.second->getFlat(), &csvw);
   }
+
+  return true;
+}
+
+// ____________________________________________________________________________
+CsvWriter Writer::getStopsCsvw(std::ostream* os) {
+  return CsvWriter(
+      os, {"stop_id", "stop_code", "stop_name", "stop_desc", "stop_lat",
+           "stop_lon", "zone_id", "stop_url", "location_type", "parent_station",
+           "stop_timezone", "wheelchair_boarding", "platform_code"});
+}
+
+// ____________________________________________________________________________
+bool Writer::writeStop(const gtfs::flat::Stop& s, CsvWriter* csvw) const {
+  csvw->writeString(s.id);
+  csvw->writeString(s.code);
+  csvw->writeString(s.name);
+  csvw->writeString(s.desc);
+  csvw->writeDouble(s.lat);
+  csvw->writeDouble(s.lng);
+  csvw->writeString(s.zone_id);
+  csvw->writeString(s.stop_url);
+  csvw->writeInt(s.location_type);
+  if (!s.parent_station.empty())
+    csvw->writeString(s.parent_station);
+  else
+    csvw->skip();
+  csvw->writeString(s.stop_timezone);
+  csvw->writeInt(s.wheelchair_boarding);
+  csvw->writeString(s.platform_code);
+  csvw->flushLine();
 
   return true;
 }
 
 // ____________________________________________________________________________
 bool Writer::writeStops(gtfs::Feed* sourceFeed, std::ostream* s) const {
-  CsvWriter csvw(
-      s, {"stop_id", "stop_code", "stop_name", "stop_desc", "stop_lat",
-          "stop_lon", "zone_id", "stop_url", "location_type", "parent_station",
-          "stop_timezone", "wheelchair_boarding", "platform_code"});
+  CsvWriter csvw = getStopsCsvw(s);
 
   for (const auto& t : sourceFeed->getStops()) {
-    csvw.writeString(t.second->getId());
-    csvw.writeString(t.second->getCode());
-    csvw.writeString(t.second->getName());
-    csvw.writeString(t.second->getDesc());
-    csvw.writeDouble(t.second->getLat());
-    csvw.writeDouble(t.second->getLng());
-    csvw.writeString(t.second->getZoneId());
-    csvw.writeString(t.second->getStopUrl());
-    csvw.writeInt(t.second->getLocationType());
-    if (t.second->getParentStation())
-      csvw.writeString(t.second->getParentStation()->getId());
-    else
-      csvw.skip();
-    csvw.writeString(t.second->getStopTimezone());
-    csvw.writeInt(t.second->getWheelchairBoarding());
-    csvw.writeString(t.second->getPlatformCode());
-    csvw.flushLine();
+    writeStop(t.second->getFlat(), &csvw);
   }
 
   return true;
 }
 
 // ____________________________________________________________________________
+CsvWriter Writer::getTripsCsvw(std::ostream* os) {
+  return CsvWriter(os, {"route_id", "service_id", "trip_id", "trip_headsign",
+                        "trip_short_name", "direction_id", "block_id",
+                        "shape_id", "wheelchair_accessible", "bikes_allowed"});
+}
+
+// ____________________________________________________________________________
+bool Writer::writeTrip(const gtfs::flat::Trip& t, CsvWriter* csvw) const {
+  csvw->writeString(t.route);
+  csvw->writeString(t.service);
+  csvw->writeString(t.id);
+  csvw->writeString(t.headsign);
+  csvw->writeString(t.short_name);
+  if (t.dir < 2)
+    csvw->writeInt(t.dir);
+  else
+    csvw->skip();
+  csvw->writeString(t.block_id);
+  if (!t.shape.empty())
+    csvw->writeString(t.shape);
+  else
+    csvw->skip();
+  csvw->writeInt(t.wc);
+  csvw->writeInt(t.ba);
+  csvw->flushLine();
+  return true;
+}
+
+// ____________________________________________________________________________
 bool Writer::writeTrips(gtfs::Feed* sourceFeed, std::ostream* s) const {
-  CsvWriter csvw(s, {"route_id", "service_id", "trip_id", "trip_headsign",
-                     "trip_short_name", "direction_id", "block_id", "shape_id",
-                     "wheelchair_accessible", "bikes_allowed"});
   bool hasFreqs = false;
+  CsvWriter csvw = getTripsCsvw(s);
   for (const auto& t : sourceFeed->getTrips()) {
     if (t.second->getFrequencies().size()) hasFreqs = true;
-    csvw.writeString(t.second->getRoute()->getId());
-    csvw.writeString(t.second->getService()->getId());
-    csvw.writeString(t.second->getId());
-    csvw.writeString(t.second->getHeadsign());
-    csvw.writeString(t.second->getShortname());
-    if (t.second->getDirection() < 2)
-      csvw.writeInt(t.second->getDirection());
-    else
-      csvw.skip();
-    csvw.writeString(t.second->getBlockId());
-    if (t.second->getShape())
-      csvw.writeString(t.second->getShape()->getId());
-    else
-      csvw.skip();
-    csvw.writeInt(t.second->getWheelchairAccessibility());
-    csvw.writeInt(t.second->getBikesAllowed());
-    csvw.flushLine();
+    writeTrip(t.second->getFlat(), &csvw);
   }
 
   return hasFreqs;
 }
 
 // ____________________________________________________________________________
+CsvWriter Writer::getStopTimesCsvw(std::ostream* os) {
+  return CsvWriter(os, {"trip_id", "arrival_time", "departure_time", "stop_id",
+                        "stop_sequence", "stop_headsign", "pickup_type",
+                        "drop_off_type", "shape_dist_traveled", "timepoint"});
+}
+
+// ____________________________________________________________________________
+bool Writer::writeStopTime(const gtfs::flat::StopTime& st,
+                           CsvWriter* csvw) const {
+  csvw->writeString(st.trip);
+  csvw->writeString(st.at.toString());
+  csvw->writeString(st.dt.toString());
+  csvw->writeString(st.s);
+  csvw->writeInt(st.sequence);
+  csvw->writeString(st.headsign);
+  csvw->writeInt(st.pickupType);
+  csvw->writeInt(st.dropOffType);
+  if (st.shapeDistTravelled > -.5)
+    csvw->writeDouble(st.shapeDistTravelled);
+  else
+    csvw->skip();
+  csvw->writeInt(st.isTimepoint);
+  csvw->flushLine();
+  return true;
+}
+
+// ____________________________________________________________________________
 bool Writer::writeStopTimes(gtfs::Feed* sourceFeed, std::ostream* s) const {
-  CsvWriter csvw(s, {"trip_id", "arrival_time", "departure_time", "stop_id",
-                     "stop_sequence", "stop_headsign", "pickup_type",
-                     "drop_off_type", "shape_dist_traveled", "timepoint"});
+  CsvWriter csvw = getStopTimesCsvw(s);
 
   for (const auto& t : sourceFeed->getTrips()) {
     for (const auto& p : t.second->getStopTimes()) {
-      csvw.writeString(t.second->getId());
-      csvw.writeString(p.getArrivalTime().toString());
-      csvw.writeString(p.getDepartureTime().toString());
-      csvw.writeString(p.getStop()->getId());
-      csvw.writeInt(p.getSeq());
-      csvw.writeString(p.getHeadsign());
-      csvw.writeInt(p.getPickupType());
-      csvw.writeInt(p.getDropOffType());
-      if (p.getShapeDistanceTravelled() > -.5)
-        csvw.writeDouble(p.getShapeDistanceTravelled());
-      else
-        csvw.skip();
-      csvw.writeInt(p.isTimepoint());
-      csvw.flushLine();
+      writeStopTime(
+          gtfs::flat::StopTime{p.getArrivalTime(), p.getDepartureTime(),
+                               t.second->getId(), p.getStop()->getId(),
+                               p.getSeq(), p.getHeadsign(), p.getPickupType(),
+                               p.getDropOffType(), p.isTimepoint(),
+                               p.getShapeDistanceTravelled()},
+          &csvw);
     }
   }
 
+  return true;
+}
+
+// ____________________________________________________________________________
+CsvWriter Writer::getShapesCsvw(std::ostream* os) {
+  return CsvWriter(os, {"shape_id", "shape_pt_lat", "shape_pt_lon",
+                        "shape_pt_sequence", "shape_dist_traveled"});
+}
+
+// ____________________________________________________________________________
+bool Writer::writeShapePoint(const gtfs::flat::ShapePoint& s,
+                             CsvWriter* csvw) const {
+  csvw->writeString(s.id);
+  csvw->writeDouble(s.lat);
+  csvw->writeDouble(s.lng);
+  csvw->writeInt(s.seq);
+  if (s.travelDist > -0.5)
+    csvw->writeDouble(s.travelDist);
+  else
+    csvw->skip();
+  csvw->flushLine();
   return true;
 }
 
 // ____________________________________________________________________________
 bool Writer::writeShapes(gtfs::Feed* sourceFeed, std::ostream* s) const {
-  CsvWriter csvw(s, {"shape_id", "shape_pt_lat", "shape_pt_lon",
-                     "shape_pt_sequence", "shape_dist_traveled"});
-
+  CsvWriter csvw = getShapesCsvw(s);
   for (const auto& t : sourceFeed->getShapes()) {
     for (const auto& p : t.second->getPoints()) {
-      csvw.writeString(t.second->getId());
-      csvw.writeDouble(p.lat);
-      csvw.writeDouble(p.lng);
-      csvw.writeInt(p.seq);
-      if (p.travelDist > -0.5)
-        csvw.writeDouble(p.travelDist);
-      else
-        csvw.skip();
-      csvw.flushLine();
+      writeShapePoint(gtfs::flat::ShapePoint{t.second->getId(), p.lat, p.lng,
+                                             p.travelDist, p.seq},
+                      &csvw);
     }
   }
 
@@ -252,35 +318,50 @@ bool Writer::writeShapes(gtfs::Feed* sourceFeed, std::ostream* s) const {
 }
 
 // ____________________________________________________________________________
-bool Writer::writeRoutes(gtfs::Feed* sourceFeed, std::ostream* s) const {
-  CsvWriter csvw(s, {"route_id", "agency_id", "route_short_name",
-                     "route_long_name", "route_desc", "route_type", "route_url",
-                     "route_color", "route_text_color"});
+bool Writer::writeRoute(const gtfs::flat::Route& s, CsvWriter* csvw) const {
+  csvw->writeString(s.id);
+  if (!s.agency.empty())
+    csvw->writeString(s.agency);
+  else
+    csvw->skip();
+  csvw->writeString(s.short_name);
+  csvw->writeString(s.long_name);
+  csvw->writeString(s.desc);
+  csvw->writeInt(s.type);
+  csvw->writeString(s.url);
+  csvw->writeString(gtfs::flat::Route::getHexColorString(s.color));
+  csvw->writeString(gtfs::flat::Route::getHexColorString(s.text_color));
+  csvw->flushLine();
 
-  for (const auto& r : sourceFeed->getRoutes()) {
-    csvw.writeString(r.second->getId());
-    if (r.second->getAgency())
-      csvw.writeString(r.second->getAgency()->getId());
-    else
-      csvw.skip();
-    csvw.writeString(r.second->getShortName());
-    csvw.writeString(r.second->getLongName());
-    csvw.writeString(r.second->getDesc());
-    csvw.writeInt(r.second->getType());
-    csvw.writeString(r.second->getUrl());
-    csvw.writeString(r.second->getColorString());
-    csvw.writeString(r.second->getTextColorString());
-    csvw.flushLine();
+  return true;
+}
+
+// ____________________________________________________________________________
+CsvWriter Writer::getRoutesCsvw(std::ostream* os) {
+  return CsvWriter(os, {"route_id", "agency_id", "route_short_name",
+                        "route_long_name", "route_desc", "route_type",
+                        "route_url", "route_color", "route_text_color"});
+}
+
+// ____________________________________________________________________________
+bool Writer::writeRoutes(gtfs::Feed* sourceFeed, std::ostream* s) const {
+  CsvWriter csvw = getAgencyCsvw(s);
+  for (const auto& a : sourceFeed->getRoutes()) {
+    writeRoute(a.second->getFlat(), &csvw);
   }
 
   return true;
 }
 
 // ____________________________________________________________________________
-bool Writer::writeFeedInfo(gtfs::Feed* f, std::ostream* os) const {
-  CsvWriter csvw(os, {"feed_publisher_name", "feed_publisher_url", "feed_lang",
+CsvWriter Writer::getFeedInfoCsvw(std::ostream* os) {
+  return CsvWriter(os, {"feed_publisher_name", "feed_publisher_url", "feed_lang",
                       "feed_start_date", "feed_end_date", "feed_version"});
+}
 
+// ____________________________________________________________________________
+bool Writer::writeFeedInfo(gtfs::Feed* f, std::ostream* os) const {
+  auto csvw = getFeedInfoCsvw(os);
   csvw.writeString(f->getPublisherName());
   csvw.writeString(f->getPublisherUrl());
   csvw.writeString(f->getLang());
@@ -299,74 +380,113 @@ bool Writer::writeFeedInfo(gtfs::Feed* f, std::ostream* os) const {
 }
 
 // ____________________________________________________________________________
-bool Writer::writeTransfers(gtfs::Feed* f, std::ostream* os) const {
-  CsvWriter csvw(
+CsvWriter Writer::getTransfersCsvw(std::ostream* os) {
+  return CsvWriter(
       os, {"from_stop_id", "to_stop_id", "transfer_type", "min_transfer_time"});
+}
 
-  for (const auto& r : f->getTransfers()) {
-    csvw.writeString(r.getFromStop()->getId());
-    csvw.writeString(r.getToStop()->getId());
-    csvw.writeInt(r.getType());
-    if (r.getMinTransferTime() > -1)
-      csvw.writeInt(r.getMinTransferTime());
-    else
-      csvw.skip();
-    csvw.flushLine();
+// ____________________________________________________________________________
+bool Writer::writeTransfer(const gtfs::flat::Transfer& t,
+                           CsvWriter* csvw) const {
+  csvw->writeString(t.fromStop);
+  csvw->writeString(t.toStop);
+  csvw->writeInt(t.type);
+  if (t.tTime > -1)
+    csvw->writeInt(t.tTime);
+  else
+    csvw->skip();
+  csvw->flushLine();
+  return true;
+}
+
+// ____________________________________________________________________________
+bool Writer::writeTransfers(gtfs::Feed* f, std::ostream* os) const {
+  auto csvw = getTransfersCsvw(os);
+
+  for (const auto& t : f->getTransfers()) {
+    writeTransfer(t.getFlat(), &csvw);
   }
 
+  return true;
+}
+
+// ____________________________________________________________________________
+CsvWriter Writer::getFaresCsvw(std::ostream* os) {
+  return CsvWriter(os, {"fare_id", "price", "currency_type", "payment_method",
+                        "transfers", "agency_id", "transfer_duration"});
+}
+
+// ____________________________________________________________________________
+bool Writer::writeFare(const gtfs::flat::Fare& t, CsvWriter* csvw) const {
+  csvw->writeString(t.id);
+  csvw->writeDouble(t.price);
+  csvw->writeString(t.currencyType);
+  csvw->writeInt(t.paymentMethod);
+  csvw->writeInt(t.numTransfers);
+  if (!t.agency.empty())
+    csvw->writeString(t.agency);
+  else
+    csvw->skip();
+  if (t.duration > -1)
+    csvw->writeInt(t.duration);
+  else
+    csvw->skip();
+  csvw->flushLine();
   return true;
 }
 
 // ____________________________________________________________________________
 bool Writer::writeFares(gtfs::Feed* f, std::ostream* os) const {
-  CsvWriter csvw(os, {"fare_id", "price", "currency_type", "payment_method",
-                      "transfers", "agency_id", "transfer_duration"});
+  auto csvw = getFaresCsvw(os);
 
   for (const auto& r : f->getFares()) {
-    csvw.writeString(r.second->getId());
-    csvw.writeDouble(r.second->getPrice());
-    csvw.writeString(r.second->getCurrencyType());
-    csvw.writeInt(r.second->getPaymentMethod());
-    csvw.writeInt(r.second->getNumTransfers());
-    if (r.second->getAgency())
-      csvw.writeString(r.second->getAgency()->getId());
-    else
-      csvw.skip();
-    if (r.second->getDuration() > -1)
-      csvw.writeInt(r.second->getDuration());
-    else
-      csvw.skip();
-    csvw.flushLine();
+    writeFare(r.second->getFlat(), &csvw);
   }
 
   return true;
 }
 
 // ____________________________________________________________________________
+CsvWriter Writer::getFareRulesCsvw(std::ostream* os) {
+  return CsvWriter(os, {"fare_id", "route_id", "origin_id", "destination_id",
+                        "contains_id"});
+}
+
+// ____________________________________________________________________________
+bool Writer::writeFareRule(const gtfs::flat::FareRule& t,
+                           CsvWriter* csvw) const {
+  csvw->writeString(t.fare);
+  if (!t.route.empty())
+    csvw->writeString(t.route);
+  else
+    csvw->skip();
+  if (!t.originZone.empty())
+    csvw->writeString(t.originZone);
+  else
+    csvw->skip();
+  if (!t.destZone.empty())
+    csvw->writeString(t.destZone);
+  else
+    csvw->skip();
+  if (!t.containsZone.empty())
+    csvw->writeString(t.containsZone);
+  else
+    csvw->skip();
+  csvw->flushLine();
+  return true;
+}
+
+// ____________________________________________________________________________
 bool Writer::writeFareRules(gtfs::Feed* f, std::ostream* os) const {
-  CsvWriter csvw(os, {"fare_id", "route_id", "origin_id", "destination_id",
-                      "contains_id"});
+  auto csvw = getFareRulesCsvw(os);
 
   for (const auto& fare : f->getFares()) {
     for (const auto& r : fare.second->getFareRules()) {
-      csvw.writeString(fare.second->getId());
-      if (r.getRoute())
-        csvw.writeString(r.getRoute()->getId());
-      else
-        csvw.skip();
-      if (r.getOriginId().empty())
-        csvw.writeString(r.getOriginId());
-      else
-        csvw.skip();
-      if (r.getDestId().empty())
-        csvw.writeString(r.getDestId());
-      else
-        csvw.skip();
-      if (r.getContainsId().empty())
-        csvw.writeString(r.getContainsId());
-      else
-        csvw.skip();
-      csvw.flushLine();
+      writeFareRule(
+          gtfs::flat::FareRule{
+              fare.second->getId(), r.getRoute() ? r.getRoute()->getId() : "",
+              r.getOriginId(), r.getDestId(), r.getContainsId()},
+          &csvw);
     }
   }
 
@@ -374,43 +494,69 @@ bool Writer::writeFareRules(gtfs::Feed* f, std::ostream* os) const {
 }
 
 // ____________________________________________________________________________
-bool Writer::writeCalendar(gtfs::Feed* f, std::ostream* os) const {
-  CsvWriter csvw(
+CsvWriter Writer::getCalendarCsvw(std::ostream* os) {
+  return CsvWriter(
       os, {"service_id", "monday", "tuesday", "wednesday", "thursday", "friday",
            "saturday", "sunday", "start_date", "end_date"});
+}
 
+// ____________________________________________________________________________
+bool Writer::writeCalendar(const gtfs::flat::Calendar& s,
+                           CsvWriter* csvw) const {
+  csvw->writeString(s.id);
+  csvw->writeInt((bool)(s.serviceDays & gtfs::Service::SERVICE_DAY::MONDAYS));
+  csvw->writeInt((bool)(s.serviceDays & gtfs::Service::SERVICE_DAY::TUESDAYS));
+  csvw->writeInt(
+      (bool)(s.serviceDays & gtfs::Service::SERVICE_DAY::WEDNESDAYS));
+  csvw->writeInt((bool)(s.serviceDays & gtfs::Service::SERVICE_DAY::THURSDAYS));
+  csvw->writeInt((bool)(s.serviceDays & gtfs::Service::SERVICE_DAY::FRIDAYS));
+  csvw->writeInt((bool)(s.serviceDays & gtfs::Service::SERVICE_DAY::SATURDAYS));
+  csvw->writeInt((bool)(s.serviceDays & gtfs::Service::SERVICE_DAY::SUNDAYS));
+  csvw->writeInt(s.begin.getYYYYMMDD());
+  csvw->writeInt(s.end.getYYYYMMDD());
+  csvw->flushLine();
+
+  return true;
+}
+
+// ____________________________________________________________________________
+bool Writer::writeCalendars(gtfs::Feed* f, std::ostream* os) const {
+  auto csvw = getCalendarCsvw(os);
   for (const auto& r : f->getServices()) {
     if (!r.second->hasServiceDays()) continue;
-    csvw.writeString(r.second->getId());
-    csvw.writeInt((bool)(r.second->getServiceDates() & gtfs::Service::MONDAYS));
-    csvw.writeInt(
-        (bool)(r.second->getServiceDates() & gtfs::Service::TUESDAYS));
-    csvw.writeInt(
-        (bool)(r.second->getServiceDates() & gtfs::Service::WEDNESDAYS));
-    csvw.writeInt(
-        (bool)(r.second->getServiceDates() & gtfs::Service::THURSDAYS));
-    csvw.writeInt((bool)(r.second->getServiceDates() & gtfs::Service::FRIDAYS));
-    csvw.writeInt(
-        (bool)(r.second->getServiceDates() & gtfs::Service::SATURDAYS));
-    csvw.writeInt((bool)(r.second->getServiceDates() & gtfs::Service::SUNDAYS));
-    csvw.writeInt(r.second->getBeginDate().getYYYYMMDD());
-    csvw.writeInt(r.second->getEndDate().getYYYYMMDD());
-    csvw.flushLine();
+    writeCalendar(r.second->getFlat(), &csvw);
   }
+
+  return true;
+}
+
+// ____________________________________________________________________________
+CsvWriter Writer::getCalendarDatesCsvw(std::ostream* os) {
+  return CsvWriter(os, {"service_id", "date", "exception_type"});
+}
+
+// ____________________________________________________________________________
+bool Writer::writeCalendarDate(const gtfs::flat::CalendarDate& s,
+                               CsvWriter* csvw) const {
+  csvw->writeString(s.id);
+  csvw->writeInt(s.date.getYYYYMMDD());
+  csvw->writeInt(s.type);
+  csvw->flushLine();
 
   return true;
 }
 
 // ____________________________________________________________________________
 bool Writer::writeCalendarDates(gtfs::Feed* f, std::ostream* os) const {
-  CsvWriter csvw(os, {"service_id", "date", "exception_type"});
+  auto csvw = getCalendarDatesCsvw(os);
 
   for (const auto& r : f->getServices()) {
     for (const auto& e : r.second->getExceptions()) {
-      csvw.writeString(r.second->getId());
-      csvw.writeInt(e.first.getYYYYMMDD());
-      csvw.writeInt(e.second);
-      csvw.flushLine();
+      gtfs::flat::CalendarDate cd;
+      cd.date = e.first;
+      cd.id = r.second->getId();
+      cd.type = e.second;
+      writeCalendarDate(cd, &csvw);
     }
   }
 
@@ -418,18 +564,33 @@ bool Writer::writeCalendarDates(gtfs::Feed* f, std::ostream* os) const {
 }
 
 // ____________________________________________________________________________
-bool Writer::writeFrequencies(gtfs::Feed* f, std::ostream* os) const {
-  CsvWriter csvw(
+CsvWriter Writer::getFrequencyCsvw(std::ostream* os) {
+  return CsvWriter(
       os, {"trip_id", "start_time", "end_time", "headway_secs", "exact_times"});
+}
+
+// ____________________________________________________________________________
+bool Writer::writeFrequency(const gtfs::flat::Frequency& f,
+                            CsvWriter* csvw) const {
+  csvw->writeString(f.tripId);
+  csvw->writeString(f.startTime.toString());
+  csvw->writeString(f.endTime.toString());
+  csvw->writeInt(f.headwaySecs);
+  csvw->writeInt(f.exactTimes);
+  csvw->flushLine();
+  return true;
+}
+
+// ____________________________________________________________________________
+bool Writer::writeFrequencies(gtfs::Feed* f, std::ostream* os) const {
+  auto csvw = getFrequencyCsvw(os);
 
   for (const auto& t : f->getTrips()) {
     for (const auto& f : t.second->getFrequencies()) {
-      csvw.writeString(t.second->getId());
-      csvw.writeString(f.getStartTime().toString());
-      csvw.writeString(f.getEndTime().toString());
-      csvw.writeInt(f.getHeadwaySecs());
-      csvw.writeInt(f.hasExactTimes());
-      csvw.flushLine();
+      writeFrequency(gtfs::flat::Frequency{t.second->getId(), f.getStartTime(),
+                                           f.getEndTime(), f.getHeadwaySecs(),
+                                           f.hasExactTimes()},
+                     &csvw);
     }
   }
 
@@ -437,6 +598,6 @@ bool Writer::writeFrequencies(gtfs::Feed* f, std::ostream* os) const {
 }
 
 // ___________________________________________________________________________
-void Writer::cannotWrite(const std::string& file) const {
+void Writer::cannotWrite(const std::string& file) {
   throw WriterException("Could not write to file.", file);
 }

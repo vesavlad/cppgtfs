@@ -12,31 +12,46 @@
 #include <vector>
 #include "Agency.h"
 #include "Container.h"
+#include "Fare.h"
 #include "Route.h"
 #include "Service.h"
 #include "Shape.h"
 #include "Stop.h"
-#include "Trip.h"
 #include "Transfer.h"
-#include "Fare.h"
+#include "Trip.h"
+
+#define FEEDTPL                                                     \
+  template <typename AgencyT, typename RouteT, typename StopT,      \
+            typename ServiceT, template <typename> class StopTimeT, \
+            typename ShapeT, template <typename> class AContainerT, \
+            template <typename> class RContainerT,                  \
+            template <typename> class SContainerT,                  \
+            template <typename> class StContainerT,                 \
+            template <typename> class TContainerT,                  \
+            template <typename> class ShContainerT,                 \
+            template <typename> class FContainerT>
+#define FEEDB                                                                 \
+  FeedB<AgencyT, RouteT, StopT, ServiceT, StopTimeT, ShapeT, AContainerT, RContainerT, \
+        SContainerT, StContainerT, TContainerT, ShContainerT, FContainerT>
 
 namespace ad {
 namespace cppgtfs {
 namespace gtfs {
 
-typedef Container<Agency> Agencies;
-typedef Container<Stop> Stops;
-typedef Container<Route> Routes;
-typedef Container<Trip> Trips;
-typedef Container<Shape> Shapes;
-typedef Container<Service> Services;
-typedef Container<Fare> Fares;
-typedef std::vector<Transfer> Transfers;
-typedef std::set<std::string> Zones;
+FEEDTPL
+class FeedB {
+  typedef AContainerT<AgencyT> Agencies;
+  typedef StContainerT<StopT> Stops;
+  typedef RContainerT<RouteT> Routes;
+  typedef TContainerT<TripB<StopTimeT<StopT>, ServiceT, RouteT, ShapeT>> Trips;
+  typedef ShContainerT<ShapeT> Shapes;
+  typedef SContainerT<ServiceT> Services;
+  typedef FContainerT<Fare<RouteT>> Fares;
+  typedef std::vector<Transfer> Transfers;
+  typedef std::set<std::string> Zones;
 
-class Feed {
  public:
-  Feed()
+  FeedB()
       : _maxLat(std::numeric_limits<double>::lowest()),
         _maxLon(std::numeric_limits<double>::lowest()),
         _minLat(std::numeric_limits<double>::max()),
@@ -88,6 +103,9 @@ class Feed {
   double getMaxLat() const;
   double getMaxLon() const;
 
+  const std::string& getPath() const { return _path; }
+  void setPath(const std::string& p) { _path = p; }
+
  private:
   Agencies _agencies;
   Stops _stops;
@@ -101,9 +119,16 @@ class Feed {
 
   double _maxLat, _maxLon, _minLat, _minLon;
 
-  std::string _publisherName, _publisherUrl, _lang, _version;
+  std::string _publisherName, _publisherUrl, _lang, _version, _path;
   ServiceDate _startDate, _endDate;
 };
+
+typedef FeedB<Agency, Route, Stop, Service, StopTime, Shape, Container, Container,
+              Container, Container, Container, Container, Container>
+    Feed;
+
+#include "Feed.tpp"
+
 }  // namespace gtfs
 }  // namespace cppgtfs
 }  // namespace ad

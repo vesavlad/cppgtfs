@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include "Stop.h"
+#include "flat/StopTime.h"
 
 using std::exception;
 using std::string;
@@ -18,50 +19,14 @@ namespace ad {
 namespace cppgtfs {
 namespace gtfs {
 
-struct Time {
-  Time(uint8_t h, uint8_t m, uint8_t s) : m(m), s(s), h(h) {}
-  std::string toString() const {
-    std::stringstream ss;
-    ss << std::setfill('0') << std::setw(2) << static_cast<int>(h) << ":"
-       << std::setfill('0') << std::setw(2) << static_cast<int>(m) << ":"
-       << std::setfill('0') << std::setw(2) << static_cast<int>(s);
-    return ss.str();
-  }
-  uint8_t m : 6;
-  uint8_t s : 6;
-  uint8_t h : 8;
-};
+typedef flat::Time Time;
 
-inline bool operator>(const Time& lh, const Time& rh) {
-  return lh.h * 3600 + lh.m * 60 + lh.s > rh.h * 3600 + rh.m * 60 + rh.s;
-}
-
-inline bool operator<(const Time& lh, const Time& rh) { return rh > lh; }
-
-inline bool operator==(const Time& lh, const Time& rh) {
-  return !(rh > lh) && !(rh < lh);
-}
-
-inline bool operator!=(const Time& lh, const Time& rh) { return !(rh == lh); }
-
-inline bool operator>=(const Time& lh, const Time& rh) {
-  return lh > rh || lh == rh;
-}
-
-inline bool operator<=(const Time& lh, const Time& rh) {
-  return lh < rh || lh == rh;
-}
-
+template <typename StopT>
 class StopTime {
  public:
-  enum PU_DO_TYPE : uint8_t {
-    REGULAR = 0,
-    NEVER = 1,
-    MUST_PHONE_AGENCY = 2,
-    MUST_COORDINATE_W_DRIVER = 3
-  };
+  typedef flat::StopTime::PU_DO_TYPE PU_DO_TYPE;
 
-  StopTime(const Time& at, const Time& dt, Stop* s, uint32_t seq,
+  StopTime(const Time& at, const Time& dt, typename StopT::Ref s, uint32_t seq,
            const std::string& hs, PU_DO_TYPE put, PU_DO_TYPE dot,
            float distTrav, bool isTp)
       : _at(at),
@@ -77,8 +42,8 @@ class StopTime {
   const Time& getArrivalTime() const { return _at; }
   const Time& getDepartureTime() const { return _dt; }
 
-  const Stop* getStop() const { return _s; }
-  Stop* getStop() { return _s; }
+  const typename StopT::Ref getStop() const { return _s; }
+  typename StopT::Ref getStop() { return _s; }
   const std::string& getHeadsign() const { return _headsign; }
 
   PU_DO_TYPE getPickupType() const {
@@ -98,7 +63,7 @@ class StopTime {
   Time _at;
   Time _dt;
 
-  Stop* _s;
+  typename StopT::Ref _s;
   uint32_t _sequence;
   std::string _headsign;
   uint8_t _pickupType : 2;
@@ -107,8 +72,9 @@ class StopTime {
   float _shapeDistTravelled;
 };
 
+template <typename StopTimeT>
 struct StopTimeCompare {
-  bool operator()(const StopTime& lh, const StopTime& rh) const {
+  bool operator()(const StopTimeT& lh, const StopTimeT& rh) const {
     return lh.getSeq() < rh.getSeq();
   }
 };

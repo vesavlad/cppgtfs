@@ -6,6 +6,7 @@
 #define AD_CPPGTFS_GTFS_AGENCY_H_
 
 #include <string>
+#include "flat/Agency.h"
 
 using std::exception;
 using std::string;
@@ -16,6 +17,9 @@ namespace gtfs {
 
 class Agency {
  public:
+  typedef Agency* Ref;
+  static std::string getId(Ref r) { return r->getId(); }
+
   Agency() {}
 
   Agency(const std::string& id, const std::string& name, const std::string& url,
@@ -58,6 +62,19 @@ class Agency {
   const std::string& getFareUrl() const { return _fare_url; }
 
   const std::string& getAgencyEmail() const { return _agency_email; }
+
+  flat::Agency getFlat() const {
+    flat::Agency r;
+    r.id = _id;
+    r.name = _name;
+    r.url = _url;
+    r.timezone = _timezone;
+    r.lang = _lang;
+    r.phone = _phone;
+    r.fare_url = _fare_url;
+    r.agency_email = _agency_email;
+    return r;
+  }
 
   // TODO(patrick): implement setters
 

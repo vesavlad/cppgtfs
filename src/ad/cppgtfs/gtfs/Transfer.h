@@ -7,6 +7,7 @@
 
 #include <string>
 #include "Stop.h"
+#include "flat/Transfer.h"
 
 using std::exception;
 using std::string;
@@ -17,12 +18,7 @@ namespace gtfs {
 
 class Transfer {
  public:
-  enum TYPE : uint8_t {
-    RECOMMENDED = 0,
-    TIMED = 1,
-    MIN_TIME = 2,
-    NO_TRANSFER = 3
-  };
+  typedef flat::Transfer::TYPE TYPE;
   Transfer() {}
 
   Transfer(Stop* fromStop, Stop* toStop, TYPE type, int32_t tTime)
@@ -35,6 +31,11 @@ class Transfer {
   TYPE getType() const { return _type; }
 
   int32_t getMinTransferTime() const { return _tTime; }
+
+  flat::Transfer getFlat() const {
+    return flat::Transfer{getFromStop()->getId(), getToStop()->getId(),
+                          getType(), getMinTransferTime()};
+  }
 
   // TODO(patrick): implement setters
 

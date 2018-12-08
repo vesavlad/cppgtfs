@@ -17,7 +17,8 @@ using std::remove;
 // _____________________________________________________________________________
 CsvParser::CsvParser() {}
 
-CsvParser::CsvParser(std::istream* stream) : _curLine(0), _stream(stream) {
+CsvParser::CsvParser(std::istream* stream)
+    : _curLine(0), _offset(0), _nextOffset(0), _stream(stream) {
   readNextLine();
   parseHeader();
 }
@@ -25,7 +26,19 @@ CsvParser::CsvParser(std::istream* stream) : _curLine(0), _stream(stream) {
 // _____________________________________________________________________________
 bool CsvParser::readNextLine() {
   if (!_stream->good()) return false;
-  getline(*_stream, _currentLine);
+  _offset = _nextOffset;
+  _currentLine.clear();
+  char buff[200];
+  _stream->getline(buff, 200);
+  _nextOffset += _stream->gcount();
+  _currentLine.append(buff);
+
+  while (_stream->rdstate() == std::ios::failbit) {
+    _stream->clear();
+    _stream->getline(buff, 200);
+    _currentLine.append(buff);
+    _nextOffset += _stream->gcount();
+  }
   _curLine++;
   // Remove new line characters
   _currentLine.erase(remove(_currentLine.begin(), _currentLine.end(), '\r'),
@@ -202,6 +215,9 @@ size_t CsvParser::getOptFieldIndex(const string& fieldName) const {
 
 // _____________________________________________________________________________
 int32_t CsvParser::getCurLine() const { return _curLine; }
+
+// _____________________________________________________________________________
+size_t CsvParser::getCurOffset() const { return _offset; }
 
 // _____________________________________________________________________________
 const string CsvParser::getFieldName(size_t i) const {

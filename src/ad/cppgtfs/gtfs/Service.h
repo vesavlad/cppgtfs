@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include "flat/Service.h"
 
 using std::exception;
 using std::string;
@@ -18,88 +19,15 @@ namespace ad {
 namespace cppgtfs {
 namespace gtfs {
 
-class ServiceDate {
- public:
-  ServiceDate(uint8_t day, uint8_t month, uint16_t year)
-      : _yyyymmdd((year * 10000 + month * 100 + day) - (1900 * 10000)) {}
-
-  explicit ServiceDate(uint32_t yyyymmdd)
-      : _yyyymmdd(yyyymmdd - (1900 * 10000)) {}
-
-  ServiceDate()
-      : _yyyymmdd(0) {}
-
-  uint32_t getYYYYMMDD() const { return _yyyymmdd + (1900 * 10000); }
-
-  uint16_t getYear() const { return (_yyyymmdd / 10000) + 1900; }
-  uint8_t getMonth() const {
-    return (_yyyymmdd - ((getYear() - 1900) * 10000)) / 100;
-  }
-  uint8_t getDay() const {
-    return _yyyymmdd - ((getYear() - 1900) * 10000) - (getMonth() * 100);
-  }
-
-  void setDay(uint8_t day) { _yyyymmdd = _yyyymmdd - getDay() + day; }
-
-  void setMonth(uint8_t month) {
-    _yyyymmdd = _yyyymmdd - getMonth() * 100 + month * 100;
-  }
-
-  void setYear(uint16_t year) {
-    _yyyymmdd = _yyyymmdd - (getYear() - 1900) * 10000 + (year - 1900) * 10000;
-  }
-
-  bool empty() const {
-    return _yyyymmdd == 0;
-  }
-
-  // returns a time struct of this date at 12:00
-  tm getTimeStrc() const {
-    tm ret;
-    ret.tm_year = getYear() - 1900;
-    ret.tm_mon = getMonth() - 1;
-    ret.tm_mday = getDay();
-    ret.tm_hour = 12;
-    mktime(&ret);
-    return ret;
-  }
-
- private:
-  uint32_t _yyyymmdd : 24;
-};
-
-bool operator>(const ServiceDate& lh, const ServiceDate& rh);
-bool operator<(const ServiceDate& lh, const ServiceDate& rh);
-bool operator==(const ServiceDate& lh, const ServiceDate& rh);
-bool operator!=(const ServiceDate& lh, const ServiceDate& rh);
-bool operator>=(const ServiceDate& lh, const ServiceDate& rh);
-bool operator<=(const ServiceDate& lh, const ServiceDate& rh);
-ServiceDate operator+(const ServiceDate& lh, int i);
-ServiceDate operator-(const ServiceDate& lh, int i);
-ServiceDate operator++(ServiceDate& lh);
-ServiceDate operator--(ServiceDate& lh);
+typedef flat::ServiceDate ServiceDate;
 
 class Service {
  public:
-  enum SERVICE_DAY : uint8_t {
-    NEVER = 0,       // 0000000
-    MONDAYS = 1,     // 0000001
-    TUESDAYS = 2,    // 0000010
-    WEDNESDAYS = 4,  // 0000100
-    THURSDAYS = 8,   // 0001000
-    FRIDAYS = 16,    // 0010000
-    SATURDAYS = 32,  // 0100000
-    SUNDAYS = 64,    // 1000000
-    WEEKDAYS = 31,   // 0011111 (shorthand)
-    WEEKENDS = 96,   // 1100000 (shorthand)
-    ALL_WEEK = 127   // 1111111 (shorthand)
-  };
+  typedef Service* Ref;
+  static std::string getId(Ref r) { return r->getId(); }
 
-  enum EXCEPTION_TYPE : uint8_t {
-    NOT_SET = 0,
-    SERVICE_ADDED = 1,
-    SERVICE_REMOVED = 2
-  };
+  typedef flat::Calendar::SERVICE_DAY SERVICE_DAY;
+  typedef flat::CalendarDate::EXCEPTION_TYPE EXCEPTION_TYPE;
 
   explicit Service(const string& id);
   Service(const string& id, uint8_t serviceDays, ServiceDate start,
@@ -121,6 +49,15 @@ class Service {
   const ServiceDate& getEndDate() const;
 
   bool hasServiceDays() const;
+
+  flat::Calendar getFlat() const {
+    flat::Calendar c;
+    c.id = _id;
+    c.serviceDays = _serviceDays;
+    c.begin = _begin;
+    c.end = _end;
+    return c;
+  }
 
  private:
   string _id;

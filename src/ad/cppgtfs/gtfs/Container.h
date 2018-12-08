@@ -17,11 +17,14 @@ class Container {
  public:
   Container(){};
   ~Container();
-  bool add(T* obj);
+  T* add(const T& obj);
   bool remove(const std::string& id);
   const T* get(const std::string& id) const;
   T* get(const std::string& id);
+  const T* getRef(const std::string& id) const { return get(id); }
+  T* getRef(const std::string& id) { return get(id); }
   size_t size() const;
+  void finalize() {};
 
   typename std::unordered_map<std::string, T*>::const_iterator begin() const;
   typename std::unordered_map<std::string, T*>::iterator begin();

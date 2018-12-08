@@ -9,6 +9,7 @@
 #include <vector>
 #include "Agency.h"
 #include "Route.h"
+#include "flat/Fare.h"
 
 using std::exception;
 using std::string;
@@ -17,39 +18,36 @@ namespace ad {
 namespace cppgtfs {
 namespace gtfs {
 
+template <typename RouteT>
 class FareRule {
  public:
   FareRule() {}
 
-  FareRule(gtfs::Route* route, const std::string& originId,
+  FareRule(typename RouteT::Ref route, const std::string& originId,
            const std::string& destId, const std::string& containsId)
       : _route(route),
         _originId(originId),
         _destId(destId),
         _containsId(containsId) {}
 
-  gtfs::Route* getRoute() const { return _route; }
+  typename RouteT::Ref getRoute() const { return _route; }
   const std::string& getOriginId() const { return _originId; }
   const std::string& getDestId() const { return _destId; }
   const std::string& getContainsId() const { return _containsId; }
 
+
  private:
-  gtfs::Route* _route;
+  typename RouteT::Ref _route;
   std::string _originId;
   std::string _destId;
   std::string _containsId;
 };
 
+template <typename RouteT>
 class Fare {
  public:
-  enum PAYMENT_METHOD : bool { ON_BOARD = 0, BEFORE_BOARDING = 1 };
-
-  enum NUM_TRANSFERS : uint8_t {
-    NO_TRANSFERS = 0,
-    ONCE = 1,
-    TWICE = 2,
-    UNLIMITED = 3
-  };
+  typedef flat::Fare::PAYMENT_METHOD PAYMENT_METHOD;
+  typedef flat::Fare::NUM_TRANSFERS NUM_TRANSFERS;
 
   Fare() {}
 
@@ -78,9 +76,18 @@ class Fare {
 
   int64_t getDuration() const { return _duration; }
 
-  const std::vector<FareRule>& getFareRules() const { return _fareRules; }
+  const std::vector<FareRule<RouteT>>& getFareRules() const {
+    return _fareRules;
+  }
 
-  void addFareRule(const FareRule& rule) { _fareRules.push_back(rule); }
+  void addFareRule(const FareRule<RouteT>& rule) { _fareRules.push_back(rule); }
+
+  flat::Fare getFlat() const {
+    return flat::Fare{_id,           _price,
+                      _currencyType, _paymentMethod,
+                      _numTransfers, _agency ? _agency->getId() : "",
+                      _duration};
+  }
 
   // TODO(patrick): implement setters
 
@@ -93,7 +100,7 @@ class Fare {
   Agency* _agency;
   int64_t _duration;
 
-  std::vector<FareRule> _fareRules;
+  std::vector<FareRule<RouteT>> _fareRules;
 };
 
 }  // namespace gtfs

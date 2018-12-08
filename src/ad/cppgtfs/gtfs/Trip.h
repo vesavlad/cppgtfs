@@ -6,14 +6,16 @@
 #define AD_CPPGTFS_GTFS_TRIP_H_
 
 #include <stdint.h>
+#include <algorithm>
 #include <set>
 #include <string>
+#include "Frequency.h"
 #include "Route.h"
 #include "Service.h"
 #include "Shape.h"
 #include "Stop.h"
 #include "StopTime.h"
-#include "Frequency.h"
+#include "flat/Trip.h"
 
 using std::exception;
 using std::string;
@@ -22,60 +24,74 @@ namespace ad {
 namespace cppgtfs {
 namespace gtfs {
 
-typedef std::set<StopTime, StopTimeCompare> StopTimes;
-typedef std::vector<Frequency> Frequencies;
+template <typename StopTimeT, typename ServiceT, typename RouteT,
+          typename ShapeT>
+class TripB {
+  // typedef std::set<StopTimeT, StopTimeCompare<StopTimeT>> StopTimes;
+  typedef std::vector<StopTimeT> StopTimes;
+  typedef std::vector<Frequency> Frequencies;
 
-class Trip {
  public:
-  enum WC_BIKE_ACCESSIBLE : uint8_t {
-    NO_INFORMATION = 0,
-    AT_LEAST_ONE = 1,
-    NOT_ACCESSIBLE = 2
-  };
+  typedef TripB<StopTimeT, ServiceT, RouteT, ShapeT>* Ref;
+  static std::string getId(Ref r) { return r->getId(); }
 
-  enum DIRECTION : uint8_t { OUTBOUND = 0, INBOUND = 1, NOT_SET = 2 };
+  typedef flat::Trip::WC_BIKE_ACCESSIBLE WC_BIKE_ACCESSIBLE;
+  typedef flat::Trip::DIRECTION DIRECTION;
 
-  Trip() {}
-  Trip(const std::string& id, Route* r, Service* s, const std::string& hs,
-       const std::string& short_name, DIRECTION dir, const std::string& blockid,
-       Shape* shp, WC_BIKE_ACCESSIBLE wc, WC_BIKE_ACCESSIBLE ba);
+  TripB() {}
+  TripB(const std::string& id, typename RouteT::Ref r, typename ServiceT::Ref s,
+        const std::string& hs, const std::string& short_name, DIRECTION dir,
+        const std::string& blockid, typename ShapeT::Ref shp,
+        WC_BIKE_ACCESSIBLE wc, WC_BIKE_ACCESSIBLE ba);
 
   const std::string& getId() const;
-  const Route* getRoute() const;
-  Route* getRoute();
-  Service* getService();
-  const Service* getService() const;
+  const typename RouteT::Ref getRoute() const;
+  typename RouteT::Ref getRoute();
+  typename ServiceT::Ref getService();
+  const typename ServiceT::Ref getService() const;
   const std::string& getHeadsign() const;
   const std::string& getShortname() const;
   DIRECTION getDirection() const;
   const std::string& getBlockId() const;
-  const Shape* getShape() const;
-  Shape* getShape();
-  void setShape(Shape* shp);
+  const typename ShapeT::Ref getShape() const;
+  typename ShapeT::Ref getShape();
+  void setShape(typename ShapeT::Ref shp);
   WC_BIKE_ACCESSIBLE getWheelchairAccessibility() const;
   WC_BIKE_ACCESSIBLE getBikesAllowed() const;
   const StopTimes& getStopTimes() const;
   StopTimes& getStopTimes();
   Frequencies& getFrequencies();
   const Frequencies& getFrequencies() const;
-  bool addStopTime(const StopTime& t);
+  bool addStopTime(const StopTimeT& t);
   void addFrequency(const Frequency& t);
+
+  gtfs::flat::Trip getFlat() const {
+    return gtfs::flat::Trip{
+        _id,       RouteT::getId(_route), ServiceT::getId(_service),
+        _headsign, _short_name,           _dir,
+        _block_id, ShapeT::getId(_shape), _wc,
+        _ba};
+  };
 
  private:
   std::string _id;
-  Route* _route;
-  Service* _service;
+  typename RouteT::Ref _route;
+  typename ServiceT::Ref _service;
   std::string _headsign;
   std::string _short_name;
   DIRECTION _dir;
   std::string _block_id;
-  Shape* _shape;
+  typename ShapeT::Ref _shape;
   WC_BIKE_ACCESSIBLE _wc;
   WC_BIKE_ACCESSIBLE _ba;
 
   StopTimes _stoptimes;
   Frequencies _frequencies;
 };
+
+typedef TripB<StopTime<Stop>, Service, Route, Shape> Trip;
+
+#include "Trip.tpp"
 
 }  // namespace gtfs
 }  // namespace cppgtfs

@@ -6,6 +6,7 @@
 #define AD_CPPGTFS_PARSER_H_
 
 #include <stdint.h>
+#include <cstring>
 #include <exception>
 #include <iostream>
 #include <istream>
@@ -15,9 +16,29 @@
 #include <vector>
 #include "ad/util/CsvParser.h"
 #include "gtfs/Feed.h"
+#include "gtfs/flat/Agency.h"
+#include "gtfs/flat/Frequency.h"
+#include "gtfs/flat/Route.h"
+#include "gtfs/flat/Service.h"
+#include "gtfs/flat/Shape.h"
+#include "gtfs/flat/Transfer.h"
 
 using std::string;
 using ad::util::CsvParser;
+using ad::util::CsvParserException;
+using ad::cppgtfs::gtfs::Agency;
+using ad::cppgtfs::gtfs::Transfer;
+using ad::cppgtfs::gtfs::Shape;
+using ad::cppgtfs::gtfs::ShapePoint;
+using ad::cppgtfs::gtfs::Service;
+using ad::cppgtfs::gtfs::ServiceDate;
+using ad::cppgtfs::gtfs::TripB;
+using ad::cppgtfs::gtfs::StopTime;
+using ad::cppgtfs::gtfs::Time;
+using ad::cppgtfs::gtfs::Fare;
+using ad::cppgtfs::gtfs::FareRule;
+using ad::cppgtfs::gtfs::Route;
+using ad::cppgtfs::gtfs::Stop;
 
 // A GTFS parser
 
@@ -61,52 +82,172 @@ class ParserException : public std::exception {
 class Parser {
  public:
   // Default initialization.
-  Parser() : _strict(false)  {}
+  Parser() : _strict(false) {}
   Parser(bool strict) : _strict(strict) {}
 
   // parse a zip/folder into a GtfsFeed
-  bool parse(gtfs::Feed* targetFeed, const std::string& path) const;
+  FEEDTPL
+  bool parse(gtfs::FEEDB* targetFeed, const std::string& path) const;
+
+  inline std::string getString(const CsvParser& csv, size_t field) const;
+  inline std::string getString(const CsvParser& csv, size_t field,
+                               const std::string& def) const;
+
+  inline double getDouble(const CsvParser& csv, size_t field) const;
+  inline double getDouble(const CsvParser& csv, size_t fld, double def) const;
+
+  inline int64_t getRangeInteger(const CsvParser& csv, size_t field,
+                                 int64_t minv, int64_t maxv) const;
+  inline int64_t getRangeInteger(const CsvParser& csv, size_t field,
+                                 int64_t minv, int64_t maxv, int64_t def) const;
+
+  inline uint32_t getColorFromHexString(const CsvParser& csv, size_t field,
+                                        const std::string& def) const;
+
+  inline gtfs::ServiceDate getServiceDate(const CsvParser& csv,
+                                          size_t field) const;
+  inline gtfs::ServiceDate getServiceDate(const CsvParser& csv, size_t field,
+                                          bool req) const;
+
+  inline gtfs::Time getTime(const CsvParser& csv, size_t field) const;
+
+  inline gtfs::flat::Route::TYPE getRouteType(const CsvParser& csv,
+                                              size_t field, int64_t t) const;
+  inline void fileNotFound(const std::string& file) const;
+
+  inline static gtfs::flat::AgencyFlds getAgencyFlds(CsvParser* csvp);
+  inline bool nextAgency(CsvParser* csvp, gtfs::flat::Agency* a,
+                         const gtfs::flat::AgencyFlds&) const;
+
+  inline static gtfs::flat::StopFlds getStopFlds(CsvParser* csvp);
+  inline bool nextStop(CsvParser* csvp, gtfs::flat::Stop* s,
+                       const gtfs::flat::StopFlds&) const;
+
+  inline static gtfs::flat::RouteFlds getRouteFlds(CsvParser* csvp);
+  inline bool nextRoute(CsvParser* csvp, gtfs::flat::Route* s,
+                        const gtfs::flat::RouteFlds&) const;
+
+  inline static gtfs::flat::CalendarFlds getCalendarFlds(CsvParser* csvp);
+  inline bool nextCalendar(CsvParser* csvp, gtfs::flat::Calendar* s,
+                           const gtfs::flat::CalendarFlds&) const;
+
+  inline static gtfs::flat::CalendarDateFlds getCalendarDateFlds(
+      CsvParser* csvp);
+  inline bool nextCalendarDate(CsvParser* csvp, gtfs::flat::CalendarDate* s,
+                               const gtfs::flat::CalendarDateFlds&) const;
+
+  inline static gtfs::flat::FrequencyFlds getFrequencyFlds(CsvParser* csvp);
+  inline bool nextFrequency(CsvParser* csvp, gtfs::flat::Frequency* s,
+                            const gtfs::flat::FrequencyFlds&) const;
+
+  inline static gtfs::flat::TransfersFlds getTransfersFlds(CsvParser* csvp);
+  inline bool nextTransfer(CsvParser* csvp, gtfs::flat::Transfer* s,
+                           const gtfs::flat::TransfersFlds&) const;
+
+  inline static gtfs::flat::FareFlds getFareFlds(CsvParser* csvp);
+  inline bool nextFare(CsvParser* csvp, gtfs::flat::Fare* s,
+                       const gtfs::flat::FareFlds&) const;
+
+  inline static gtfs::flat::FareRuleFlds getFareRuleFlds(CsvParser* csvp);
+  inline bool nextFareRule(CsvParser* csvp, gtfs::flat::FareRule* s,
+                           const gtfs::flat::FareRuleFlds&) const;
+
+  inline static gtfs::flat::ShapeFlds getShapeFlds(CsvParser* csvp);
+  inline bool nextShapePoint(CsvParser* csvp, gtfs::flat::ShapePoint* s,
+                             const gtfs::flat::ShapeFlds&) const;
+
+  inline static gtfs::flat::TripFlds getTripFlds(CsvParser* csvp);
+  inline bool nextTrip(CsvParser* csvp, gtfs::flat::Trip* s,
+                       const gtfs::flat::TripFlds&) const;
+
+  inline static gtfs::flat::StopTimeFlds getStopTimeFlds(CsvParser* csvp);
+  inline bool nextStopTime(CsvParser* csvp, gtfs::flat::StopTime* s,
+                           const gtfs::flat::StopTimeFlds&) const;
+
+  FEEDTPL
+  void parseAgencies(gtfs::FEEDB* targetFeed, const std::string& path) const;
+
+  FEEDTPL
+  void parseStops(gtfs::FEEDB* targetFeed, const std::string& path) const;
+
+  FEEDTPL
+  void parseRoutes(gtfs::FEEDB* targetFeed, const std::string& path) const;
+
+  FEEDTPL
+  void parseTrips(gtfs::FEEDB* targetFeed, const std::string& path) const;
+
+  FEEDTPL
+  void parseStopTimes(gtfs::FEEDB* targetFeed, const std::string& path) const;
+
+  FEEDTPL
+  void parseCalendar(gtfs::FEEDB* targetFeed, const std::string& path) const;
+
+  FEEDTPL
+  void parseCalendarDates(gtfs::FEEDB* targetFeed,
+                          const std::string& path) const;
+
+  FEEDTPL
+  void parseFareAttributes(gtfs::FEEDB* targetFeed,
+                           const std::string& path) const;
+
+  FEEDTPL
+  void parseFareRules(gtfs::FEEDB* targetFeed, const std::string& path) const;
+
+  FEEDTPL
+  void parseShapes(gtfs::FEEDB* targetFeed, const std::string& path) const;
+
+  FEEDTPL
+  void parseFrequencies(gtfs::FEEDB* targetFeed, const std::string& path) const;
+
+  FEEDTPL
+  void parseTransfers(gtfs::FEEDB* targetFeed, const std::string& path) const;
+
+  FEEDTPL
+  void parseFeedInfo(gtfs::FEEDB* targetFeed, const std::string& path) const;
 
  private:
   bool _strict;
-  void parseAgencies(gtfs::Feed* targetFeed, std::istream*) const;
-  void parseStops(gtfs::Feed* targetFeed, std::istream*) const;
-  void parseRoutes(gtfs::Feed* targetFeed, std::istream*) const;
-  void parseTrips(gtfs::Feed* targetFeed, std::istream*) const;
-  void parseStopTimes(gtfs::Feed* targetFeed, std::istream*) const;
-  void parseCalendar(gtfs::Feed* targetFeed, std::istream*) const;
-  void parseCalendarDates(gtfs::Feed* targetFeed, std::istream*) const;
-  void parseFareAttributes(gtfs::Feed* targetFeed, std::istream*) const;
-  void parseFareRules(gtfs::Feed* targetFeed, std::istream*) const;
-  void parseShapes(gtfs::Feed* targetFeed, std::istream*) const;
-  void parseFrequencies(gtfs::Feed* targetFeed, std::istream*) const;
-  void parseTransfers(gtfs::Feed* targetFeed, std::istream*) const;
-  void parseFeedInfo(gtfs::Feed* targetFeed, std::istream*) const;
 
-  std::string getString(const CsvParser& csv, size_t field) const;
-  std::string getString(const CsvParser& csv, size_t field,
-                        const std::string& def) const;
+  FEEDTPL
+  void parseAgencies(gtfs::FEEDB* targetFeed, std::istream*) const;
 
-  double getDouble(const CsvParser& csv, size_t field) const;
-  double getDouble(const CsvParser& csv, size_t fld, double def) const;
+  FEEDTPL
+  void parseStops(gtfs::FEEDB* targetFeed, std::istream*) const;
 
-  int64_t getRangeInteger(const CsvParser& csv, size_t field, int64_t minv,
-                          int64_t maxv) const;
-  int64_t getRangeInteger(const CsvParser& csv, size_t field, int64_t minv,
-                          int64_t maxv, int64_t def) const;
+  FEEDTPL
+  void parseRoutes(gtfs::FEEDB* targetFeed, std::istream*) const;
 
-  uint32_t getColorFromHexString(const CsvParser& csv, size_t field,
-                                 const std::string& def) const;
+  FEEDTPL
+  void parseTrips(gtfs::FEEDB* targetFeed, std::istream*) const;
 
-  gtfs::ServiceDate getServiceDate(const CsvParser& csv, size_t field) const;
-  gtfs::ServiceDate getServiceDate(const CsvParser& csv, size_t field, bool req) const;
+  FEEDTPL
+  void parseStopTimes(gtfs::FEEDB* targetFeed, std::istream*) const;
 
-  gtfs::Time getTime(const CsvParser& csv, size_t field) const;
+  FEEDTPL
+  void parseCalendar(gtfs::FEEDB* targetFeed, std::istream*) const;
 
-  gtfs::Route::TYPE getRouteType(const CsvParser& csv, size_t field,
-                                 int64_t t) const;
-  void fileNotFound(const std::string& file) const;
+  FEEDTPL
+  void parseCalendarDates(gtfs::FEEDB* targetFeed, std::istream*) const;
+
+  FEEDTPL
+  void parseFareAttributes(gtfs::FEEDB* targetFeed, std::istream*) const;
+
+  FEEDTPL
+  void parseFareRules(gtfs::FEEDB* targetFeed, std::istream*) const;
+
+  FEEDTPL
+  void parseShapes(gtfs::FEEDB* targetFeed, std::istream*) const;
+
+  FEEDTPL
+  void parseFrequencies(gtfs::FEEDB* targetFeed, std::istream*) const;
+
+  FEEDTPL
+  void parseTransfers(gtfs::FEEDB* targetFeed, std::istream*) const;
+
+  FEEDTPL
+  void parseFeedInfo(gtfs::FEEDB* targetFeed, std::istream*) const;
 };
+#include "Parser.tpp"
 }  // namespace cppgtfs
 }  // namespace ad
 

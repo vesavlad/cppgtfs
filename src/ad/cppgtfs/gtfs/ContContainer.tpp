@@ -4,72 +4,75 @@
 
 // ____________________________________________________________________________
 template <typename T>
-Container<T>::~Container() {
-  for (auto i : _map) {
-    delete i.second;
-  }
+T* ContContainer<T>::add(const T& ent) {
+  if (_final) assert(false);
+  _vec.push_back(ent);
+  return &_vec.back();
 }
 
 // ____________________________________________________________________________
 template <typename T>
-T* Container<T>::add(const T& ent) {
-  T* c = new T(ent);
-  if (_map.insert(std::pair<std::string, T*>(c->getId(), c)).second) return c;
-  return 0;
+void ContContainer<T>::finalize() {
+  auto cmp = ContCompCmp<T>();
+  std::sort(_vec.begin(), _vec.end(), cmp);
+  _final = true;
 }
 
 // ____________________________________________________________________________
 template <typename T>
-bool Container<T>::remove(const std::string& id) {
-  return _map.erase(id);
+bool ContContainer<T>::remove(const std::string& id) {
+  // not possible
+  assert(false);
 }
 
 // ____________________________________________________________________________
 template <typename T>
-T* Container<T>::get(const std::string& id) {
-  if (_map.find(id) != _map.end()) {
-    return _map.find(id)->second;
-  }
-  return 0;
+T* ContContainer<T>::get(const std::string& id) {
+  if (!_final) assert(false);
+  auto cmp = ContCompCmp2<T>();
+  auto i = std::lower_bound(_vec.begin(), _vec.end(), id, cmp);
+  if (i->getId() != id) return 0;
+  return &*i;
 }
 
 // ____________________________________________________________________________
 template <typename T>
-const T* Container<T>::get(const std::string& id) const {
-  if (_map.find(id) != _map.end()) {
-    return _map.find(id)->second;
-  }
-  return 0;
+const T* ContContainer<T>::get(const std::string& id) const {
+  if (!_final) assert(false);
+  auto cmp = ContCompCmp2<T>();
+  auto i = std::lower_bound(_vec.begin(), _vec.end(), id, cmp);
+  if (i->getId() != id) return 0;
+  return &*i;
 }
 
 // ____________________________________________________________________________
 template <typename T>
-size_t Container<T>::size() const {
-  return _map.size();
+size_t ContContainer<T>::size() const {
+  return _vec.size();
 }
 
 // ____________________________________________________________________________
 template <typename T>
-typename std::unordered_map<std::string, T*>::const_iterator
-Container<T>::begin() const {
-  return _map.begin();
+typename std::vector<T>::const_iterator
+ContContainer<T>::begin() const {
+  return _vec.begin();
 }
 
 // ____________________________________________________________________________
 template <typename T>
-typename std::unordered_map<std::string, T*>::iterator Container<T>::begin() {
-  return _map.begin();
+typename std::vector<T>::iterator ContContainer<T>::begin() {
+  return _vec.begin();
 }
 
 // ____________________________________________________________________________
 template <typename T>
-typename std::unordered_map<std::string, T*>::const_iterator Container<T>::end()
+typename std::vector<T>::const_iterator ContContainer<T>::end()
     const {
-  return _map.end();
+  return _vec.end();
 }
 
 // ____________________________________________________________________________
 template <typename T>
-typename std::unordered_map<std::string, T*>::iterator Container<T>::end() {
-  return _map.end();
+typename std::vector<T>::iterator ContContainer<T>::end() {
+  return _vec.end();
 }
