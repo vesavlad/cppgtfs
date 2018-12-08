@@ -348,7 +348,7 @@ inline bool Parser::nextAgency(CsvParser* csvp, gtfs::flat::Agency* a,
 FEEDTPL
 void Parser::parseAgencies(gtfs::FEEDB* targetFeed, std::istream* s) const {
   CsvParser csvp(s);
-  typename AgencyT::Ref a;
+  typename AgencyT::Ref a = (typename AgencyT::Ref());
   gtfs::flat::Agency fa;
   auto flds = getAgencyFlds(&csvp);
 
