@@ -1012,7 +1012,17 @@ inline bool Parser::nextStopTime(CsvParser* csvp, gtfs::flat::StopTime* s,
         getRangeInteger(*csvp, flds.dropOffTypeFld, 0, 3, 0));
     s->dropOffType = static_cast<gtfs::flat::StopTime::PU_DO_TYPE>(
         getRangeInteger(*csvp, flds.pickUpTypeFld, 0, 3, 0));
-    s->isTimepoint = getRangeInteger(*csvp, flds.timepointFld, 0, 1, 1);
+
+    // if at and dt are empty, default to 0 here
+    s->isTimepoint = getRangeInteger(*csvp, flds.timepointFld, 0, 1,
+                                     s->at.empty() && s->dt.empty());
+
+    if (s->isTimepoint && s->at.empty() && s->dt.empty()) {
+      throw ParserException(
+          "if arrival_time and departure_time are empty, timepoint cannot be 1",
+          "timepoint", csvp->getCurLine());
+    }
+
     s->shapeDistTravelled = -1;  // using -1 as a null value here
     if (flds.shapeDistTraveledFld < csvp->getNumColumns()) {
       if (!getString(*csvp, flds.shapeDistTraveledFld, "").empty()) {
@@ -1246,7 +1256,7 @@ Time Parser::getTime(const CsvParser& csv, size_t field) const {
   const char* val = csv.getTString(field);
 
   // TODO(patrick): null value
-  if (val[0] == 0) return Time(0, 0, 0);
+  if (val[0] == 0) return Time();
 
   try {
     uint64_t h = std::stoul(val, &p, 10);

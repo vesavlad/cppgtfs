@@ -33,13 +33,16 @@ struct StopTimeFlds {
 };
 
 struct Time {
-  Time() : m(0), s(0), h(0) {}
+  Time() : m(61), s(0), h(0) {}
   Time(uint8_t h, uint8_t m, uint8_t s) : m(m), s(s), h(h) {}
+  bool empty() const { return m > 60; }
   std::string toString() const {
     std::stringstream ss;
-    ss << std::setfill('0') << std::setw(2) << static_cast<int>(h) << ":"
-       << std::setfill('0') << std::setw(2) << static_cast<int>(m) << ":"
-       << std::setfill('0') << std::setw(2) << static_cast<int>(s);
+    if (!empty()) {
+      ss << std::setfill('0') << std::setw(2) << static_cast<int>(h) << ":"
+         << std::setfill('0') << std::setw(2) << static_cast<int>(m) << ":"
+         << std::setfill('0') << std::setw(2) << static_cast<int>(s);
+    }
     return ss.str();
   }
   uint8_t m : 6;
