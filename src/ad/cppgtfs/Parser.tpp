@@ -11,30 +11,19 @@ FEEDTPL bool Parser::parse(gtfs::FEEDB* targetFeed,
 
   targetFeed->setPath(gtfsPath);
 
-  try {
-    parseFeedInfo(targetFeed, path);
-    parseAgencies(targetFeed, path);
-    parseStops(targetFeed, path);
-    parseRoutes(targetFeed, path);
-    parseCalendar(targetFeed, path);
-    parseCalendarDates(targetFeed, path);
-    parseShapes(targetFeed, path);
-    parseTrips(targetFeed, path);
-    parseStopTimes(targetFeed, path);
-    parseFrequencies(targetFeed, path);
-    parseTransfers(targetFeed, path);
-    parseFareAttributes(targetFeed, path);
-    parseFareRules(targetFeed, path);
-
-  } catch (const CsvParserException& e) {
-    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
-                          curFile.c_str());
-  } catch (const ParserException& e) {
-    // augment with file name
-    ParserException fe = e;
-    fe.setFileName(curFile.c_str());
-    throw fe;
-  }
+  parseFeedInfo(targetFeed, path);
+  parseAgencies(targetFeed, path);
+  parseStops(targetFeed, path);
+  parseRoutes(targetFeed, path);
+  parseCalendar(targetFeed, path);
+  parseCalendarDates(targetFeed, path);
+  parseShapes(targetFeed, path);
+  parseTrips(targetFeed, path);
+  parseStopTimes(targetFeed, path);
+  parseFrequencies(targetFeed, path);
+  parseTransfers(targetFeed, path);
+  parseFareAttributes(targetFeed, path);
+  parseFareRules(targetFeed, path);
 
   return true;
 }
@@ -793,10 +782,20 @@ void Parser::parseStops(gtfs::FEEDB* targetFeed,
                         const std::string& path) const {
   std::ifstream fs;
   std::string curFile = path + "/stops.txt";
-  fs.open(curFile.c_str());
-  if (!fs.good()) fileNotFound(curFile);
-  parseStops(targetFeed, &fs);
-  fs.close();
+  try {
+    fs.open(curFile.c_str());
+    if (!fs.good()) fileNotFound(curFile);
+    parseStops(targetFeed, &fs);
+    fs.close();
+  } catch (const CsvParserException& e) {
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
+                          curFile.c_str());
+  } catch (const ParserException& e) {
+    // augment with file name
+    ParserException fe = e;
+    fe.setFileName(curFile.c_str());
+    throw fe;
+  }
 }
 
 // ____________________________________________________________________________
@@ -805,10 +804,20 @@ void Parser::parseRoutes(gtfs::FEEDB* targetFeed,
                          const std::string& path) const {
   std::ifstream fs;
   std::string curFile = path + "/routes.txt";
-  fs.open(curFile.c_str());
-  if (!fs.good()) fileNotFound(curFile);
-  parseRoutes(targetFeed, &fs);
-  fs.close();
+  try {
+    fs.open(curFile.c_str());
+    if (!fs.good()) fileNotFound(curFile);
+    parseRoutes(targetFeed, &fs);
+    fs.close();
+  } catch (const CsvParserException& e) {
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
+                          curFile.c_str());
+  } catch (const ParserException& e) {
+    // augment with file name
+    ParserException fe = e;
+    fe.setFileName(curFile.c_str());
+    throw fe;
+  }
 }
 
 // ____________________________________________________________________________
@@ -817,10 +826,20 @@ void Parser::parseCalendar(gtfs::FEEDB* targetFeed,
                            const std::string& path) const {
   std::ifstream fs;
   std::string curFile = path + "/calendar.txt";
-  fs.open(curFile.c_str());
-  if (fs.good()) {
-    parseCalendar(targetFeed, &fs);
-    fs.close();
+  try {
+    fs.open(curFile.c_str());
+    if (fs.good()) {
+      parseCalendar(targetFeed, &fs);
+      fs.close();
+    }
+  } catch (const CsvParserException& e) {
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
+                          curFile.c_str());
+  } catch (const ParserException& e) {
+    // augment with file name
+    ParserException fe = e;
+    fe.setFileName(curFile.c_str());
+    throw fe;
   }
 }
 
@@ -830,10 +849,20 @@ void Parser::parseCalendarDates(gtfs::FEEDB* targetFeed,
                                 const std::string& path) const {
   std::ifstream fs;
   std::string curFile = path + "/calendar_dates.txt";
-  fs.open(curFile.c_str());
-  if (fs.good()) {
-    parseCalendarDates(targetFeed, &fs);
-    fs.close();
+  try {
+    fs.open(curFile.c_str());
+    if (fs.good()) {
+      parseCalendarDates(targetFeed, &fs);
+      fs.close();
+    }
+  } catch (const CsvParserException& e) {
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
+                          curFile.c_str());
+  } catch (const ParserException& e) {
+    // augment with file name
+    ParserException fe = e;
+    fe.setFileName(curFile.c_str());
+    throw fe;
   }
 }
 
@@ -843,10 +872,21 @@ void Parser::parseFeedInfo(gtfs::FEEDB* targetFeed,
                            const std::string& path) const {
   std::ifstream fs;
   std::string curFile = path + "/feed_info.txt";
-  fs.open(curFile.c_str());
-  if (fs.good()) {
-    parseFeedInfo(targetFeed, &fs);
-    fs.close();
+
+  try {
+    fs.open(curFile.c_str());
+    if (fs.good()) {
+      parseFeedInfo(targetFeed, &fs);
+      fs.close();
+    }
+  } catch (const CsvParserException& e) {
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
+                          curFile.c_str());
+  } catch (const ParserException& e) {
+    // augment with file name
+    ParserException fe = e;
+    fe.setFileName(curFile.c_str());
+    throw fe;
   }
 }
 
@@ -856,10 +896,20 @@ void Parser::parseAgencies(gtfs::FEEDB* targetFeed,
                            const std::string& path) const {
   std::ifstream fs;
   std::string curFile = path + "/agency.txt";
-  fs.open(curFile.c_str());
-  if (!fs.good()) fileNotFound(curFile);
-  parseAgencies(targetFeed, &fs);
-  fs.close();
+  try {
+    fs.open(curFile.c_str());
+    if (!fs.good()) fileNotFound(curFile);
+    parseAgencies(targetFeed, &fs);
+    fs.close();
+  } catch (const CsvParserException& e) {
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
+                          curFile.c_str());
+  } catch (const ParserException& e) {
+    // augment with file name
+    ParserException fe = e;
+    fe.setFileName(curFile.c_str());
+    throw fe;
+  }
 }
 
 // ____________________________________________________________________________
@@ -868,10 +918,20 @@ void Parser::parseShapes(gtfs::FEEDB* targetFeed,
                          const std::string& path) const {
   std::ifstream fs;
   std::string curFile = path + "/shapes.txt";
-  fs.open(curFile.c_str());
-  if (fs.good()) {
-    parseShapes(targetFeed, &fs);
-    fs.close();
+  try {
+    fs.open(curFile.c_str());
+    if (fs.good()) {
+      parseShapes(targetFeed, &fs);
+      fs.close();
+    }
+  } catch (const CsvParserException& e) {
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
+                          curFile.c_str());
+  } catch (const ParserException& e) {
+    // augment with file name
+    ParserException fe = e;
+    fe.setFileName(curFile.c_str());
+    throw fe;
   }
 }
 
@@ -881,10 +941,20 @@ void Parser::parseTrips(gtfs::FEEDB* targetFeed,
                         const std::string& path) const {
   std::ifstream fs;
   std::string curFile = path + "/trips.txt";
-  fs.open(curFile.c_str());
-  if (!fs.good()) fileNotFound(curFile);
-  parseTrips(targetFeed, &fs);
-  fs.close();
+  try {
+    fs.open(curFile.c_str());
+    if (!fs.good()) fileNotFound(curFile);
+    parseTrips(targetFeed, &fs);
+    fs.close();
+  } catch (const CsvParserException& e) {
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
+                          curFile.c_str());
+  } catch (const ParserException& e) {
+    // augment with file name
+    ParserException fe = e;
+    fe.setFileName(curFile.c_str());
+    throw fe;
+  }
 }
 
 // ____________________________________________________________________________
@@ -893,10 +963,20 @@ void Parser::parseStopTimes(gtfs::FEEDB* targetFeed,
                             const std::string& path) const {
   std::ifstream fs;
   std::string curFile = path + "/stop_times.txt";
-  fs.open(curFile.c_str());
-  if (!fs.good()) fileNotFound(curFile);
-  parseStopTimes(targetFeed, &fs);
-  fs.close();
+  try {
+    fs.open(curFile.c_str());
+    if (!fs.good()) fileNotFound(curFile);
+    parseStopTimes(targetFeed, &fs);
+    fs.close();
+  } catch (const CsvParserException& e) {
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
+                          curFile.c_str());
+  } catch (const ParserException& e) {
+    // augment with file name
+    ParserException fe = e;
+    fe.setFileName(curFile.c_str());
+    throw fe;
+  }
 }
 
 // ____________________________________________________________________________
@@ -905,10 +985,20 @@ void Parser::parseFareRules(gtfs::FEEDB* targetFeed,
                             const std::string& path) const {
   std::ifstream fs;
   std::string curFile = path + "/fare_rules.txt";
-  fs.open(curFile.c_str());
-  if (fs.good()) {
-    parseFareRules(targetFeed, &fs);
-    fs.close();
+  try {
+    fs.open(curFile.c_str());
+    if (fs.good()) {
+      parseFareRules(targetFeed, &fs);
+      fs.close();
+    }
+  } catch (const CsvParserException& e) {
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
+                          curFile.c_str());
+  } catch (const ParserException& e) {
+    // augment with file name
+    ParserException fe = e;
+    fe.setFileName(curFile.c_str());
+    throw fe;
   }
 }
 
@@ -918,10 +1008,20 @@ void Parser::parseFareAttributes(gtfs::FEEDB* targetFeed,
                                  const std::string& path) const {
   std::ifstream fs;
   std::string curFile = path + "/fare_attributes.txt";
-  fs.open(curFile.c_str());
-  if (fs.good()) {
-    parseFareAttributes(targetFeed, &fs);
-    fs.close();
+  try {
+    fs.open(curFile.c_str());
+    if (fs.good()) {
+      parseFareAttributes(targetFeed, &fs);
+      fs.close();
+    }
+  } catch (const CsvParserException& e) {
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
+                          curFile.c_str());
+  } catch (const ParserException& e) {
+    // augment with file name
+    ParserException fe = e;
+    fe.setFileName(curFile.c_str());
+    throw fe;
   }
 }
 
@@ -931,10 +1031,20 @@ void Parser::parseTransfers(gtfs::FEEDB* targetFeed,
                             const std::string& path) const {
   std::ifstream fs;
   std::string curFile = path + "/transfers.txt";
-  fs.open(curFile.c_str());
-  if (fs.good()) {
-    parseTransfers(targetFeed, &fs);
-    fs.close();
+  try {
+    fs.open(curFile.c_str());
+    if (fs.good()) {
+      parseTransfers(targetFeed, &fs);
+      fs.close();
+    }
+  } catch (const CsvParserException& e) {
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
+                          curFile.c_str());
+  } catch (const ParserException& e) {
+    // augment with file name
+    ParserException fe = e;
+    fe.setFileName(curFile.c_str());
+    throw fe;
   }
 }
 
@@ -944,10 +1054,20 @@ void Parser::parseFrequencies(gtfs::FEEDB* targetFeed,
                               const std::string& path) const {
   std::ifstream fs;
   std::string curFile = path + "/frequencies.txt";
-  fs.open(curFile.c_str());
-  if (fs.good()) {
-    parseFrequencies(targetFeed, &fs);
-    fs.close();
+  try {
+    fs.open(curFile.c_str());
+    if (fs.good()) {
+      parseFrequencies(targetFeed, &fs);
+      fs.close();
+    }
+  } catch (const CsvParserException& e) {
+    throw ParserException(e.getMsg(), e.getFieldName(), e.getLine(),
+                          curFile.c_str());
+  } catch (const ParserException& e) {
+    // augment with file name
+    ParserException fe = e;
+    fe.setFileName(curFile.c_str());
+    throw fe;
   }
 }
 
@@ -1015,7 +1135,7 @@ inline bool Parser::nextStopTime(CsvParser* csvp, gtfs::flat::StopTime* s,
 
     // if at and dt are empty, default to 0 here
     s->isTimepoint = getRangeInteger(*csvp, flds.timepointFld, 0, 1,
-                                     s->at.empty() && s->dt.empty());
+                                     !(s->at.empty() && s->dt.empty()));
 
     if (s->isTimepoint && s->at.empty() && s->dt.empty()) {
       throw ParserException(
