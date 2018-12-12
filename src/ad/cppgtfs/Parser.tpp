@@ -699,7 +699,7 @@ void Parser::parseTrips(gtfs::FEEDB* targetFeed, std::istream* s) const {
       throw ParserException(msg.str(), "route_id", csvp.getCurLine());
     }
 
-    typename ShapeT::Ref tripShape;
+    typename ShapeT::Ref tripShape = (typename ShapeT::Ref());
 
     if (!ft.shape.empty()) {
       tripShape = targetFeed->getShapes().getRef(ft.shape);
