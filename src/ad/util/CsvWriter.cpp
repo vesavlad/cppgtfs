@@ -82,6 +82,7 @@ void CsvWriter::flushLine() {
 
 // _____________________________________________________________________________
 void CsvWriter::writeStrArr(const std::vector<std::string>& arr) {
+  if (!arr.size()) return;
   bool first = false;
   for (const auto& str : arr) {
     if (first) (*_stream) << _delim;

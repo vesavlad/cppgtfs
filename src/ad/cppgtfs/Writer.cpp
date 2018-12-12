@@ -306,6 +306,7 @@ bool Writer::writeShapePoint(const gtfs::flat::ShapePoint& s,
 // ____________________________________________________________________________
 bool Writer::writeShapes(gtfs::Feed* sourceFeed, std::ostream* s) const {
   CsvWriter csvw = getShapesCsvw(s);
+  csvw.flushLine();
   for (const auto& t : sourceFeed->getShapes()) {
     for (const auto& p : t.second->getPoints()) {
       writeShapePoint(gtfs::flat::ShapePoint{t.second->getId(), p.lat, p.lng,
@@ -346,6 +347,7 @@ CsvWriter Writer::getRoutesCsvw(std::ostream* os) {
 // ____________________________________________________________________________
 bool Writer::writeRoutes(gtfs::Feed* sourceFeed, std::ostream* s) const {
   CsvWriter csvw = getAgencyCsvw(s);
+  csvw.flushLine();
   for (const auto& a : sourceFeed->getRoutes()) {
     writeRoute(a.second->getFlat(), &csvw);
   }
@@ -362,6 +364,7 @@ CsvWriter Writer::getFeedInfoCsvw(std::ostream* os) {
 // ____________________________________________________________________________
 bool Writer::writeFeedInfo(gtfs::Feed* f, std::ostream* os) const {
   auto csvw = getFeedInfoCsvw(os);
+  csvw.flushLine();
   csvw.writeString(f->getPublisherName());
   csvw.writeString(f->getPublisherUrl());
   csvw.writeString(f->getLang());
@@ -402,6 +405,7 @@ bool Writer::writeTransfer(const gtfs::flat::Transfer& t,
 // ____________________________________________________________________________
 bool Writer::writeTransfers(gtfs::Feed* f, std::ostream* os) const {
   auto csvw = getTransfersCsvw(os);
+  csvw.flushLine();
 
   for (const auto& t : f->getTransfers()) {
     writeTransfer(t.getFlat(), &csvw);
@@ -438,6 +442,7 @@ bool Writer::writeFare(const gtfs::flat::Fare& t, CsvWriter* csvw) const {
 // ____________________________________________________________________________
 bool Writer::writeFares(gtfs::Feed* f, std::ostream* os) const {
   auto csvw = getFaresCsvw(os);
+  csvw.flushLine();
 
   for (const auto& r : f->getFares()) {
     writeFare(r.second->getFlat(), &csvw);
@@ -479,6 +484,7 @@ bool Writer::writeFareRule(const gtfs::flat::FareRule& t,
 // ____________________________________________________________________________
 bool Writer::writeFareRules(gtfs::Feed* f, std::ostream* os) const {
   auto csvw = getFareRulesCsvw(os);
+  csvw.flushLine();
 
   for (const auto& fare : f->getFares()) {
     for (const auto& r : fare.second->getFareRules()) {
@@ -522,6 +528,7 @@ bool Writer::writeCalendar(const gtfs::flat::Calendar& s,
 // ____________________________________________________________________________
 bool Writer::writeCalendars(gtfs::Feed* f, std::ostream* os) const {
   auto csvw = getCalendarCsvw(os);
+  csvw.flushLine();
   for (const auto& r : f->getServices()) {
     if (!r.second->hasServiceDays()) continue;
     writeCalendar(r.second->getFlat(), &csvw);
@@ -549,6 +556,7 @@ bool Writer::writeCalendarDate(const gtfs::flat::CalendarDate& s,
 // ____________________________________________________________________________
 bool Writer::writeCalendarDates(gtfs::Feed* f, std::ostream* os) const {
   auto csvw = getCalendarDatesCsvw(os);
+  csvw.flushLine();
 
   for (const auto& r : f->getServices()) {
     for (const auto& e : r.second->getExceptions()) {
@@ -584,6 +592,7 @@ bool Writer::writeFrequency(const gtfs::flat::Frequency& f,
 // ____________________________________________________________________________
 bool Writer::writeFrequencies(gtfs::Feed* f, std::ostream* os) const {
   auto csvw = getFrequencyCsvw(os);
+  csvw.flushLine();
 
   for (const auto& t : f->getTrips()) {
     for (const auto& f : t.second->getFrequencies()) {
