@@ -12,6 +12,7 @@
 #include <vector>
 #include "Agency.h"
 #include "Container.h"
+#include "ContContainer.h"
 #include "Fare.h"
 #include "Route.h"
 #include "Service.h"
@@ -30,9 +31,10 @@
             template <typename> class TContainerT,                  \
             template <typename> class ShContainerT,                 \
             template <typename> class FContainerT>
-#define FEEDB                                                                 \
-  FeedB<AgencyT, RouteT, StopT, ServiceT, StopTimeT, ShapeT, AContainerT, RContainerT, \
-        SContainerT, StContainerT, TContainerT, ShContainerT, FContainerT>
+#define FEEDB                                                              \
+  FeedB<AgencyT, RouteT, StopT, ServiceT, StopTimeT, ShapeT, AContainerT,  \
+        RContainerT, SContainerT, StContainerT, TContainerT, ShContainerT, \
+        FContainerT>
 
 namespace ad {
 namespace cppgtfs {
@@ -123,9 +125,13 @@ class FeedB {
   ServiceDate _startDate, _endDate;
 };
 
-typedef FeedB<Agency, Route, Stop, Service, StopTime, Shape, Container, Container,
-              Container, Container, Container, Container, Container>
+typedef FeedB<Agency, Route, Stop, Service, StopTime, Shape, Container,
+              Container, Container, Container, Container, Container, Container>
     Feed;
+typedef FeedB<Agency, Route, Stop, Service, StopTime, Shape, ContContainer,
+              ContContainer, ContContainer, ContContainer, ContContainer,
+              ContContainer, ContContainer>
+    ContFeed;
 
 #include "Feed.tpp"
 

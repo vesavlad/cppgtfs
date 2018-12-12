@@ -5,8 +5,9 @@
 #ifndef AD_CPPGTFS_GTFS_CONTCONTAINER_H_
 #define AD_CPPGTFS_GTFS_CONTCONTAINER_H_
 
-#include <string>
 #include <algorithm>
+#include <stdexcept>
+#include <string>
 #include <unordered_map>
 
 namespace ad {
@@ -16,7 +17,7 @@ namespace gtfs {
 template <typename T>
 class ContContainer {
  public:
-  ContContainer() : _final(false) {};
+  ContContainer() : _final(false){};
   T* add(const T& obj);
   bool remove(const std::string& id);
   const T* get(const std::string& id) const;

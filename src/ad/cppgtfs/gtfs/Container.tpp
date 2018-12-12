@@ -14,7 +14,7 @@ Container<T>::~Container() {
 template <typename T>
 T* Container<T>::add(const T& ent) {
   T* c = new T(ent);
-  if (_map.insert(std::pair<std::string, T*>(c->getId(), c)).second) return c;
+  if (_map.insert(std::pair<std::string, T*>(T::getId(c), c)).second) return c;
   return 0;
 }
 

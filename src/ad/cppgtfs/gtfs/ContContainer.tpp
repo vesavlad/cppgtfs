@@ -5,7 +5,9 @@
 // ____________________________________________________________________________
 template <typename T>
 T* ContContainer<T>::add(const T& ent) {
-  if (_final) assert(false);
+  if (_final)
+    throw std::runtime_error("Can't add to a finalized continuous container.");
+  ;
   _vec.push_back(ent);
   return &_vec.back();
 }
@@ -21,27 +23,30 @@ void ContContainer<T>::finalize() {
 // ____________________________________________________________________________
 template <typename T>
 bool ContContainer<T>::remove(const std::string& id) {
-  // not possible
-  assert(false);
+  throw std::runtime_error("Can't remove from a continuous container.");
 }
 
 // ____________________________________________________________________________
 template <typename T>
 T* ContContainer<T>::get(const std::string& id) {
-  if (!_final) assert(false);
+  if (!_final)
+    throw std::runtime_error(
+        "Cannot get from an unfinalized continuous container.");
   auto cmp = ContCompCmp2<T>();
   auto i = std::lower_bound(_vec.begin(), _vec.end(), id, cmp);
-  if (i->getId() != id) return 0;
+  if (T::getId(&*i) != id) return 0;
   return &*i;
 }
 
 // ____________________________________________________________________________
 template <typename T>
 const T* ContContainer<T>::get(const std::string& id) const {
-  if (!_final) assert(false);
+  if (!_final)
+    throw std::runtime_error(
+        "Cannot get from an unfinalized continuous container.");
   auto cmp = ContCompCmp2<T>();
   auto i = std::lower_bound(_vec.begin(), _vec.end(), id, cmp);
-  if (i->getId() != id) return 0;
+  if (T::getId(&*i) != id) return 0;
   return &*i;
 }
 
@@ -53,8 +58,7 @@ size_t ContContainer<T>::size() const {
 
 // ____________________________________________________________________________
 template <typename T>
-typename std::vector<T>::const_iterator
-ContContainer<T>::begin() const {
+typename std::vector<T>::const_iterator ContContainer<T>::begin() const {
   return _vec.begin();
 }
 
@@ -66,8 +70,7 @@ typename std::vector<T>::iterator ContContainer<T>::begin() {
 
 // ____________________________________________________________________________
 template <typename T>
-typename std::vector<T>::const_iterator ContContainer<T>::end()
-    const {
+typename std::vector<T>::const_iterator ContContainer<T>::end() const {
   return _vec.end();
 }
 
