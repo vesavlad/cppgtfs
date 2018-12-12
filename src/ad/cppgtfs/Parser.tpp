@@ -188,7 +188,7 @@ void Parser::parseFareAttributes(gtfs::FEEDB* targetFeed,
       }
     }
 
-    targetFeed->getFares().add(typename gtfs::Fare<RouteT>(
+    targetFeed->getFares().add(FareT<RouteT>(
         ff.id, ff.price, ff.currencyType, ff.paymentMethod, ff.numTransfers,
         agency, ff.duration));
   }

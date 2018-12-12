@@ -46,6 +46,8 @@ class FareRule {
 template <typename RouteT>
 class Fare {
  public:
+  typedef Fare<RouteT>* Ref;
+  static std::string getId(Ref r) { return r->getId(); }
   typedef flat::Fare::PAYMENT_METHOD PAYMENT_METHOD;
   typedef flat::Fare::NUM_TRANSFERS NUM_TRANSFERS;
 

@@ -11,8 +11,8 @@
 #include <unordered_map>
 #include <vector>
 #include "Agency.h"
-#include "Container.h"
 #include "ContContainer.h"
+#include "Container.h"
 #include "Fare.h"
 #include "Route.h"
 #include "Service.h"
@@ -24,17 +24,18 @@
 #define FEEDTPL                                                     \
   template <typename AgencyT, typename RouteT, typename StopT,      \
             typename ServiceT, template <typename> class StopTimeT, \
-            typename ShapeT, template <typename> class AContainerT, \
+            typename ShapeT, template <typename> class FareT,        \
+            template <typename> class AContainerT,                  \
             template <typename> class RContainerT,                  \
             template <typename> class SContainerT,                  \
             template <typename> class StContainerT,                 \
             template <typename> class TContainerT,                  \
             template <typename> class ShContainerT,                 \
             template <typename> class FContainerT>
-#define FEEDB                                                              \
-  FeedB<AgencyT, RouteT, StopT, ServiceT, StopTimeT, ShapeT, AContainerT,  \
-        RContainerT, SContainerT, StContainerT, TContainerT, ShContainerT, \
-        FContainerT>
+#define FEEDB                                                             \
+  FeedB<AgencyT, RouteT, StopT, ServiceT, StopTimeT, ShapeT, FareT,       \
+        AContainerT, RContainerT, SContainerT, StContainerT, TContainerT, \
+        ShContainerT, FContainerT>
 
 namespace ad {
 namespace cppgtfs {
@@ -48,7 +49,7 @@ class FeedB {
   typedef TContainerT<TripB<StopTimeT<StopT>, ServiceT, RouteT, ShapeT>> Trips;
   typedef ShContainerT<ShapeT> Shapes;
   typedef SContainerT<ServiceT> Services;
-  typedef FContainerT<Fare<RouteT>> Fares;
+  typedef FContainerT<FareT<RouteT>> Fares;
   typedef std::vector<Transfer> Transfers;
   typedef std::set<std::string> Zones;
 
@@ -125,12 +126,12 @@ class FeedB {
   ServiceDate _startDate, _endDate;
 };
 
-typedef FeedB<Agency, Route, Stop, Service, StopTime, Shape, Container,
+typedef FeedB<Agency, Route, Stop, Service, StopTime, Shape, Fare, Container,
               Container, Container, Container, Container, Container, Container>
     Feed;
-typedef FeedB<Agency, Route, Stop, Service, StopTime, Shape, ContContainer,
+typedef FeedB<Agency, Route, Stop, Service, StopTime, Shape, Fare,
               ContContainer, ContContainer, ContContainer, ContContainer,
-              ContContainer, ContContainer>
+              ContContainer, ContContainer, ContContainer>
     ContFeed;
 
 #include "Feed.tpp"
