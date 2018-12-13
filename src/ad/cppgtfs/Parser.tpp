@@ -1112,7 +1112,7 @@ inline gtfs::flat::StopTimeFlds Parser::getStopTimeFlds(CsvParser* csvp) {
   s.stopHeadsignFld = csvp->getOptFieldIndex("stop_headsign");
   s.shapeDistTraveledFld = csvp->getOptFieldIndex("shape_dist_traveled");
   s.timepointFld = csvp->getOptFieldIndex("timepoint");
-  s.pickUpTypeFld = csvp->getOptFieldIndex("pick_up_type");
+  s.pickUpTypeFld = csvp->getOptFieldIndex("pickup_type");
   s.dropOffTypeFld = csvp->getOptFieldIndex("drop_off_type");
   return s;
 }
@@ -1129,9 +1129,9 @@ inline bool Parser::nextStopTime(CsvParser* csvp, gtfs::flat::StopTime* s,
     s->sequence = getRangeInteger(*csvp, flds.stopSequenceFld, 0, UINT32_MAX);
     s->headsign = getString(*csvp, flds.stopHeadsignFld, "");
     s->pickupType = static_cast<gtfs::flat::StopTime::PU_DO_TYPE>(
-        getRangeInteger(*csvp, flds.dropOffTypeFld, 0, 3, 0));
-    s->dropOffType = static_cast<gtfs::flat::StopTime::PU_DO_TYPE>(
         getRangeInteger(*csvp, flds.pickUpTypeFld, 0, 3, 0));
+    s->dropOffType = static_cast<gtfs::flat::StopTime::PU_DO_TYPE>(
+        getRangeInteger(*csvp, flds.dropOffTypeFld, 0, 3, 0));
 
     // if at and dt are empty, default to 0 here
     s->isTimepoint = getRangeInteger(*csvp, flds.timepointFld, 0, 1,
