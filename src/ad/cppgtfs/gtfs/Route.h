@@ -32,9 +32,9 @@ class RouteB {
   RouteB() {}
 
   RouteB(const string& id, typename AgencyT::Ref agency,
-        const string& short_name, const string& long_name, const string& desc,
-        flat::Route::TYPE type, const string& url, uint32_t color,
-        uint32_t text_color)
+         const string& short_name, const string& long_name, const string& desc,
+         flat::Route::TYPE type, const string& url, uint32_t color,
+         uint32_t text_color)
       : _id(id),
         _agency(agency),
         _short_name(short_name),
@@ -71,82 +71,6 @@ class RouteB {
 
   std::string getTextColorString() const {
     return flat::Route::getHexColorString(_text_color);
-  }
-
-  static std::string getTypeString(flat::Route::TYPE t) {
-    std::string names[8] = {"tram",  "subway",   "rail",    "bus",
-                            "ferry", "cablecar", "gondola", "funicular"};
-    return names[t];
-  }
-
-  static std::set<flat::Route::TYPE> getTypesFromString(std::string name) {
-    std::set<flat::Route::TYPE> ret;
-
-    if (name.empty()) return ret;
-
-    char* rem;
-    uint64_t num = strtol(name.c_str(), &rem, 10);
-    if (!*rem && num <= 7) {
-      ret.insert((flat::Route::TYPE)num);
-      return ret;
-    }
-
-    std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-
-    if (name == "all") {
-      ret.insert(flat::Route::TYPE::TRAM);
-      ret.insert(flat::Route::TYPE::SUBWAY);
-      ret.insert(flat::Route::TYPE::RAIL);
-      ret.insert(flat::Route::TYPE::BUS);
-      ret.insert(flat::Route::TYPE::FERRY);
-      ret.insert(flat::Route::TYPE::CABLE_CAR);
-      ret.insert(flat::Route::TYPE::GONDOLA);
-      ret.insert(flat::Route::TYPE::FUNICULAR);
-      return ret;
-    }
-
-    if (name == "bus") {
-      ret.insert(flat::Route::TYPE::BUS);
-      return ret;
-    }
-
-    if (name == "tram" || name == "streetcar" || name == "light_rail" ||
-        name == "lightrail" || name == "light-rail") {
-      ret.insert(flat::Route::TYPE::TRAM);
-      return ret;
-    }
-
-    if (name == "train" || name == "rail") {
-      ret.insert(flat::Route::TYPE::RAIL);
-      return ret;
-    }
-
-    if (name == "ferry" || name == "boat" || name == "ship") {
-      ret.insert(flat::Route::TYPE::FERRY);
-      return ret;
-    }
-
-    if (name == "subway" || name == "metro") {
-      ret.insert(flat::Route::TYPE::SUBWAY);
-      return ret;
-    }
-
-    if (name == "cablecar" || name == "cable_car" || name == "cable-car") {
-      ret.insert(flat::Route::TYPE::CABLE_CAR);
-      return ret;
-    }
-
-    if (name == "gondola") {
-      ret.insert(flat::Route::TYPE::GONDOLA);
-      return ret;
-    }
-
-    if (name == "funicular") {
-      ret.insert(flat::Route::TYPE::FUNICULAR);
-      return ret;
-    }
-
-    return ret;
   }
 
   flat::Route getFlat() const {

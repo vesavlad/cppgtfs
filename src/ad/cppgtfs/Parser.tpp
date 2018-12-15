@@ -188,9 +188,9 @@ void Parser::parseFareAttributes(gtfs::FEEDB* targetFeed,
       }
     }
 
-    targetFeed->getFares().add(FareT<RouteT>(
-        ff.id, ff.price, ff.currencyType, ff.paymentMethod, ff.numTransfers,
-        agency, ff.duration));
+    targetFeed->getFares().add(FareT<RouteT>(ff.id, ff.price, ff.currencyType,
+                                             ff.paymentMethod, ff.numTransfers,
+                                             agency, ff.duration));
   }
 }
 
@@ -1426,93 +1426,12 @@ Time Parser::getTime(const CsvParser& csv, size_t field) const {
 
 // ____________________________________________________________________________
 gtfs::flat::Route::TYPE Parser::getRouteType(const CsvParser& csv, size_t field,
-                                             int64_t t) const {
-  switch (t) {
-    case 2:
-    case 100:
-    case 101:
-    case 102:
-    case 103:
-    case 104:
-    case 105:
-    case 106:
-    case 107:
-    case 108:
-    case 109:
-    case 110:
-    case 111:
-    case 112:
-    case 113:
-    case 114:
-    case 115:
-    case 117:
-    case 300:
-    case 400:
-    case 403:
-    case 404:
-    case 405:
-      return Route::TYPE::RAIL;
-    case 3:
-    case 200:
-    case 201:
-    case 202:
-    case 203:
-    case 204:
-    case 205:
-    case 206:
-    case 207:
-    case 208:
-    case 209:
-    case 700:
-    case 701:
-    case 702:
-    case 703:
-    case 704:
-    case 705:
-    case 706:
-    case 707:
-    case 708:
-    case 709:
-    case 710:
-    case 711:
-    case 712:
-    case 713:
-    case 716:
-    case 800:
-      return Route::TYPE::BUS;
-    case 1:
-    case 401:
-    case 402:
-    case 500:
-    case 600:
-      return Route::TYPE::SUBWAY;
-    case 0:
-    case 900:
-    case 901:
-    case 902:
-    case 903:
-    case 904:
-    case 905:
-    case 906:
-      return Route::TYPE::TRAM;
-    // TODO(patrick): from here on not complete!
-    case 4:
-    case 1000:
-      return Route::TYPE::FERRY;
-    case 6:
-    case 1300:
-      return Route::TYPE::GONDOLA;
-    case 7:
-    case 116:
-    case 1400:
-      return Route::TYPE::FUNICULAR;
-    case 5:
-    case 1500:
-      return Route::TYPE::CABLE_CAR;
-    default:
-      std::stringstream msg;
-      msg << "route type '" << t << " not supported.";
-      throw ParserException(msg.str(), csv.getFieldName(field),
-                            csv.getCurLine());
+                                             int64_t tn) const {
+  auto t = gtfs::flat::Route::getRouteType(tn);
+  if (t == gtfs::flat::Route::NONE) {
+    std::stringstream msg;
+    msg << "route type '" << tn << " not supported.";
+    throw ParserException(msg.str(), csv.getFieldName(field), csv.getCurLine());
   }
+  return t;
 }
