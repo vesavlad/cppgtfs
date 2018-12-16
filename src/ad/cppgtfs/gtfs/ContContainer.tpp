@@ -34,6 +34,7 @@ T* ContContainer<T>::get(const std::string& id) {
         "Cannot get from an unfinalized continuous container.");
   auto cmp = ContCompCmp2<T>();
   auto i = std::lower_bound(_vec.begin(), _vec.end(), id, cmp);
+  if (i == _vec.end()) return 0;
   if (T::getId(&*i) != id) return 0;
   return &*i;
 }
@@ -46,6 +47,7 @@ const T* ContContainer<T>::get(const std::string& id) const {
         "Cannot get from an unfinalized continuous container.");
   auto cmp = ContCompCmp2<T>();
   auto i = std::lower_bound(_vec.begin(), _vec.end(), id, cmp);
+  if (i == _vec.end()) return 0;
   if (T::getId(&*i) != id) return 0;
   return &*i;
 }
