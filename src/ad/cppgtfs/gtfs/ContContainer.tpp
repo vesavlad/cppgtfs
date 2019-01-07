@@ -28,6 +28,18 @@ bool ContContainer<T>::remove(const std::string& id) {
 
 // ____________________________________________________________________________
 template <typename T>
+const T* ContContainer<T>::getRef(const std::string& id) const {
+  if (get(id)) return id;
+}
+
+// ____________________________________________________________________________
+template <typename T>
+T* ContContainer<T>::getRef(const std::string& id) {
+  if (get(id)) return id;
+}
+
+// ____________________________________________________________________________
+template <typename T>
 T* ContContainer<T>::get(const std::string& id) {
   if (!_final)
     throw std::runtime_error(

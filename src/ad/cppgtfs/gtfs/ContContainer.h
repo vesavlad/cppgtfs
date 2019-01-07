@@ -22,8 +22,8 @@ class ContContainer {
   bool remove(const std::string& id);
   const T* get(const std::string& id) const;
   T* get(const std::string& id);
-  const T* getRef(const std::string& id) const { return get(id); }
-  T* getRef(const std::string& id) { return get(id); }
+  const T* getRef(const std::string& id) const;
+  T* getRef(const std::string& id);
   size_t size() const;
 
   void finalize();
