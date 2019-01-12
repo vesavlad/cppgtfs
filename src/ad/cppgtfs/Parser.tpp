@@ -176,7 +176,7 @@ void Parser::parseFareAttributes(gtfs::FEEDB* targetFeed,
   auto flds = getFareFlds(&csvp);
 
   while (nextFare(&csvp, &ff, flds)) {
-    typename AgencyT::Ref agency;
+    typename AgencyT::Ref agency = typename AgencyT::Ref();
 
     if (!ff.agency.empty()) {
       agency = targetFeed->getAgencies().get(ff.agency);

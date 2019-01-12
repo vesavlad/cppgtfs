@@ -23,7 +23,8 @@ void ContContainer<T>::finalize() {
 // ____________________________________________________________________________
 template <typename T>
 bool ContContainer<T>::remove(const std::string& id) {
-  throw std::runtime_error("Can't remove from a continuous container.");
+  throw std::runtime_error(std::string("Can't remove ") + id +
+                           " from a continuous container.");
 }
 
 // ____________________________________________________________________________
