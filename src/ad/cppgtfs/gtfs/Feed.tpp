@@ -82,7 +82,7 @@ const std::string& FEEDB::getPublisherName() const { return _publisherName; }
 
 // ____________________________________________________________________________
 FEEDTPL
-const std::string& FEEDB::getPublisherUrl() const { return _publisherName; }
+const std::string& FEEDB::getPublisherUrl() const { return _publisherUrl; }
 
 // ____________________________________________________________________________
 FEEDTPL
