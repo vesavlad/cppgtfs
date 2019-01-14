@@ -88,6 +88,7 @@ struct Route {
       case 403:
       case 404:
       case 405:
+      case 1503:
         return Route::TYPE::RAIL;
       case 3:
         return Route::TYPE::BUS;
@@ -117,7 +118,13 @@ struct Route {
       case 712:
       case 713:
       case 716:
+      case 717:
       case 800:
+      case 1500:
+      case 1503:
+      case 1505:
+      case 1506:
+      case 1507:
         return Route::TYPE::BUS;
       case 1:
       case 401:
@@ -137,16 +144,23 @@ struct Route {
       // TODO(patrick): from here on not complete!
       case 4:
       case 1000:
+      case 1200:
+      case 1502:
         return Route::TYPE::FERRY;
       case 6:
       case 1300:
+      case 1301:
+      case 1304:
+      case 1306:
+      case 1307:
         return Route::TYPE::GONDOLA;
       case 7:
       case 116:
+      case 1303:
+      case 1302:
       case 1400:
         return Route::TYPE::FUNICULAR;
       case 5:
-      case 1500:
         return Route::TYPE::CABLE_CAR;
       default:
         return Route::TYPE::NONE;
