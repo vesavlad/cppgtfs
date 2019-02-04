@@ -1430,7 +1430,7 @@ gtfs::flat::Route::TYPE Parser::getRouteType(const CsvParser& csv, size_t field,
   auto t = gtfs::flat::Route::getRouteType(tn);
   if (t == gtfs::flat::Route::NONE) {
     std::stringstream msg;
-    msg << "route type '" << tn << " not supported.";
+    msg << "route type '" << tn << "' not supported.";
     throw ParserException(msg.str(), csv.getFieldName(field), csv.getCurLine());
   }
   return t;
