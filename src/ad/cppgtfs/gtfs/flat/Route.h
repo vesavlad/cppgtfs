@@ -117,6 +117,8 @@ struct Route {
       case 711:
       case 712:
       case 713:
+      case 714:
+      case 715:
       case 716:
       case 717:
       case 800:
