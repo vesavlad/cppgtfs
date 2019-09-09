@@ -9,9 +9,6 @@
 #include <cassert>
 #include <string>
 
-using std::exception;
-using std::string;
-
 namespace ad {
 namespace cppgtfs {
 namespace gtfs {
@@ -42,8 +39,8 @@ struct Stop {
     BOARDING_NOT_POSSIBLE = 2
   };
 
-  string id, code, name, desc, zone_id, stop_url, stop_timezone, platform_code,
-      parent_station;
+  std::string id, code, name, desc, zone_id, stop_url, stop_timezone,
+      platform_code, parent_station;
   float lat, lng;
   Stop::WHEELCHAIR_BOARDING wheelchair_boarding;
   Stop::LOCATION_TYPE location_type;

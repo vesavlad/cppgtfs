@@ -7,6 +7,7 @@
 
 #include <sstream>
 #include <string>
+#include <iomanip>
 
 namespace ad {
 namespace cppgtfs {
@@ -39,13 +40,13 @@ struct Route {
     NONE = 99
   };
 
-  string id;
-  string agency;
-  string short_name;
-  string long_name;
-  string desc;
+  std::string id;
+  std::string agency;
+  std::string short_name;
+  std::string long_name;
+  std::string desc;
   Route::TYPE type;
-  string url;
+  std::string url;
   uint32_t color;
   uint32_t text_color;
 
