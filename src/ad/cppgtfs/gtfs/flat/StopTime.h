@@ -36,6 +36,7 @@ struct Time {
   Time() : m(61), s(0), h(0) {}
   Time(uint8_t h, uint8_t m, uint8_t s) : m(m), s(s), h(h) {}
   bool empty() const { return m > 60; }
+  int seconds() const { return s + m * 60 + h * 3600; }
   std::string toString() const {
     std::stringstream ss;
     if (!empty()) {
