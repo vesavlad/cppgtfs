@@ -1124,6 +1124,9 @@ inline bool Parser::nextStopTime(CsvParser* csvp, gtfs::flat::StopTime* s,
     s->at = getTime(*csvp, flds.arrivalTimeFld);
     s->dt = getTime(*csvp, flds.departureTimeFld);
 
+    if (s->at.empty() && !s->dt.empty()) s->at = s->dt;
+    if (s->dt.empty() && !s->at.empty()) s->dt = s->at;
+
     s->trip = getString(*csvp, flds.tripIdFld);
     s->s = getString(*csvp, flds.stopIdFld);
     s->sequence = getRangeInteger(*csvp, flds.stopSequenceFld, 0, UINT32_MAX);
