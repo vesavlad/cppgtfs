@@ -209,6 +209,8 @@ class Parser {
  private:
   bool _strict;
 
+  static uint32_t atoi(const char** p);
+
   FEEDTPL
   void parseAgencies(gtfs::FEEDB* targetFeed, std::istream*) const;
 

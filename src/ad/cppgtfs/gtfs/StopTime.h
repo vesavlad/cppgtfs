@@ -55,7 +55,7 @@ class StopTime {
   }
 
   float getShapeDistanceTravelled() const { return _shapeDistTravelled; }
-  void setShapeDistanceTravelled(double d) { _shapeDistTravelled = d; }
+  void setShapeDistanceTravelled(float d) { _shapeDistTravelled = d; }
   bool isTimepoint() const { return _isTimepoint; }
   uint16_t getSeq() const { return _sequence; }
 

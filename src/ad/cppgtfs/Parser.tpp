@@ -1080,12 +1080,12 @@ void Parser::parseShapes(gtfs::FEEDB* targetFeed, std::istream* s) const {
   auto flds = getShapeFlds(&csvp);
 
   while (nextShapePoint(&csvp, &fp, flds)) {
+    if (!targetFeed->getShapes().has(fp.id)) {
+      targetFeed->getShapes().add(ShapeT(fp.id));
+    }
+
     auto s = targetFeed->getShapes().get(fp.id);
     targetFeed->updateBox(fp.lat, fp.lng);
-
-    if (!s) {
-      s = targetFeed->getShapes().add(ShapeT(fp.id));
-    }
 
     if (s) {
       if (!s->addPoint(ShapePoint(fp.lat, fp.lng, fp.travelDist, fp.seq))) {
@@ -1346,16 +1346,15 @@ ServiceDate Parser::getServiceDate(const CsvParser& csv, size_t field) const {
 // ____________________________________________________________________________
 ServiceDate Parser::getServiceDate(const CsvParser& csv, size_t field,
                                    bool req) const {
-  size_t p;
   const char* val = csv.getTString(field);
   if (strlen(val) == 0 && !req) return ServiceDate();
 
   try {
-    int32_t yyyymmdd = std::stoul(val, &p, 10);
-    if (p != strlen(val) || yyyymmdd > 99999999) {
+    uint32_t yyyymmdd = atoi(&val);
+    if (*val != 0 || yyyymmdd > 99999999) {
       std::stringstream msg;
-      msg << "expected a date in the YYYYMMDD format, found '" << val
-          << "' instead.";
+      msg << "expected a date in the YYYYMMDD format, found '"
+          << csv.getTString(field) << "' instead.";
       throw ParserException(msg.str(), csv.getFieldName(field),
                             csv.getCurLine());
     }
@@ -1375,54 +1374,50 @@ ServiceDate Parser::getServiceDate(const CsvParser& csv, size_t field,
 
 // ____________________________________________________________________________
 Time Parser::getTime(const CsvParser& csv, size_t field) const {
-  size_t p;
   const char* val = csv.getTString(field);
 
   // TODO(patrick): null value
   if (val[0] == 0) return Time();
 
   try {
-    uint64_t h = std::stoul(val, &p, 10);
+    uint32_t h = atoi(&val);
     if (h > 255)
       throw std::out_of_range(
-          "only hour-values up to 255 are "
-          "supported. (read " +
-          std::to_string(h) + ")");
-    val += p + 1;
-
-    uint64_t m = std::stoul(val, &p, 10);
-    if (p == 1) {
-      if (_strict) {
-        throw std::invalid_argument("one-digit minute values are not allowed.");
-      }
+          "only non-negative hour-values up to 255 are "
+          "supported.");
+    if (*val != ':') {
+      std::cout << *val << std::endl;
+      throw std::invalid_argument("invalid separator");
     }
+
+    val++;
+
+    uint32_t m = atoi(&val);
     // allow values of 60, although standard forbids it
     if (m > 60)
       throw std::out_of_range(
-          "only minute-values up to 60 are "
-          "allowed. (read " +
-          std::to_string(m) + ")");
-    val += p + 1;
+          "only non-negative minute-values up to 60 are "
+          "allowed.");
 
-    uint64_t s = std::stoul(val, &p, 10);
-    if (p == 0) s = 0;  // support HH:MM format (although standard forbids it)
-    if (p == 1) {
-      if (_strict) {
-        throw std::invalid_argument("one-digit second values are not allowed.");
-      }
+    // allow missing second values, although standard forbids it
+    uint32_t s = 0;
+
+    if (*val == ':') {
+      val++;
+      s = atoi(&val);
     }
+
     // allow values of 60, although standard forbids it
     if (s > 60)
       throw std::out_of_range(
-          "only second-values up to 60 are "
-          "allowed. (read " +
-          std::to_string(s) + ")");
+          "only non-negative second-values up to 60 are "
+          "allowed.");
 
     return Time(h, m % 60, s % 60);
   } catch (const std::exception& e) {
     std::stringstream msg;
-    msg << "expected a time in HH:MM:SS (or H:MM:SS) format, found '" << val
-        << "' instead. (" << e.what() << ")";
+    msg << "expected a time in HH:MM:SS (or H:MM:SS) format, found '"
+        << csv.getTString(field) << "' instead. (" << e.what() << ")";
     throw ParserException(msg.str(), csv.getFieldName(field), csv.getCurLine());
   }
 }
@@ -1437,4 +1432,15 @@ gtfs::flat::Route::TYPE Parser::getRouteType(const CsvParser& csv, size_t field,
     throw ParserException(msg.str(), csv.getFieldName(field), csv.getCurLine());
   }
   return t;
+}
+
+// ___________________________________________________________________________
+inline uint32_t Parser::atoi(const char** p) {
+  uint32_t x = 0;
+  if (**p < '0' || **p > '9') return -1;
+  while (**p >= '0' && **p <= '9') {
+    x = (x * 10) + (**p - '0');
+    ++(*p);
+  }
+  return x;
 }

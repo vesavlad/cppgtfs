@@ -9,37 +9,46 @@
 #include <iostream>
 #include <string>
 #include "CsvWriter.h"
+#include "dtoa_milo.h"
 
 using ad::util::CsvWriter;
-using std::string;
-using std::remove;
 
 // _____________________________________________________________________________
 CsvWriter::CsvWriter(std::ostream* str, const HeaderList& headers)
-    : _stream(str), _headers(headers), _hWritten(false), _delim(',') {}
+    : _stream(str),
+      _headers(headers),
+      _hWritten(false),
+      _first(true),
+      _delim(',') {}
 
 // _____________________________________________________________________________
-bool CsvWriter::writeDouble(double d) {
-  std::ostringstream str;
-  str << std::setprecision(11) << d;
-  writeRawString(str.str());
-
-  return true;
+void CsvWriter::writeDouble(double d) {
+  ad::util::dtoa_milo(d, _dblBuf);
+  if (!_first) _stream->write(&_delim, 1);
+  _first = false;
+  _stream->write(_dblBuf, strlen(_dblBuf));
 }
 
 // _____________________________________________________________________________
-void CsvWriter::skip() { _curL.push_back(""); }
+void CsvWriter::skip() {
+  if (!_first) _stream->write(&_delim, 1);
+  _first = false;
+}
 
 // _____________________________________________________________________________
-bool CsvWriter::writeString(const std::string& str) {
-  if (str.find(_delim) != std::string::npos ||
-      str.find('"') != std::string::npos) {
-    writeRawString("\"" + escStr(str) + "\"");
-  } else {
-    writeRawString(str);
-  }
+void CsvWriter::writeString(const std::string& str) {
+  if (!_first) _stream->write(&_delim, 1);
+  _first = false;
 
-  return true;
+  if (str.find(_delim) != std::string::npos) {
+    if (str.find('"') != std::string::npos) {
+      (*_stream) << "\"" << escStr(str) << "\"";
+    } else {
+      (*_stream) << "\"" << str << "\"";
+    }
+  } else {
+    _stream->write(str.c_str(), str.size());
+  }
 }
 
 // _____________________________________________________________________________
@@ -56,28 +65,33 @@ std::string CsvWriter::escStr(const std::string& str) const {
 }
 
 // _____________________________________________________________________________
-bool CsvWriter::writeRawString(const std::string& str) {
-  _curL.push_back(str);
-  return true;
+void CsvWriter::writeRawString(const std::string& str) {
+  if (!_first) _stream->write(&_delim, 1);
+  _first = false;
+  _stream->write(str.c_str(), str.size());
 }
 
 // _____________________________________________________________________________
-bool CsvWriter::writeInt(int i) {
-  std::ostringstream str;
-  str << i;
-  writeRawString(str.str());
-  return true;
+void CsvWriter::writeInt(int i) {
+  if (!_first) _stream->write(&_delim, 1);
+  _first = false;
+  if (i == 0) _stream->write("0", 1);
+  else if (i == 1) _stream->write("1", 1);
+  else if (i == 2) _stream->write("2", 1);
+  else (*_stream) << i;
 }
 
 // _____________________________________________________________________________
 void CsvWriter::flushLine() {
-  if (!_hWritten) {
-    _hWritten = true;
-    writeStrArr(_headers);
-  }
+  if (!_hWritten) writeHeader();
+  (*_stream) << "\n";
+  _first = true;
+}
 
-  writeStrArr(_curL);
-  _curL.clear();
+// _____________________________________________________________________________
+void CsvWriter::writeHeader() {
+  _hWritten = true;
+  writeStrArr(_headers);
 }
 
 // _____________________________________________________________________________
@@ -89,6 +103,4 @@ void CsvWriter::writeStrArr(const std::vector<std::string>& arr) {
     first = true;
     (*_stream) << str.c_str();
   }
-
-  (*_stream) << '\n';
 }

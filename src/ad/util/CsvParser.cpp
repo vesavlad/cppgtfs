@@ -4,6 +4,7 @@
 //          Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <functional>
 #include <iostream>
@@ -11,14 +12,16 @@
 #include "CsvParser.h"
 
 using ad::util::CsvParser;
-using std::string;
 using std::remove;
+
+// cached first 10 powers of 10
+static int pow10[10] = {1,      10,      100,      1000,      10000,
+                        100000, 1000000, 10000000, 100000000, 1000000000};
 
 // _____________________________________________________________________________
 CsvParser::CsvParser() {}
 
-CsvParser::CsvParser(std::istream* stream)
-    : _curLine(0), _offset(0), _nextOffset(0), _stream(stream) {
+CsvParser::CsvParser(std::istream* stream) : _curLine(0), _stream(stream) {
   readNextLine();
   parseHeader();
 }
@@ -26,26 +29,21 @@ CsvParser::CsvParser(std::istream* stream)
 // _____________________________________________________________________________
 bool CsvParser::readNextLine() {
   if (!_stream->good()) return false;
-  _offset = _nextOffset;
-  _currentLine.clear();
-  char buff[200];
-  _stream->getline(buff, 200);
-  _nextOffset += _stream->gcount();
-  _currentLine.append(buff);
 
-  while (_stream->rdstate() == std::ios::failbit) {
-    _stream->clear();
-    _stream->getline(buff, 200);
-    _currentLine.append(buff);
-    _nextOffset += _stream->gcount();
-  }
-  _curLine++;
+  // TODO: error message if buffer was too small
+  _stream->getline(_buff, 10000);
+  size_t readN = _stream->gcount();
+  _buff[readN] = 0;
+
   // Remove new line characters
-  _currentLine.erase(remove(_currentLine.begin(), _currentLine.end(), '\r'),
-                     _currentLine.end());
-  _currentLine.erase(remove(_currentLine.begin(), _currentLine.end(), '\n'),
-                     _currentLine.end());
-  if (_currentLine.empty()) return readNextLine();  // skip empty lines
+  while (_buff[readN - 1] == '\r' || _buff[readN - 1] == '\n') {
+    _buff[readN - 1] = 0;
+    readN--;
+  }
+
+  _curLine++;
+
+  if (readN == 0) return readNextLine();
   size_t pos = 0;
   size_t lastPos = pos;
   bool firstChar = false;
@@ -54,14 +52,21 @@ bool CsvParser::readNextLine() {
   _currentItems.clear();
   _currentModItems.clear();
 
-  if (static_cast<int>(_currentLine[0]) == -17 &&
-      static_cast<int>(_currentLine[1]) == -69 &&
-      static_cast<int>(_currentLine[2]) == -65) {
+  if (readN > 2 && static_cast<int>(_buff[0]) == -17 &&
+      static_cast<int>(_buff[1]) == -69 && static_cast<int>(_buff[2]) == -65) {
     pos = 3;
     lastPos = pos;
   }
-  while (pos < _currentLine.size()) {
-    if (!firstChar && std::isspace(_currentLine[pos])) {
+
+  while (pos < readN) {
+    if (!firstChar && std::isspace(_buff[pos])) {
+      pos++;
+      lastPos = pos;
+      continue;
+    }
+
+    if (_buff[pos] == '"' && !esc) {
+      esc = true;
       pos++;
       lastPos = pos;
       continue;
@@ -69,48 +74,56 @@ bool CsvParser::readNextLine() {
 
     firstChar = true;
 
-    if (_currentLine[pos] == '"') {
-      if (!esc) {
-        esc = true;
-        pos++;
-        lastPos = pos;
+    if (!esc) {
+      const char* c = strchr(_buff + pos, ',');
+      if (c)
+        pos = c - _buff;
+      else
+        pos = readN - 1;
+    } else {
+      const char* c = strchr(_buff + pos, '"');
+      if (c)
+        pos = c - _buff;
+      else
+        pos = readN - 1;
+
+      if (pos < readN - 1 && _buff[pos + 1] == '"') {
+        pos += 2;
+        esc_quotes_found++;
         continue;
       } else {
-        if (pos < _currentLine.size() - 1 && _currentLine[pos + 1] == '"') {
-          pos++;
-          esc_quotes_found++;
-        } else {
-          // we end this field here, because of the closing quotes
-          // see CSV spec at http://tools.ietf.org/html/rfc4180#page-2
-          _currentLine[pos] = 0;
-          esc = false;
-        }
+        // we end this field here, because of the closing quotes
+        // see CSV spec at http://tools.ietf.org/html/rfc4180#page-2
+        _buff[pos] = 0;
+        esc = false;
+        firstChar = false;
+
+        const char* c = strchr(_buff + pos + 1, ',');
+        if (c)
+          pos = c - _buff;
+        else
+          pos = readN - 1;
       }
     }
 
-    if ((esc || _currentLine[pos] != ',') && pos < _currentLine.size() - 1) {
-      pos++;
-      continue;
-    }
-
-    if (_currentLine[pos] == ',') {
-      _currentLine[pos] = 0;
+    if (_buff[pos] == ',') {
+      _buff[pos] = 0;
       firstChar = false;
     }
 
     if (!esc_quotes_found) {
-      _currentItems.push_back(inlineRightTrim(_currentLine.c_str() + lastPos));
+      _currentItems.push_back(inlineRightTrim(_buff + lastPos));
     } else {
       size_t p = -1;
 
       // we have to modify to string (that is, we have to remove
       // characters. create a copy of this item
       // on the line-wise modified vector
-      _currentModItems.push_back(_currentLine.c_str() + lastPos);
+      _currentModItems.push_back(_buff + lastPos);
 
       while (esc_quotes_found) {
         p = _currentModItems.back().find("\"\"", p + 1);
-        if (p != string::npos) {
+        if (p != std::string::npos) {
           _currentModItems.back().replace(p, 2, "\"");
         }
 
@@ -118,7 +131,7 @@ bool CsvParser::readNextLine() {
       }
 
       // pointers will point to strings on the modified string vector
-      _currentItems.push_back(_currentModItems.back().c_str());
+      _currentItems.push_back(inlineRightTrim(_currentModItems.back().c_str()));
     }
 
     lastPos = ++pos;
@@ -128,50 +141,43 @@ bool CsvParser::readNextLine() {
 
 // _____________________________________________________________________________
 const char* CsvParser::getTString(const size_t i) const {
-  if (i >= _currentItems.size()) return "";
   return _currentItems[i];
 }
 
 // _____________________________________________________________________________
 double CsvParser::getDouble(const size_t i) const {
-  if (i >= _currentItems.size() || !isDouble(_currentItems[i]))
+  if (i >= _currentItems.size())
     throw CsvParserException("expected float number", i, getFieldName(i),
                              _curLine);
-  return atof(_currentItems[i]);
-}
 
-// _____________________________________________________________________________
-bool CsvParser::lineIsEmpty(string* line) const {
-  strtrim(line);
-  return line->empty();
-}
-
-// _____________________________________________________________________________
-bool CsvParser::lineIsEmpty(const char* line) const {
-  size_t i = 0;
-  while (line[i]) {
-    if (!isspace(line[i])) return false;
-    i++;
-  }
-
-  return true;
+  bool fail = false;
+  double ret = atof(_currentItems[i], 38, &fail);
+  if (fail)
+    throw CsvParserException("expected float number", i, getFieldName(i),
+                             _curLine);
+  return ret;
 }
 
 // _____________________________________________________________________________
 int32_t CsvParser::getLong(const size_t i) const {
-  if (i >= _currentItems.size() || !isLong(_currentItems[i]))
-    throw CsvParserException("expected integer number", i, getFieldName(i),
-                             _curLine);
-  return atol(_currentItems[i]);
+  if (i >= _currentItems.size())
+    throw CsvParserException("expected non-negative integer number", i,
+                             getFieldName(i), _curLine);
+  bool fail = false;
+  uint32_t ret = atoi(_currentItems[i], &fail);
+  if (fail)
+    throw CsvParserException("expected non-negative integer number", i,
+                             getFieldName(i), _curLine);
+  return ret;
 }
 
 // _____________________________________________________________________________
-bool CsvParser::hasItem(const string& fieldName) const {
+bool CsvParser::hasItem(const std::string& fieldName) const {
   return _headerMap.find(fieldName) != _headerMap.end();
 }
 
 // _____________________________________________________________________________
-bool CsvParser::fieldIsEmpty(const string& fieldName) const {
+bool CsvParser::fieldIsEmpty(const std::string& fieldName) const {
   return strlen(getTString(fieldName)) == 0;
 }
 
@@ -217,9 +223,6 @@ size_t CsvParser::getOptFieldIndex(const string& fieldName) const {
 int32_t CsvParser::getCurLine() const { return _curLine; }
 
 // _____________________________________________________________________________
-size_t CsvParser::getCurOffset() const { return _offset; }
-
-// _____________________________________________________________________________
 const string CsvParser::getFieldName(size_t i) const {
   if (i < _headerVec.size()) return _headerVec[i].c_str();
   return "(no field name given)";
@@ -245,52 +248,56 @@ const char* CsvParser::inlineRightTrim(const char* t) const {
 }
 
 // ___________________________________________________________________________
-inline bool CsvParser::isDouble(string line, bool notEmpty) const {
-  strtrim(&line);
-  if (line.size() == 0 && notEmpty) return false;
-  return isDouble(line);
+inline uint32_t CsvParser::atoi(const char* p, bool* fail) {
+  uint32_t x = 0;
+  while (*p >= '0' && *p <= '9') {
+    x = (x * 10) + (*p - '0');
+    ++p;
+  }
+  if (*p != 0 && *p != ' ') *fail = true;
+  return x;
 }
 
 // ___________________________________________________________________________
-inline void CsvParser::ltrim(string* s) const {
-  s->erase(s->begin(),
-           std::find_if(s->begin(), s->end(),
-                        std::not1(std::ptr_fun<int, int>(std::isspace))));
-}
+inline double CsvParser::atof(const char* p, uint8_t mn, bool* fail) {
+  // this atof implementation works only on "normal" float strings like
+  // 56.445 or -345.00, but should be faster than std::atof
+  double ret = 0.0;
+  bool neg = false;
+  bool decSep = false;
+  if (*p == '-') {
+    neg = true;
+    p++;
+  }
 
-// ___________________________________________________________________________
-inline void CsvParser::rtrim(string* s) const {
-  s->erase(std::find_if(s->rbegin(), s->rend(),
-                        std::not1(std::ptr_fun<int, int>(std::isspace)))
-               .base(),
-           s->end());
-}
+  while (*p >= '0' && *p <= '9') {
+    ret = ret * 10.0 + (*p - '0');
+    p++;
+  }
 
-// ___________________________________________________________________________
-inline void CsvParser::strtrim(string* s) const {
-  ltrim(s);
-  rtrim(s);
-}
+  if (*p == '.') {
+    if (decSep) {
+      *fail = true;
+      return 0;
+    }
+    decSep = true;
+    p++;
+    double f = 0;
+    uint8_t n = 0;
 
-// ___________________________________________________________________________
-inline bool CsvParser::isLong(string line) const {
-  strtrim(&line);
-  char* p;
-  strtol(line.c_str(), &p, 10);
-  return *p == 0;
-}
+    for (; n < mn && *p >= '0' && *p <= '9'; n++, p++) {
+      f = f * 10.0 + (*p - '0');
+    }
 
-// ___________________________________________________________________________
-inline bool CsvParser::isLong(string line, bool notEmpty) const {
-  strtrim(&line);
-  if (line.size() == 0 && notEmpty) return false;
-  return isLong(line);
-}
+    if (n < 10)
+      ret += f / pow10[n];
+    else
+      ret += f / std::pow(10, n);
+  } else if (*p != ' ') {
+    *fail = true;
+    return 0;
+  }
 
-// ___________________________________________________________________________
-inline bool CsvParser::isDouble(string line) const {
-  strtrim(&line);
-  char* p;
-  strtod(line.c_str(), &p);
-  return *p == 0;
+  if (neg) return -ret;
+  return ret;
 }

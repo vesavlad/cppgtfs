@@ -96,9 +96,6 @@ class CsvParser {
   // returns the line number the parser is currently at
   int32_t getCurLine() const;
 
-  // returns the position of the current line in the file
-  size_t getCurOffset() const;
-
   // checks whether a column with a specific name exists in this file
   bool hasItem(const std::string& fieldName) const;
 
@@ -118,13 +115,9 @@ class CsvParser {
 
  private:
   int32_t _curLine;
-  size_t _offset, _nextOffset;
 
   // The handle to the file.
   std::istream* _stream;
-
-  // Current line (pointers returned by readNextLine will refer to parts of it.
-  std::string _currentLine;
 
   // Parses the header row and fills the header map.
   void parseHeader();
@@ -146,16 +139,12 @@ class CsvParser {
   // modified, quote-escaped strings
   std::vector<std::string> _currentModItems;
 
-  bool lineIsEmpty(string* line) const;
-  bool lineIsEmpty(const char* line) const;
+  size_t _cols;
 
-  bool isDouble(string line) const;
-  bool isLong(string line, bool notEmpty) const;
-  bool isLong(string line) const;
-  void strtrim(string* s) const;
-  void rtrim(string* s) const;
-  void ltrim(string* s) const;
-  bool isDouble(string line, bool notEmpty) const;
+  char _buff[10000];
+
+  static double atof(const char* p, uint8_t mn, bool* fail);
+  static uint32_t atoi(const char* p, bool* fail);
 };
 }  // namespace util
 }  // namespace ad

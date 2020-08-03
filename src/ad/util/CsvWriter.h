@@ -24,16 +24,15 @@ namespace ad {
 namespace util {
 
 typedef std::vector<std::string> HeaderList;
-typedef std::vector<std::string> Line;
 
 class CsvWriter {
  public:
   // Initializes the parser by opening the file
   CsvWriter(std::ostream* str, const HeaderList& headers);
 
-  bool writeDouble(double d);
-  bool writeString(const std::string& str);
-  bool writeInt(int i);
+  void writeDouble(double d);
+  void writeString(const std::string& str);
+  void writeInt(int i);
   void skip();
 
   void flushLine();
@@ -41,12 +40,15 @@ class CsvWriter {
  private:
   std::ostream* _stream;
   HeaderList _headers;
-  Line _curL;
   bool _hWritten;
+  bool _first;
   char _delim;
 
-  bool writeRawString(const std::string& str);
+  char _dblBuf[25];
+
+  void writeRawString(const std::string& str);
   void writeStrArr(const std::vector<std::string>& arr);
+  void writeHeader();
 
   std::string escStr(const std::string& str) const;
 };
