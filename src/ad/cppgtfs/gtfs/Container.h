@@ -21,6 +21,7 @@ class Container {
   bool remove(const std::string& id);
   const T* get(const std::string& id) const;
   T* get(const std::string& id);
+  bool has(const std::string& id) const;
   const T* getRef(const std::string& id) const { return get(id); }
   T* getRef(const std::string& id) { return get(id); }
   size_t size() const;

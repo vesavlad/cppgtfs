@@ -139,9 +139,7 @@ class CsvParser {
   // modified, quote-escaped strings
   std::vector<std::string> _currentModItems;
 
-  size_t _cols;
-
-  char _buff[10000];
+  char _buff[10000] = {0};
 
   static double atof(const char* p, uint8_t mn, bool* fail);
   static uint32_t atoi(const char* p, bool* fail);

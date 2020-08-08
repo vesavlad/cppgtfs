@@ -44,6 +44,12 @@ const T* Container<T>::get(const std::string& id) const {
 
 // ____________________________________________________________________________
 template <typename T>
+bool Container<T>::has(const std::string& id) const {
+  return (_map.find(id) != _map.end());
+}
+
+// ____________________________________________________________________________
+template <typename T>
 size_t Container<T>::size() const {
   return _map.size();
 }
