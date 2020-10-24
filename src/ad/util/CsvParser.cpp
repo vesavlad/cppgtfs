@@ -152,9 +152,12 @@ double CsvParser::getDouble(const size_t i) const {
 
   bool fail = false;
   double ret = atof(_currentItems[i], 38, &fail);
-  if (fail)
-    throw CsvParserException("expected float number", i, getFieldName(i),
+  if (fail) {
+    std::string a = "expected float number, found ";
+    a += _currentItems[i];
+    throw CsvParserException(a, i, getFieldName(i),
                              _curLine);
+  }
   return ret;
 }
 
@@ -293,7 +296,7 @@ inline double CsvParser::atof(const char* p, uint8_t mn, bool* fail) {
       ret += f / pow10[n];
     else
       ret += f / std::pow(10, n);
-  } else if (*p != ' ') {
+  } else if (*p != 0 && *p != ' ') {
     *fail = true;
     return 0;
   }
