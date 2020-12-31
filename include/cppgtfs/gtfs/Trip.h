@@ -5,10 +5,6 @@
 #ifndef AD_CPPGTFS_GTFS_TRIP_H_
 #define AD_CPPGTFS_GTFS_TRIP_H_
 
-#include <stdint.h>
-#include <algorithm>
-#include <set>
-#include <string>
 #include <cppgtfs/gtfs/Frequency.h>
 #include <cppgtfs/gtfs/Route.h>
 #include <cppgtfs/gtfs/Service.h>
@@ -17,15 +13,14 @@
 #include <cppgtfs/gtfs/StopTime.h>
 #include <cppgtfs/gtfs/flat/Trip.h>
 
-using std::exception;
-using std::string;
+#include <cstdint>
+#include <algorithm>
+#include <set>
+#include <string>
 
-namespace ad {
-namespace cppgtfs {
-namespace gtfs {
+namespace ad::cppgtfs::gtfs {
 
-template <typename StopTimeT, typename ServiceT, typename RouteT,
-          typename ShapeT>
+template <typename StopTimeT, typename ServiceT, typename RouteT, typename ShapeT>
 class TripB {
   // typedef std::set<StopTimeT, StopTimeCompare<StopTimeT>> StopTimes;
   typedef std::vector<StopTimeT> StopTimes;
@@ -93,8 +88,6 @@ typedef TripB<StopTime<Stop>, Service, Route, Shape> Trip;
 
 #include <cppgtfs/gtfs/Trip.tpp>
 
-}  // namespace gtfs
-}  // namespace cppgtfs
 }  // namespace ad
 
 #endif  // AD_CPPGTFS_GTFS_TRIP_H_

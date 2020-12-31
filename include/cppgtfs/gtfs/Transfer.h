@@ -5,49 +5,48 @@
 #ifndef AD_CPPGTFS_GTFS_TRANSFER_H_
 #define AD_CPPGTFS_GTFS_TRANSFER_H_
 
-#include <string>
 #include <cppgtfs/gtfs/Stop.h>
 #include <cppgtfs/gtfs/flat/Transfer.h>
 
-using std::exception;
-using std::string;
+#include <string>
 
-namespace ad {
-namespace cppgtfs {
-namespace gtfs {
 
-class Transfer {
- public:
-  typedef flat::Transfer::TYPE TYPE;
-  Transfer() {}
+namespace ad::cppgtfs::gtfs
+{
 
-  Transfer(Stop* fromStop, Stop* toStop, TYPE type, int32_t tTime)
-      : _fromStop(fromStop), _toStop(toStop), _type(type), _tTime(tTime) {}
+    class Transfer
+    {
+    public:
+        typedef flat::Transfer::TYPE TYPE;
 
-  Stop* getFromStop() const { return _fromStop; }
+        Transfer() = default;
 
-  Stop* getToStop() const { return _toStop; }
+        Transfer(Stop *fromStop, Stop *toStop, TYPE type, int32_t tTime)
+                : _fromStop(fromStop), _toStop(toStop), _type(type), _tTime(tTime) {}
 
-  TYPE getType() const { return _type; }
+        Stop *getFromStop() const { return _fromStop; }
 
-  int32_t getMinTransferTime() const { return _tTime; }
+        Stop *getToStop() const { return _toStop; }
 
-  flat::Transfer getFlat() const {
-    return flat::Transfer{getFromStop()->getId(), getToStop()->getId(),
-                          getType(), getMinTransferTime()};
-  }
+        TYPE getType() const { return _type; }
 
-  // TODO(patrick): implement setters
+        int32_t getMinTransferTime() const { return _tTime; }
 
- private:
-  Stop* _fromStop;
-  Stop* _toStop;
-  TYPE _type;
-  int32_t _tTime;
-};
+        flat::Transfer getFlat() const
+        {
+            return flat::Transfer{getFromStop()->getId(), getToStop()->getId(),
+                                  getType(), getMinTransferTime()};
+        }
 
-}  // namespace gtfs
-}  // namespace cppgtfs
+        // TODO(patrick): implement setters
+
+    private:
+        Stop *_fromStop{};
+        Stop *_toStop{};
+        TYPE _type;
+        int32_t _tTime{};
+    };
+
 }  // namespace ad
 
 #endif  // AD_CPPGTFS_GTFS_TRANSFER_H_

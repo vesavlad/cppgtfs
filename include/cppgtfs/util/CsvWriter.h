@@ -20,39 +20,44 @@
  * This parser is an extension of the original AD CSV parser. It can handle
  * quoted strings and quote escapes as well as BOMs.
  */
-namespace ad {
-namespace util {
+namespace ad::util
+{
 
-typedef std::vector<std::string> HeaderList;
+    typedef std::vector<std::string> HeaderList;
 
-class CsvWriter {
- public:
-  // Initializes the parser by opening the file
-  CsvWriter(std::ostream* str, const HeaderList& headers);
+    class CsvWriter
+    {
+    public:
+        // Initializes the parser by opening the file
+        CsvWriter(std::ostream *str, const HeaderList &headers);
 
-  void writeDouble(double d);
-  void writeString(const std::string& str);
-  void writeInt(int i);
-  void skip();
+        void writeDouble(double d);
 
-  void flushLine();
+        void writeString(const std::string &str);
 
- private:
-  std::ostream* _stream;
-  HeaderList _headers;
-  bool _hWritten;
-  bool _first;
-  char _delim;
+        void writeInt(int i);
 
-  char _dblBuf[25];
+        void skip();
 
-  void writeRawString(const std::string& str);
-  void writeStrArr(const std::vector<std::string>& arr);
-  void writeHeader();
+        void flushLine();
 
-  std::string escStr(const std::string& str) const;
-};
-}  // namespace util
+    private:
+        std::ostream *_stream;
+        HeaderList _headers;
+        bool _hWritten;
+        bool _first;
+        char _delim;
+
+        char _dblBuf[25];
+
+        void writeRawString(const std::string &str);
+
+        void writeStrArr(const std::vector<std::string> &arr);
+
+        void writeHeader();
+
+        std::string escStr(const std::string &str) const;
+    };
 }  // namespace ad
 
 #endif  // AD_UTIL_CSVWRITER_H_

@@ -13,10 +13,8 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
-
-using std::exception;
-using std::string;
 
 /**
  * A parser for CSV files, as defined at
@@ -25,126 +23,134 @@ using std::string;
  * This parser is an extension of the original AD CSV parser. It can handle
  * quoted strings and quote escapes as well as BOMs.
  */
-namespace ad {
-namespace util {
+namespace ad::util
+{
 
-class CsvParserException : public exception {
- public:
-  CsvParserException(std::string msg, int index, std::string fieldName,
-                     uint64_t line)
-      : _msg(msg), _index(index), _fieldName(fieldName), _line(line) {}
-  ~CsvParserException() throw() {}
+    class CsvParserException : public std::exception
+    {
+    public:
+        CsvParserException(std::string msg, int index, std::string fieldName, uint64_t line) :
+                _msg(std::move(msg)),
+                _index(index),
+                _fieldName(std::move(fieldName)),
+                _line(line) {}
 
-  virtual const char* what() const throw() {
-    std::stringstream ss;
-    ss << _msg;
-    if (_index > -1)
-      ss << " for field #" << (_index + 1) << " (" << _fieldName << ")   ";
-    _what_msg = ss.str();
-    return _what_msg.c_str();
-  }
+        ~CsvParserException() noexcept override = default;
 
-  virtual uint64_t getLine() const { return _line; }
+        const char *what() const noexcept override
+        {
+            std::stringstream ss;
+            ss << _msg;
+            if (_index > -1)
+                ss << " for field #" << (_index + 1) << " (" << _fieldName << ")   ";
+            _what_msg = ss.str();
+            return _what_msg.c_str();
+        }
 
-  const std::string& getMsg() const { return _msg; }
-  const std::string& getFieldName() const { return _fieldName; }
+        virtual uint64_t getLine() const { return _line; }
 
- private:
-  mutable std::string _what_msg;
-  std::string _msg;
-  int _index;
-  std::string _fieldName;
-  uint64_t _line;
-};
+        const std::string &getMsg() const { return _msg; }
 
-class CsvParser {
- public:
-  // Default initialization.
-  CsvParser();
+        const std::string &getFieldName() const { return _fieldName; }
 
-  // Initializes the parser by opening the file and reading the table header.
-  explicit CsvParser(std::istream* stream);
+    private:
+        mutable std::string _what_msg;
+        std::string _msg;
+        int _index;
+        std::string _fieldName;
+        uint64_t _line;
+    };
 
-  // Returns true iff same function of underlying stream returns true.
-  bool eof() const;
+    class CsvParser
+    {
+    public:
+        // Default initialization.
+        CsvParser();
 
-  // Read next line.
-  // Returns true iff the line was read successfully.
-  bool readNextLine();
+        // Initializes the parser by opening the file and reading the table header.
+        explicit CsvParser(std::istream *stream);
 
-  // Getters for i-th column from current line. Prerequisite: i < _numColumns.
-  // Second arguments are default values.
+        // Returns true iff same function of underlying stream returns true.
+        bool eof() const;
 
-  // returns the i-th column as a trimmed string
-  const char* getTString(const size_t i) const;
+        // Read next line.
+        // Returns true iff the line was read successfully.
+        bool readNextLine();
 
-  // returns the i-th column as a double
-  double getDouble(const size_t i) const;
+        // Getters for i-th column from current line. Prerequisite: i < _numColumns.
+        // Second arguments are default values.
 
-  // returns the i-th columns as a 32bit integer
-  int32_t getLong(const size_t i) const;
+        // returns the i-th column as a trimmed string
+        const char *getTString(size_t i) const;
 
-  // returns the column with given field name.
-  // these methods behave exactly the same as the ones above, except that
-  // columns are accessed by their identifier.
-  const char* getTString(const std::string& fieldName) const;
+        // returns the i-th column as a double
+        double getDouble(size_t i) const;
 
-  double getDouble(const std::string& fieldName) const;
+        // returns the i-th columns as a 32bit integer
+        int32_t getLong(size_t i) const;
 
-  int32_t getLong(const std::string& fieldName) const;
+        // returns the column with given field name.
+        // these methods behave exactly the same as the ones above, except that
+        // columns are accessed by their identifier.
+        const char *getTString(const std::string &fieldName) const;
 
-  // returns the line number the parser is currently at
-  int32_t getCurLine() const;
+        double getDouble(const std::string &fieldName) const;
 
-  // checks whether a column with a specific name exists in this file
-  bool hasItem(const std::string& fieldName) const;
+        int32_t getLong(const std::string &fieldName) const;
 
-  // checks whether the field is empty in the current line
-  bool fieldIsEmpty(const std::string& fieldName) const;
-  bool fieldIsEmpty(size_t field) const;
+        // returns the line number the parser is currently at
+        int32_t getCurLine() const;
 
-  // Get the number of columns. Will be zero before openFile has been called.
-  size_t getNumColumns() const;
+        // checks whether a column with a specific name exists in this file
+        bool hasItem(const std::string &fieldName) const;
 
-  // returns the index number of a field name
-  size_t getFieldIndex(const string& fieldName) const;
+        // checks whether the field is empty in the current line
+        bool fieldIsEmpty(const std::string &fieldName) const;
 
-  size_t getOptFieldIndex(const string& fieldName) const;
+        bool fieldIsEmpty(size_t field) const;
 
-  const string getFieldName(size_t i) const;
+        // Get the number of columns. Will be zero before openFile has been called.
+        size_t getNumColumns() const;
 
- private:
-  int32_t _curLine;
+        // returns the index number of a field name
+        size_t getFieldIndex(const std::string &fieldName) const;
 
-  // The handle to the file.
-  std::istream* _stream;
+        size_t getOptFieldIndex(const std::string &fieldName) const;
 
-  // Parses the header row and fills the header map.
-  void parseHeader();
+        const std::string getFieldName(size_t i) const;
 
-  // returns a trimmed version of a const char*
-  //
-  // careful: this function is not idempotent. it will leave t
-  // right-trimmed.
-  const char* inlineRightTrim(const char* t) const;
+    private:
+        int32_t _curLine{};
 
-  // Map of field names to column indices. Parsed from the
-  // table header (first row in a CSV file).
-  std::unordered_map<std::string, size_t> _headerMap;
-  std::vector<std::string> _headerVec;
+        // The handle to the file.
+        std::istream *_stream{};
 
-  // Pointers to the items in the current line.
-  std::vector<const char*> _currentItems;
+        // Parses the header row and fills the header map.
+        void parseHeader();
 
-  // modified, quote-escaped strings
-  std::vector<std::string> _currentModItems;
+        // returns a trimmed version of a const char*
+        //
+        // careful: this function is not idempotent. it will leave t
+        // right-trimmed.
+        const char *inlineRightTrim(const char *t) const;
 
-  char _buff[10000] = {0};
+        // Map of field names to column indices. Parsed from the
+        // table header (first row in a CSV file).
+        std::unordered_map<std::string, size_t> _headerMap;
+        std::vector<std::string> _headerVec;
 
-  static double atof(const char* p, uint8_t mn, bool* fail);
-  static uint32_t atoi(const char* p, bool* fail);
-};
-}  // namespace util
+        // Pointers to the items in the current line.
+        std::vector<const char *> _currentItems;
+
+        // modified, quote-escaped strings
+        std::vector<std::string> _currentModItems;
+
+        char _buff[10000] = {0};
+
+        static double atof(const char *p, uint8_t mn, bool *fail);
+
+        static uint32_t atoi(const char *p, bool *fail);
+    };
 }  // namespace ad
 
 #endif  // AD_UTIL_CSVPARSER_H_

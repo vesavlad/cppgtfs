@@ -5,69 +5,74 @@
 #ifndef AD_CPPGTFS_GTFS_SERVICE_H_
 #define AD_CPPGTFS_GTFS_SERVICE_H_
 
+#include <cppgtfs/gtfs/flat/Service.h>
+
 #include <ctime>
 #include <map>
 #include <string>
 #include <vector>
 #include <iostream>
-#include <cppgtfs/gtfs/flat/Service.h>
 
 using std::exception;
 using std::string;
 
-namespace ad {
-namespace cppgtfs {
-namespace gtfs {
+namespace ad::cppgtfs::gtfs
+{
 
-typedef flat::ServiceDate ServiceDate;
+    typedef flat::ServiceDate ServiceDate;
 
-class Service {
- public:
-  typedef Service* Ref;
-  static std::string getId(Ref r) { return r->getId(); }
+    class Service
+    {
+    public:
+        typedef Service *Ref;
 
-  typedef flat::Calendar::SERVICE_DAY SERVICE_DAY;
-  typedef flat::CalendarDate::EXCEPTION_TYPE EXCEPTION_TYPE;
+        static std::string getId(Ref r) { return r->getId(); }
 
-  explicit Service(const string& id);
-  Service(const string& id, uint8_t serviceDays, ServiceDate start,
-          ServiceDate end);
+        typedef flat::Calendar::SERVICE_DAY SERVICE_DAY;
+        typedef flat::CalendarDate::EXCEPTION_TYPE EXCEPTION_TYPE;
 
-  const std::string& getId() const;
-  const std::map<ServiceDate, Service::EXCEPTION_TYPE>& getExceptions() const;
+        explicit Service(const string &id);
 
-  void addException(const ServiceDate& d, EXCEPTION_TYPE t);
+        Service(const string &id, uint8_t serviceDays, ServiceDate start,
+                ServiceDate end);
 
-  bool isActiveOn(const ServiceDate& d) const;
+        const std::string &getId() const;
 
-  static SERVICE_DAY getServiceDay(const ServiceDate& d);
-  uint8_t getServiceDates() const;
+        const std::map<ServiceDate, Service::EXCEPTION_TYPE> &getExceptions() const;
 
-  EXCEPTION_TYPE getExceptionOn(const ServiceDate& d) const;
+        void addException(const ServiceDate &d, EXCEPTION_TYPE t);
 
-  const ServiceDate& getBeginDate() const;
-  const ServiceDate& getEndDate() const;
+        bool isActiveOn(const ServiceDate &d) const;
 
-  bool hasServiceDays() const;
+        static SERVICE_DAY getServiceDay(const ServiceDate &d);
 
-  flat::Calendar getFlat() const {
-    flat::Calendar c;
-    c.id = _id;
-    c.serviceDays = _serviceDays;
-    c.begin = _begin;
-    c.end = _end;
-    return c;
-  }
+        uint8_t getServiceDates() const;
 
- private:
-  string _id;
-  uint8_t _serviceDays;
-  std::map<ServiceDate, Service::EXCEPTION_TYPE> _exceptions;
-  ServiceDate _begin, _end;
-};
+        EXCEPTION_TYPE getExceptionOn(const ServiceDate &d) const;
 
-}  // namespace gtfs
-}  // namespace cppgtfs
+        const ServiceDate &getBeginDate() const;
+
+        const ServiceDate &getEndDate() const;
+
+        bool hasServiceDays() const;
+
+        flat::Calendar getFlat() const
+        {
+            flat::Calendar c;
+            c.id = _id;
+            c.serviceDays = _serviceDays;
+            c.begin = _begin;
+            c.end = _end;
+            return c;
+        }
+
+    private:
+        string _id;
+        uint8_t _serviceDays;
+        std::map<ServiceDate, Service::EXCEPTION_TYPE> _exceptions;
+        ServiceDate _begin, _end;
+    };
+
 }  // namespace ad
 
 #endif  // AD_CPPGTFS_GTFS_SERVICE_H_
