@@ -250,7 +250,7 @@ class Parser {
   FEEDTPL
   void parseFeedInfo(gtfs::FEEDB* targetFeed, std::istream*) const;
 };
-#include <cppgtfs/gtfs/Parser.tpp>
+#include <cppgtfs/Parser.tpp>
 }  // namespace cppgtfs
 }  // namespace ad
 
