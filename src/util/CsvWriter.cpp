@@ -9,7 +9,7 @@
 #include <iostream>
 #include <string>
 #include "cppgtfs/util/CsvWriter.h"
-#include "cppgtfs/util/dtoa_milo.h"
+#include "dtoa_milo.h"
 
 using ad::util::CsvWriter;
 
