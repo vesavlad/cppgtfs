@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include "flat/Service.h"
+#include <cppgtfs/gtfs/flat/Service.h>
 
 using std::exception;
 using std::string;

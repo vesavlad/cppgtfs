@@ -6,8 +6,8 @@
 #define AD_CPPGTFS_GTFS_TRANSFER_H_
 
 #include <string>
-#include "Stop.h"
-#include "flat/Transfer.h"
+#include <cppgtfs/gtfs/Stop.h>
+#include <cppgtfs/gtfs/flat/Transfer.h>
 
 using std::exception;
 using std::string;

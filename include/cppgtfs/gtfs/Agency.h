@@ -6,7 +6,7 @@
 #define AD_CPPGTFS_GTFS_AGENCY_H_
 
 #include <string>
-#include "flat/Agency.h"
+#include <cppgtfs/gtfs/flat/Agency.h>
 
 using std::exception;
 using std::string;

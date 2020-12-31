@@ -7,9 +7,9 @@
 
 #include <string>
 #include <vector>
-#include "Agency.h"
-#include "Route.h"
-#include "flat/Fare.h"
+#include <cppgtfs/gtfs/Agency.h>
+#include <cppgtfs/gtfs/Route.h>
+#include <cppgtfs/gtfs/flat/Fare.h>
 
 using std::exception;
 using std::string;

@@ -6,11 +6,11 @@
 #include <map>
 #include <string>
 #include <utility>
-#include "Writer.h"
-#include "ad/util/CsvWriter.h"
-#include "gtfs/Shape.h"
-#include "gtfs/Trip.h"
-#include "gtfs/flat/Agency.h"
+#include <cppgtfs/Writer.h>
+#include <cppgtfs/util/CsvWriter.h>
+#include <cppgtfs/gtfs/Shape.h>
+#include <cppgtfs/gtfs/Trip.h>
+#include <cppgtfs/gtfs/flat/Agency.h>
 
 using ad::util::CsvWriter;
 using ad::cppgtfs::Writer;

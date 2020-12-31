@@ -1,6 +1,14 @@
+cmake_minimum_required(VERSION 3.10)
 project (cppgtfs)
 
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 11)
+add_library(cppgtfs STATIC
+        src/cppgtfs/gtfs/Service.cpp
+        src/cppgtfs/Writer.cpp
+        src/util/CsvParser.cpp
+        src/util/CsvWriter.cpp)
 
-add_subdirectory(src)
+target_include_directories(cppgtfs PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
+set_target_properties(cppgtfs PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS ON)

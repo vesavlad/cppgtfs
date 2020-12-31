@@ -11,8 +11,8 @@
 #include <set>
 #include <sstream>
 #include <string>
-#include "Agency.h"
-#include "flat/Route.h"
+#include <cppgtfs/gtfs/Agency.h>
+#include <cppgtfs/gtfs/flat/Route.h>
 
 using std::exception;
 using std::string;

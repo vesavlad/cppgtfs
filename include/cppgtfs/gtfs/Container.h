@@ -37,7 +37,7 @@ class Container {
   std::unordered_map<std::string, T*> _map;
 };
 
-#include "Container.tpp"
+#include <cppgtfs/gtfs/Container.tpp>
 
 }  // namespace gtfs
 }  // namespace cppgtfs

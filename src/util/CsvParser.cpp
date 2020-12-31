@@ -9,7 +9,7 @@
 #include <functional>
 #include <iostream>
 #include <string>
-#include "CsvParser.h"
+#include "cppgtfs/util/CsvParser.h"
 
 using ad::util::CsvParser;
 using std::remove;

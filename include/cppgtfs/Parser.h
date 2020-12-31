@@ -15,14 +15,14 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "ad/util/CsvParser.h"
-#include "gtfs/Feed.h"
-#include "gtfs/flat/Agency.h"
-#include "gtfs/flat/Frequency.h"
-#include "gtfs/flat/Route.h"
-#include "gtfs/flat/Service.h"
-#include "gtfs/flat/Shape.h"
-#include "gtfs/flat/Transfer.h"
+#include <cppgtfs/util/CsvParser.h>
+#include <cppgtfs/gtfs/Feed.h>
+#include <cppgtfs/gtfs/flat/Agency.h>
+#include <cppgtfs/gtfs/flat/Frequency.h>
+#include <cppgtfs/gtfs/flat/Route.h>
+#include <cppgtfs/gtfs/flat/Service.h>
+#include <cppgtfs/gtfs/flat/Shape.h>
+#include <cppgtfs/gtfs/flat/Transfer.h>
 
 using std::string;
 using ad::util::CsvParser;
@@ -250,7 +250,7 @@ class Parser {
   FEEDTPL
   void parseFeedInfo(gtfs::FEEDB* targetFeed, std::istream*) const;
 };
-#include "Parser.tpp"
+#include <cppgtfs/gtfs/Parser.tpp>
 }  // namespace cppgtfs
 }  // namespace ad
 

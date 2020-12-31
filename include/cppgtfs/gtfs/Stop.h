@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <cassert>
 #include <string>
-#include "flat/Stop.h"
+#include <cppgtfs/gtfs/flat/Stop.h>
 
 using std::exception;
 using std::string;

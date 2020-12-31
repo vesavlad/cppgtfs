@@ -5,7 +5,7 @@
 #ifndef AD_CPPGTFS_WRITER_H_
 #define AD_CPPGTFS_WRITER_H_
 
-#include <stdint.h>
+#include <cstdint>
 #include <exception>
 #include <iostream>
 #include <istream>
@@ -13,16 +13,17 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "ad/util/CsvWriter.h"
-#include "gtfs/Feed.h"
-#include "gtfs/flat/Agency.h"
-#include "gtfs/flat/Fare.h"
-#include "gtfs/flat/Frequency.h"
-#include "gtfs/flat/Route.h"
-#include "gtfs/flat/Transfer.h"
-#include "gtfs/flat/Shape.h"
-#include "gtfs/flat/Trip.h"
-#include "gtfs/flat/StopTime.h"
+
+#include <cppgtfs/util/CsvWriter.h>
+#include <cppgtfs/gtfs/Feed.h>
+#include <cppgtfs/gtfs/flat/Agency.h>
+#include <cppgtfs/gtfs/flat/Fare.h>
+#include <cppgtfs/gtfs/flat/Frequency.h>
+#include <cppgtfs/gtfs/flat/Route.h>
+#include <cppgtfs/gtfs/flat/Transfer.h>
+#include <cppgtfs/gtfs/flat/Shape.h>
+#include <cppgtfs/gtfs/flat/Trip.h>
+#include <cppgtfs/gtfs/flat/StopTime.h>
 
 using std::string;
 using ad::util::CsvWriter;

@@ -53,7 +53,7 @@ struct ContCompCmp2 {
   }
 };
 
-#include "ContContainer.tpp"
+#include <cppgtfs/gtfs/ContContainer.tpp>
 
 }  // namespace gtfs
 }  // namespace cppgtfs

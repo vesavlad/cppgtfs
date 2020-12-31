@@ -9,13 +9,13 @@
 #include <algorithm>
 #include <set>
 #include <string>
-#include "Frequency.h"
-#include "Route.h"
-#include "Service.h"
-#include "Shape.h"
-#include "Stop.h"
-#include "StopTime.h"
-#include "flat/Trip.h"
+#include <cppgtfs/gtfs/Frequency.h>
+#include <cppgtfs/gtfs/Route.h>
+#include <cppgtfs/gtfs/Service.h>
+#include <cppgtfs/gtfs/Shape.h>
+#include <cppgtfs/gtfs/Stop.h>
+#include <cppgtfs/gtfs/StopTime.h>
+#include <cppgtfs/gtfs/flat/Trip.h>
 
 using std::exception;
 using std::string;
@@ -91,7 +91,7 @@ class TripB {
 
 typedef TripB<StopTime<Stop>, Service, Route, Shape> Trip;
 
-#include "Trip.tpp"
+#include <cppgtfs/gtfs/Trip.tpp>
 
 }  // namespace gtfs
 }  // namespace cppgtfs

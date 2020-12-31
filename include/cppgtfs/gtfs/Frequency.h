@@ -5,8 +5,8 @@
 #ifndef AD_CPPGTFS_GTFS_FREQUENCY_H_
 #define AD_CPPGTFS_GTFS_FREQUENCY_H_
 
-#include "StopTime.h"
-#include "flat/Frequency.h"
+#include <cppgtfs/gtfs/StopTime.h>
+#include <cppgtfs/gtfs/flat/Frequency.h>
 
 using std::exception;
 using std::string;

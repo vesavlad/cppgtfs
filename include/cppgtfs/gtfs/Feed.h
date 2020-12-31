@@ -10,16 +10,16 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "Agency.h"
-#include "ContContainer.h"
-#include "Container.h"
-#include "Fare.h"
-#include "Route.h"
-#include "Service.h"
-#include "Shape.h"
-#include "Stop.h"
-#include "Transfer.h"
-#include "Trip.h"
+#include <cppgtfs/gtfs/Agency.h>
+#include <cppgtfs/gtfs/ContContainer.h>
+#include <cppgtfs/gtfs/Container.h>
+#include <cppgtfs/gtfs/Fare.h>
+#include <cppgtfs/gtfs/Route.h>
+#include <cppgtfs/gtfs/Service.h>
+#include <cppgtfs/gtfs/Shape.h>
+#include <cppgtfs/gtfs/Stop.h>
+#include <cppgtfs/gtfs/Transfer.h>
+#include <cppgtfs/gtfs/Trip.h>
 
 #define FEEDTPL                                                     \
   template <typename AgencyT, typename RouteT, typename StopT,      \
@@ -134,7 +134,7 @@ typedef FeedB<Agency, Route, Stop, Service, StopTime, Shape, Fare,
               ContContainer, ContContainer, ContContainer>
     ContFeed;
 
-#include "Feed.tpp"
+#include <cppgtfs/gtfs/Feed.tpp>
 
 }  // namespace gtfs
 }  // namespace cppgtfs

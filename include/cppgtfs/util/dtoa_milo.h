@@ -1,12 +1,12 @@
 #pragma once
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
 
 #if defined(_MSC_VER)
 #include <intrin.h>
 #include "msinttypes/stdint.h"
 #else
-#include <stdint.h>
+#include <cstdint>
 #endif
 
 namespace gcc_ints {
