@@ -8,4 +8,8 @@ add_library(cppgtfs STATIC
         src/util/CsvWriter.cpp)
 
 target_include_directories(cppgtfs PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
-target_compile_features(cppgtfs PRIVATE cxx_std_17)
+set_target_properties(cppgtfs PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO
+)
