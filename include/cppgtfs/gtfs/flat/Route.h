@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string>
 #include <iomanip>
+#include <algorithm>
 #include <set>
 
 namespace ad::cppgtfs::gtfs::flat
