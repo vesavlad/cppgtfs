@@ -6,7 +6,7 @@
 template<typename T>
 Container<T>::~Container()
 {
-    for (auto i : _map) {
+    for (const auto& i : _map) {
         delete i.second;
     }
 }
@@ -17,7 +17,7 @@ T *Container<T>::add(const T &ent)
 {
     T *c = new T(ent);
     if (_map.insert(std::pair<std::string, T *>(T::getId(c), c)).second) return c;
-    return 0;
+    return nullptr;
 }
 
 // ____________________________________________________________________________
@@ -34,7 +34,7 @@ T *Container<T>::get(const std::string &id)
     if (_map.find(id) != _map.end()) {
         return _map.find(id)->second;
     }
-    return 0;
+    return nullptr;
 }
 
 // ____________________________________________________________________________

@@ -2,8 +2,8 @@
 // Chair of Algorithms and Data Structures.
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
-#ifndef AD_CPPGTFS_PARSER_H_
-#define AD_CPPGTFS_PARSER_H_
+#ifndef CPPGTFS_PARSER_H
+#define CPPGTFS_PARSER_H
 
 #include <stdint.h>
 #include <cstring>
@@ -56,9 +56,9 @@ class ParserException : public std::exception {
         _file_name(file_name) {}
   ParserException(std::string msg, std::string field_name, int64_t line)
       : _msg(msg), _field_name(field_name), _line(line), _file_name("?") {}
-  ~ParserException() throw() {}
+  ~ParserException() noexcept override {}
 
-  virtual const char* what() const throw() {
+  const char* what() const noexcept override {
     std::stringstream ss;
     ss << _file_name << ":";
     if (_line > -1) ss << _line << ":";
@@ -68,7 +68,7 @@ class ParserException : public std::exception {
     return _what_msg.c_str();
   }
 
-  virtual uint64_t getLine() const throw() { return _line; }
+  virtual uint64_t getLine() const noexcept { return _line; }
 
   void setFileName(const std::string& fn) { _file_name = fn; }
 
@@ -254,4 +254,4 @@ class Parser {
 }  // namespace cppgtfs
 }  // namespace ad
 
-#endif  // AD_CPPGTFS_PARSER_H_
+#endif // CPPGTFS_PARSER_H

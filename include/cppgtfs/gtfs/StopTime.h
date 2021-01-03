@@ -2,8 +2,8 @@
 // Chair of Algorithms and Data Structures.
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
-#ifndef AD_CPPGTFS_GTFS_STOPTIME_H_
-#define AD_CPPGTFS_GTFS_STOPTIME_H_
+#ifndef CPPGTFS_GTFS_STOPTIME_H
+#define CPPGTFS_GTFS_STOPTIME_H
 
 #include <cppgtfs/gtfs/Stop.h>
 #include <cppgtfs/gtfs/flat/StopTime.h>
@@ -20,13 +20,13 @@ namespace ad
         namespace gtfs
         {
 
-            typedef flat::Time Time;
+            using Time = flat::Time;
 
             template<typename StopT>
             class StopTime
             {
             public:
-                typedef flat::StopTime::PU_DO_TYPE PU_DO_TYPE;
+                using PU_DO_TYPE = flat::StopTime::PU_DO_TYPE;
 
                 StopTime(const Time &at, const Time &dt, typename StopT::Ref s, uint32_t seq,
                          const std::string &hs, PU_DO_TYPE put, PU_DO_TYPE dot,
@@ -95,4 +95,4 @@ namespace ad
     }  // namespace cppgtfs
 }  // namespace ad
 
-#endif  // AD_CPPGTFS_GTFS_STOPTIME_H_
+#endif // CPPGTFS_GTFS_STOPTIME_H

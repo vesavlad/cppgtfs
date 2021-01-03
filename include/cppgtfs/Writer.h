@@ -2,8 +2,8 @@
 // Chair of Algorithms and Data Structures.
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
-#ifndef AD_CPPGTFS_WRITER_H_
-#define AD_CPPGTFS_WRITER_H_
+#ifndef CPPGTFS_WRITER_H
+#define CPPGTFS_WRITER_H
 
 #include <cstdint>
 #include <exception>
@@ -144,4 +144,4 @@ namespace ad::cppgtfs
     };
 }  // namespace ad
 
-#endif  // AD_CPPGTFS_WRITER_H_
+#endif // CPPGTFS_WRITER_H

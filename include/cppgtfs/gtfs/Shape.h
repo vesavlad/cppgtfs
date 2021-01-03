@@ -2,8 +2,8 @@
 // Chair of Algorithms and Data Structures.
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
-#ifndef AD_CPPGTFS_GTFS_SHAPE_H_
-#define AD_CPPGTFS_GTFS_SHAPE_H_
+#ifndef CPPGTFS_GTFS_SHAPE_H
+#define CPPGTFS_GTFS_SHAPE_H
 
 #include <set>
 #include <string>
@@ -32,12 +32,12 @@ namespace ad::cppgtfs::gtfs
         }
     };
 
-    typedef std::vector<ShapePoint> ShapePoints;
+    using ShapePoints = std::vector<ShapePoint>;
 
     class Shape
     {
     public:
-        typedef Shape *Ref;
+        using Ref = Shape *;
 
         static std::string getId(Ref r) { return r->getId(); }
 
@@ -69,4 +69,4 @@ namespace ad::cppgtfs::gtfs
 
 }  // namespace ad
 
-#endif  // AD_CPPGTFS_GTFS_SHAPE_H_
+#endif // CPPGTFS_GTFS_SHAPE_H

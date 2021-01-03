@@ -2,8 +2,8 @@
 // Chair of Algorithms and Data Structures.
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
-#ifndef AD_CPPGTFS_GTFS_FLAT_TRIP_H_
-#define AD_CPPGTFS_GTFS_FLAT_TRIP_H_
+#ifndef CPPGTFS_GTFS_FLAT_TRIP_H
+#define CPPGTFS_GTFS_FLAT_TRIP_H
 
 #include <string>
 
@@ -50,4 +50,4 @@ namespace ad::cppgtfs::gtfs::flat
 
 }  // namespace ad
 
-#endif  // AD_CPPGTFS_GTFS_FLAT_TRIP_H_
+#endif // CPPGTFS_GTFS_FLAT_TRIP_H

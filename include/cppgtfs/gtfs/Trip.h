@@ -2,8 +2,8 @@
 // Chair of Algorithms and Data Structures.
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
-#ifndef AD_CPPGTFS_GTFS_TRIP_H_
-#define AD_CPPGTFS_GTFS_TRIP_H_
+#ifndef CPPGTFS_GTFS_TRIP_H
+#define CPPGTFS_GTFS_TRIP_H
 
 #include <cppgtfs/gtfs/Frequency.h>
 #include <cppgtfs/gtfs/Route.h>
@@ -23,15 +23,15 @@ namespace ad::cppgtfs::gtfs {
 template <typename StopTimeT, typename ServiceT, typename RouteT, typename ShapeT>
 class TripB {
   // typedef std::set<StopTimeT, StopTimeCompare<StopTimeT>> StopTimes;
-  typedef std::vector<StopTimeT> StopTimes;
-  typedef std::vector<Frequency> Frequencies;
+  using StopTimes = std::vector<StopTimeT>;
+  using Frequencies = std::vector<Frequency>;
 
  public:
   typedef TripB<StopTimeT, ServiceT, RouteT, ShapeT>* Ref;
   static std::string getId(Ref r) { return r->getId(); }
 
-  typedef flat::Trip::WC_BIKE_ACCESSIBLE WC_BIKE_ACCESSIBLE;
-  typedef flat::Trip::DIRECTION DIRECTION;
+  using WC_BIKE_ACCESSIBLE = flat::Trip::WC_BIKE_ACCESSIBLE;
+  using DIRECTION = flat::Trip::DIRECTION;
 
   TripB() {}
   TripB(const std::string& id, typename RouteT::Ref r, typename ServiceT::Ref s,
@@ -90,4 +90,4 @@ typedef TripB<StopTime<Stop>, Service, Route, Shape> Trip;
 
 }  // namespace ad
 
-#endif  // AD_CPPGTFS_GTFS_TRIP_H_
+#endif // CPPGTFS_GTFS_TRIP_H

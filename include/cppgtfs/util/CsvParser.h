@@ -3,8 +3,8 @@
 // Authors: Hannah Bast <bast@informatik.uni-freiburg.de>,
 //          Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
-#ifndef AD_UTIL_CSVPARSER_H_
-#define AD_UTIL_CSVPARSER_H_
+#ifndef CPPGTFS_UTIL_CSVPARSER_H
+#define CPPGTFS_UTIL_CSVPARSER_H
 
 #include <cstdint>
 #include <exception>
@@ -153,4 +153,4 @@ namespace ad::util
     };
 }  // namespace ad
 
-#endif  // AD_UTIL_CSVPARSER_H_
+#endif // CPPGTFS_UTIL_CSVPARSER_H

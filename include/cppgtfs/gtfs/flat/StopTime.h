@@ -2,8 +2,8 @@
 // Chair of Algorithms and Data Structures.
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
-#ifndef AD_CPPGTFS_GTFS_FLAT_STOPTIME_H_
-#define AD_CPPGTFS_GTFS_FLAT_STOPTIME_H_
+#ifndef CPPGTFS_GTFS_FLAT_STOPTIME_H
+#define CPPGTFS_GTFS_FLAT_STOPTIME_H
 
 #include <iomanip>
 #include <sstream>
@@ -96,14 +96,14 @@ namespace ad::cppgtfs::gtfs::flat
 
         std::string trip;
         std::string s;
-        uint32_t sequence;
+        uint32_t sequence{};
         std::string headsign;
         PU_DO_TYPE pickupType;
         PU_DO_TYPE dropOffType;
-        bool isTimepoint;
-        float shapeDistTravelled;
+        bool isTimepoint{};
+        float shapeDistTravelled{};
     };
 
 }  // namespace ad
 
-#endif  // AD_CPPGTFS_GTFS_FLAT_STOPTIME_H_
+#endif // CPPGTFS_GTFS_FLAT_STOPTIME_H

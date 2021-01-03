@@ -2,8 +2,8 @@
 // Chair of Algorithms and Data Structures.
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
-#ifndef AD_CPPGTFS_GTFS_FLAT_SHAPE_H_
-#define AD_CPPGTFS_GTFS_FLAT_SHAPE_H_
+#ifndef CPPGTFS_GTFS_FLAT_SHAPE_H
+#define CPPGTFS_GTFS_FLAT_SHAPE_H
 
 #include <string>
 
@@ -25,11 +25,11 @@ namespace ad::cppgtfs::gtfs::flat
     struct ShapePoint
     {
         std::string id;
-        float lat, lng;
-        float travelDist;
-        uint32_t seq;
+        float lat{}, lng{};
+        float travelDist{};
+        uint32_t seq{};
     };
 
 }  // namespace ad
 
-#endif  // AD_CPPGTFS_GTFS_FLAT_SHAPE_H_
+#endif // CPPGTFS_GTFS_FLAT_SHAPE_H

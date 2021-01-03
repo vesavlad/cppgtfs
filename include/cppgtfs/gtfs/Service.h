@@ -2,8 +2,8 @@
 // Chair of Algorithms and Data Structures.
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
-#ifndef AD_CPPGTFS_GTFS_SERVICE_H_
-#define AD_CPPGTFS_GTFS_SERVICE_H_
+#ifndef CPPGTFS_GTFS_SERVICE_H
+#define CPPGTFS_GTFS_SERVICE_H
 
 #include <cppgtfs/gtfs/flat/Service.h>
 
@@ -19,17 +19,17 @@ using std::string;
 namespace ad::cppgtfs::gtfs
 {
 
-    typedef flat::ServiceDate ServiceDate;
+    using ServiceDate = flat::ServiceDate;
 
     class Service
     {
     public:
-        typedef Service *Ref;
+        using Ref = Service *;
 
         static std::string getId(Ref r) { return r->getId(); }
 
-        typedef flat::Calendar::SERVICE_DAY SERVICE_DAY;
-        typedef flat::CalendarDate::EXCEPTION_TYPE EXCEPTION_TYPE;
+        using SERVICE_DAY = flat::Calendar::SERVICE_DAY;
+        using EXCEPTION_TYPE = flat::CalendarDate::EXCEPTION_TYPE;
 
         explicit Service(const string &id);
 
@@ -75,4 +75,4 @@ namespace ad::cppgtfs::gtfs
 
 }  // namespace ad
 
-#endif  // AD_CPPGTFS_GTFS_SERVICE_H_
+#endif // CPPGTFS_GTFS_SERVICE_H

@@ -2,8 +2,8 @@
 // Chair of Algorithms and Data Structures.
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
-#ifndef AD_CPPGTFS_GTFS_FLAT_STOP_H_
-#define AD_CPPGTFS_GTFS_FLAT_STOP_H_
+#ifndef CPPGTFS_GTFS_FLAT_STOP_H
+#define CPPGTFS_GTFS_FLAT_STOP_H
 
 #include <stdint.h>
 #include <cassert>
@@ -42,11 +42,11 @@ namespace ad::cppgtfs::gtfs::flat
 
         std::string id, code, name, desc, zone_id, stop_url, stop_timezone,
                 platform_code, parent_station;
-        float lat, lng;
+        float lat{}, lng{};
         Stop::WHEELCHAIR_BOARDING wheelchair_boarding;
         Stop::LOCATION_TYPE location_type;
     };
 
 }  // namespace ad
 
-#endif  // AD_CPPGTFS_GTFS_FLAT_STOP_H_
+#endif // CPPGTFS_GTFS_FLAT_STOP_H

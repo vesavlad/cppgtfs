@@ -2,8 +2,8 @@
 // Chair of Algorithms and Data Structures.
 // Authors: Patrick Brosi <brosi@informatik.uni-freiburg.de>
 
-#ifndef AD_CPPGTFS_GTFS_ROUTE_H_
-#define AD_CPPGTFS_GTFS_ROUTE_H_
+#ifndef CPPGTFS_GTFS_ROUTE_H
+#define CPPGTFS_GTFS_ROUTE_H
 
 #include <cppgtfs/gtfs/Agency.h>
 #include <cppgtfs/gtfs/flat/Route.h>
@@ -23,11 +23,11 @@ namespace ad::cppgtfs::gtfs
     class RouteB
     {
     public:
-        typedef RouteB<AgencyT> *Ref;
+        using Ref = RouteB<AgencyT> *;
 
         static std::string getId(Ref r) { return r->getId(); }
 
-        typedef flat::Route::TYPE TYPE;
+        using TYPE = flat::Route::TYPE;
 
         RouteB() = default;
 
@@ -104,8 +104,8 @@ namespace ad::cppgtfs::gtfs
         uint32_t _text_color{};
     };
 
-    typedef RouteB<Agency> Route;
+    using Route = RouteB<Agency>;
 
 }  // namespace ad
 
-#endif  // AD_CPPGTFS_GTFS_ROUTE_H_
+#endif // CPPGTFS_GTFS_ROUTE_H

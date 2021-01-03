@@ -32,7 +32,7 @@ FEEDTPL bool Parser::parse(gtfs::FEEDB *targetFeed,
 // ____________________________________________________________________________
 inline gtfs::flat::TransfersFlds Parser::getTransfersFlds(CsvParser *csvp)
 {
-    gtfs::flat::TransfersFlds t;
+    gtfs::flat::TransfersFlds t{};
     t.fromStopIdFld = csvp->getFieldIndex("from_stop_id");
     t.toStopIdFld = csvp->getFieldIndex("to_stop_id");
     t.transferTypeFld = csvp->getFieldIndex("transfer_type");
@@ -93,7 +93,7 @@ void Parser::parseTransfers(gtfs::FEEDB *targetFeed, std::istream *s) const
 // ____________________________________________________________________________
 inline gtfs::flat::FrequencyFlds Parser::getFrequencyFlds(CsvParser *csvp)
 {
-    gtfs::flat::FrequencyFlds r;
+    gtfs::flat::FrequencyFlds r{};
     r.tripIdFld = csvp->getFieldIndex("trip_id");
     r.startTimeFld = csvp->getFieldIndex("start_time");
     r.endTimeFld = csvp->getFieldIndex("end_time");
@@ -144,7 +144,7 @@ void Parser::parseFrequencies(gtfs::FEEDB *targetFeed, std::istream *s) const
 // ____________________________________________________________________________
 inline gtfs::flat::FareFlds Parser::getFareFlds(CsvParser *csvp)
 {
-    gtfs::flat::FareFlds f;
+    gtfs::flat::FareFlds f{};
     f.fareIdFld = csvp->getFieldIndex("fare_id");
     f.priceFld = csvp->getFieldIndex("price");
     f.currencyTypeFld = csvp->getFieldIndex("currency_type");
@@ -207,7 +207,7 @@ void Parser::parseFareAttributes(gtfs::FEEDB *targetFeed,
 // ____________________________________________________________________________
 inline gtfs::flat::FareRuleFlds Parser::getFareRuleFlds(CsvParser *csvp)
 {
-    gtfs::flat::FareRuleFlds f;
+    gtfs::flat::FareRuleFlds f{};
     f.fareIdFld = csvp->getFieldIndex("fare_id");
     f.routeIdFld = csvp->getOptFieldIndex("route_id");
     f.originIdFld = csvp->getOptFieldIndex("origin_id");
@@ -317,7 +317,7 @@ void Parser::parseFeedInfo(gtfs::FEEDB *targetFeed, std::istream *s) const
 // ____________________________________________________________________________
 inline gtfs::flat::AgencyFlds Parser::getAgencyFlds(CsvParser *csvp)
 {
-    gtfs::flat::AgencyFlds r;
+    gtfs::flat::AgencyFlds r{};
     r.agencyNameFld = csvp->getFieldIndex("agency_name");
     r.agencyUrlFld = csvp->getFieldIndex("agency_url");
     r.agencyTimezoneFld = csvp->getFieldIndex("agency_timezone");
@@ -383,7 +383,7 @@ void Parser::parseAgencies(gtfs::FEEDB *targetFeed, std::istream *s) const
 // ____________________________________________________________________________
 inline gtfs::flat::StopFlds Parser::getStopFlds(CsvParser *csvp)
 {
-    gtfs::flat::StopFlds r;
+    gtfs::flat::StopFlds r{};
     r.stopIdFld = csvp->getFieldIndex("stop_id");
     r.stopNameFld = csvp->getFieldIndex("stop_name");
     r.stopLatFld = csvp->getFieldIndex("stop_lat");
@@ -443,7 +443,7 @@ void Parser::parseStops(gtfs::FEEDB *targetFeed, std::istream *s) const
 
         const StopT &s =
                 StopT(fs.id, fs.code, fs.name, fs.desc, fs.lat, fs.lng, fs.zone_id,
-                      fs.stop_url, fs.location_type, 0, fs.stop_timezone,
+                      fs.stop_url, fs.location_type, nullptr, fs.stop_timezone,
                       fs.wheelchair_boarding, fs.platform_code);
 
         if (!fs.parent_station.empty()) {
@@ -472,7 +472,7 @@ void Parser::parseStops(gtfs::FEEDB *targetFeed, std::istream *s) const
 
     // second pass to resolve parentStation pointers
     for (const auto &ps : parentStations) {
-        StopT *parentStation = 0;
+        StopT *parentStation = nullptr;
         parentStation = targetFeed->getStops().get(ps.second.second);
         if (!parentStation) {
             std::stringstream msg;
@@ -488,7 +488,7 @@ void Parser::parseStops(gtfs::FEEDB *targetFeed, std::istream *s) const
 // ____________________________________________________________________________
 inline gtfs::flat::RouteFlds Parser::getRouteFlds(CsvParser *csvp)
 {
-    gtfs::flat::RouteFlds r;
+    gtfs::flat::RouteFlds r{};
     r.routeIdFld = csvp->getFieldIndex("route_id");
     r.routeLongNameFld = csvp->getOptFieldIndex("route_long_name");
     r.routeShortNameFld = csvp->getOptFieldIndex("route_short_name");
@@ -534,7 +534,7 @@ void Parser::parseRoutes(gtfs::FEEDB *targetFeed, std::istream *s) const
     auto flds = getRouteFlds(&csvp);
 
     while (nextRoute(&csvp, &fr, flds)) {
-        typename AgencyT::Ref routeAgency = 0;
+        typename AgencyT::Ref routeAgency = nullptr;
 
         if (!fr.agency.empty()) {
             routeAgency = targetFeed->getAgencies().get(fr.agency);
@@ -562,7 +562,7 @@ void Parser::parseRoutes(gtfs::FEEDB *targetFeed, std::istream *s) const
 // ____________________________________________________________________________
 inline gtfs::flat::CalendarFlds Parser::getCalendarFlds(CsvParser *csvp)
 {
-    gtfs::flat::CalendarFlds c;
+    gtfs::flat::CalendarFlds c{};
     c.serviceIdFld = csvp->getFieldIndex("service_id");
     c.mondayFld = csvp->getFieldIndex("monday");
     c.tuesdayFld = csvp->getFieldIndex("tuesday");
@@ -608,9 +608,9 @@ void Parser::parseCalendar(gtfs::FEEDB *targetFeed, std::istream *s) const
     auto flds = getCalendarFlds(&csvp);
 
     while (nextCalendar(&csvp, &fc, flds)) {
-        if ((typename ServiceT::Ref()) ==
-            targetFeed->getServices().add(
-                    ServiceT(fc.id, fc.serviceDays, fc.begin, fc.end))) {
+        if (targetFeed->getServices().add(
+
+                    ServiceT(fc.id, fc.serviceDays, fc.begin, fc.end)).empty()) {
             std::stringstream msg;
             msg << "'service_id' must be unique in calendars.txt. Collision with id '"
                 << fc.id << "')";
@@ -623,7 +623,7 @@ void Parser::parseCalendar(gtfs::FEEDB *targetFeed, std::istream *s) const
 inline gtfs::flat::CalendarDateFlds Parser::getCalendarDateFlds(
         CsvParser *csvp)
 {
-    gtfs::flat::CalendarDateFlds c;
+    gtfs::flat::CalendarDateFlds c{};
     c.serviceIdFld = csvp->getFieldIndex("service_id");
     c.exceptionTypeFld = csvp->getFieldIndex("exception_type");
     c.dateFld = csvp->getFieldIndex("date");
@@ -674,7 +674,7 @@ void Parser::parseCalendarDates(gtfs::FEEDB *targetFeed,
 // ____________________________________________________________________________
 inline gtfs::flat::TripFlds Parser::getTripFlds(CsvParser *csvp)
 {
-    gtfs::flat::TripFlds t;
+    gtfs::flat::TripFlds t{};
     t.shapeIdFld = csvp->getOptFieldIndex("shape_id");
     t.tripIdFld = csvp->getFieldIndex("trip_id");
     t.serviceIdFld = csvp->getFieldIndex("service_id");
@@ -721,7 +721,7 @@ void Parser::parseTrips(gtfs::FEEDB *targetFeed, std::istream *s) const
     auto flds = getTripFlds(&csvp);
 
     while (nextTrip(&csvp, &ft, flds)) {
-        RouteT *tripRoute = 0;
+        RouteT *tripRoute = nullptr;
 
         tripRoute = targetFeed->getRoutes().get(ft.route);
         if (!tripRoute) {
@@ -735,7 +735,7 @@ void Parser::parseTrips(gtfs::FEEDB *targetFeed, std::istream *s) const
 
         if (!ft.shape.empty()) {
             tripShape = targetFeed->getShapes().getRef(ft.shape);
-            if (tripShape == (typename ShapeT::Ref())) {
+            if (tripShape.empty()) {
                 std::stringstream msg;
                 msg << "no shape with id '" << ft.shape << "' defined, cannot "
                     << "reference here.";
@@ -746,7 +746,7 @@ void Parser::parseTrips(gtfs::FEEDB *targetFeed, std::istream *s) const
         typename ServiceT::Ref tripService =
                 targetFeed->getServices().getRef(ft.service);
 
-        if ((typename ServiceT::Ref()) == tripService) {
+        if (tripService.empty()) {
             std::stringstream msg;
             msg << "no service with id '" << ft.service << "' defined, cannot "
                 << "reference here.";
@@ -772,7 +772,7 @@ void Parser::parseTrips(gtfs::FEEDB *targetFeed, std::istream *s) const
 // ____________________________________________________________________________
 inline gtfs::flat::ShapeFlds Parser::getShapeFlds(CsvParser *csvp)
 {
-    gtfs::flat::ShapeFlds s;
+    gtfs::flat::ShapeFlds s{};
     s.shapeIdFld = csvp->getFieldIndex("shape_id");
     s.shapePtSequenceFld = csvp->getFieldIndex("shape_pt_sequence");
     s.shapePtLonFld = csvp->getFieldIndex("shape_pt_lon");
@@ -1153,7 +1153,7 @@ void Parser::parseShapes(gtfs::FEEDB *targetFeed, std::istream *s) const
 // ____________________________________________________________________________
 inline gtfs::flat::StopTimeFlds Parser::getStopTimeFlds(CsvParser *csvp)
 {
-    gtfs::flat::StopTimeFlds s;
+    gtfs::flat::StopTimeFlds s{};
     s.stopIdFld = csvp->getFieldIndex("stop_id");
     s.tripIdFld = csvp->getFieldIndex("trip_id");
     s.arrivalTimeFld = csvp->getFieldIndex("arrival_time");
@@ -1227,8 +1227,8 @@ void Parser::parseStopTimes(gtfs::FEEDB *targetFeed, std::istream *s) const
     auto flds = getStopTimeFlds(&csvp);
 
     while (nextStopTime(&csvp, &fst, flds)) {
-        StopT *stop = 0;
-        TripB <StopTimeT<StopT>, ServiceT, RouteT, ShapeT> *trip = 0;
+        StopT *stop = nullptr;
+        TripB <StopTimeT<StopT>, ServiceT, RouteT, ShapeT> *trip = nullptr;
 
         stop = targetFeed->getStops().get(fst.s);
         trip = targetFeed->getTrips().get(fst.trip);
